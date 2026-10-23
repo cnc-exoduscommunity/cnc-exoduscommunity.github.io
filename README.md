@@ -59,9 +59,12 @@ Linked map names open an overhead map. Map images: credit to [vgmaps.de](https:/
 
 | Setting | Value |
 | :-- | :-- |
-| Server | `irc.exoduscommunity.com` |
+| Server | `85.215.107.108` |
 | Port | `6667` (no SSL) |
 | Channel | `#exodus-home` |
+
+All Exodus servers can be found at `85.215.107.108` on their usual ports, so IRC is `85.215.107.108:6667`.
+Don't use `irc.exoduscommunity.com`: the exoduscommunity.com domain has lapsed, so that name no longer reaches the server.
 
 `#exodus-home` only lets in **registered nicknames**, so you have to register yours once ([step 4](#irc-step-4)).
 
@@ -77,7 +80,7 @@ While searching for IRC software, mIRC may appear: this is paid software with a 
 
 ### How to connect
 
-1. <span id="irc-step-1" class="step-anchor">**Add the server.**</span> In your client's server list, add a new network with server `irc.exoduscommunity.com`, port `6667`, and SSL/TLS turned **off**.
+1. <span id="irc-step-1" class="step-anchor">**Add the server.**</span> In your client's server list, add a new network with server `85.215.107.108`, port `6667`, and SSL/TLS turned **off**. In HexChat, the server is written as `85.215.107.108/6667`; leave "Use SSL" unticked.
 2. <span id="irc-step-2" class="step-anchor">**Pick a nickname.**</span> Using your in-game name makes you easy to recognise.
 3. <span id="irc-step-3" class="step-anchor">**Connect.**</span> If you try to join the channel now you will get *"unable to join channel (not using registered nickname)"*, which is expected.
 4. <span id="irc-step-4" class="step-anchor">**Register your nickname.**</span> Because of bot attacks, you must stay connected for **30 minutes** first. Then type:
