@@ -1,22 +1,105 @@
 <!doctype html>
-<html lang="{{ site.lang | default: 'en' }}">
+<html lang="{{ site.lang | default: 'en' }}" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // Picks the theme before the page draws, so it never flashes the wrong colours.
+    // Order: ?theme=light|dark in the URL (also saved), then the saved choice, then dark.
+    (function () {
+      var theme = "dark";
+      try {
+        var fromUrl = new URLSearchParams(location.search).get("theme");
+        if (fromUrl === "light" || fromUrl === "dark") {
+          theme = fromUrl;
+          localStorage.setItem("theme", theme);
+        } else if (localStorage.getItem("theme") === "light") {
+          theme = "light";
+        }
+      } catch (e) {}
+      document.documentElement.setAttribute("data-theme", theme);
+    })();
+  </script>
   {% seo %}
+  <link rel="preload" href="{{ '/assets/fonts/oswald-latin.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
 <body>
+  {%- comment %} The slot keeps the header's space in the page while the header itself
+  is lifted out to follow the page (see "Header that follows the page" in site.js). {% endcomment %}
+  <div class="site-header-slot">
   <header class="site-header">
-    <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
+    <div class="header-inner">
+      {%- assign logo_file = nil -%}
+      {%- if site.logo -%}{%- assign logo_file = site.static_files | where: "path", site.logo | first -%}{%- endif -%}
+      <a class="site-brand" href="{{ '/' | relative_url }}">
+        {%- if logo_file -%}
+        <img class="site-logo" src="{{ site.logo | relative_url }}" alt="{{ site.title }}">
+        {%- else -%}
+        <span class="site-title">{{ site.title }}</span>
+        {%- endif -%}
+      </a>
+
+      {%- if page.sections %}
+      <nav class="header-sections" aria-label="Sections">
+        {%- for section in page.sections %}
+        <a href="#{{ section.id }}">{{ section.title }}</a>
+        {%- endfor %}
+      </nav>
+      {%- endif %}
+
+      <nav class="header-links" aria-label="Community links">
+        {%- if site.server.join_url %}
+        <a class="btn btn-primary" href="{{ site.server.join_url }}" title="Opens Renegade and joins {{ site.server.address }}">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+          Join Server
+        </a>
+        {%- endif %}
+        {%- if site.discord_url %}
+        <a class="btn btn-discord" href="{{ site.discord_url }}">
+          {% include discord-icon.svg %}
+          Discord
+        </a>
+        {%- endif %}
+        {%- if site.steam_url %}
+        <a class="btn btn-steam" href="{{ site.steam_url }}">
+          {% include steam-icon.svg %}
+          Steam
+        </a>
+        {%- endif %}
+        <button class="btn btn-icon theme-toggle" type="button" aria-label="Switch to light theme" title="Switch theme">
+          <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
+          <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z"/></svg>
+        </button>
+      </nav>
+    </div>
   </header>
+  </div>
 
   <main class="content">
     {{ content }}
   </main>
 
   <footer class="site-footer">
-    <p>Fan-made community site. Not affiliated with Electronic Arts.</p>
+    <p>Fan-made community site. Not affiliated with Electronic Arts. Hosted on <a href="https://pages.github.com/">GitHub Pages</a>.</p>
+    {%- comment %} Revision line, from _plugins/last_commit.rb. Falls back to the build time without git. {% endcomment %}
+    {%- assign rev = site.last_commit %}
+    {%- assign rev_time = rev.time | default: site.time %}
+    <p class="site-revision">
+      <span class="site-revision-title">{{ site.title }} - Site Revision:</span>
+      {%- if rev.hash %}
+      {%- if site.repository %}
+      <a class="site-revision-hash" href="https://github.com/{{ site.repository }}/commit/{{ rev.full_hash }}">{{ rev.hash }}</a>
+      {%- else %}
+      <strong class="site-revision-hash">{{ rev.hash }}</strong>
+      {%- endif %}
+      {%- endif %}
+      <time class="site-revision-time" datetime="{{ rev_time | date_to_xmlschema }}" data-epoch="{{ rev_time | date: '%s' }}" title="{{ rev_time | date: '%d-%m-%Y | %H:%M:%S %z' }}">{{ rev_time | date: "%d-%m-%Y | %H:%M:%S %z" }}</time>
+      {%- if rev.branch %} ({{ rev.branch }} branch){% endif %}
+      {%- if site.host_os %} ({{ site.host_os }}){% endif %}
+    </p>
   </footer>
+
+  <script src="{{ '/assets/js/site.js' | relative_url }}"></script>
 </body>
 </html>

@@ -1,0 +1,156 @@
+---
+title: Home
+# Quick links shown in the header once it follows the page (see _layouts/default.html).
+sections:
+  - title: Map rotation
+    id: map-rotation
+  - title: IRC
+    id: irc
+---
+
+<h1 class="page-title">Exodus Community</h1>
+<p class="lead">The Command &amp; Conquer: Renegade <strong>Exodus Co-Op</strong> server.</p>
+
+<section class="panel motd">
+  <div class="panel-tab"><span class="panel-tab-title">Message Of The Day</span></div>
+  <div class="panel-body">
+    <p class="motd-text">Renz0r.net has merged with Exodus: more people on the same great server.</p>
+    <dl class="server-info">
+      <div><dt>Location</dt><dd>Hosted in {{ site.server.location }}</dd></div>
+      <div><dt>Address</dt><dd><code>{{ site.server.address }}</code></dd></div>
+    </dl>
+    {%- if site.server.status_url %}
+    {%- comment %} Live status, filled in by site.js from CnCNet's public server list. Hidden without JavaScript. {% endcomment %}
+    <div class="live-status" data-status-url="{{ site.server.status_url }}" data-address="{{ site.server.address }}" hidden>
+      <div class="live-head">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span class="live-state" aria-live="polite">Checking the server&hellip;</span>
+        <a class="btn btn-primary live-join" href="{{ site.server.join_url }}">
+          <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+          Join Server
+        </a>
+      </div>
+      <dl class="live-grid">
+        <div><dt>Current map</dt><dd class="live-map">-</dd></div>
+        <div><dt>Players</dt><dd class="live-players">-</dd></div>
+        <div><dt>Time left</dt><dd class="live-time">-</dd></div>
+      </dl>
+      <p class="hint live-source">Live data from <a href="{{ site.server.status_source_url }}">{{ site.server.status_source_name }}</a><span class="live-updated"></span> &middot; refreshes every minute</p>
+      <details class="live-player-list" hidden>
+        <summary>Who's playing</summary>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Player</th><th>Team</th><th>Score</th><th>Ping</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+    {%- endif %}
+    <p class="hint">"Join Server" opens the game straight onto the server if your Renegade install handles <code>renegade://</code> links. If nothing happens, join <code>{{ site.server.address }}</code> from the in-game server list.</p>
+    {%- if site.connect_help %}
+    <p class="hint">Not sure how to connect? Have a look at
+      {%- for help in site.connect_help %}
+      {%- if forloop.last and forloop.length > 1 %} or{% elsif forloop.index > 1 %},{% endif %} <a href="{{ help.url }}">{{ help.name }}</a>
+      {%- endfor %}.</p>
+    {%- endif %}
+  </div>
+</section>
+
+<nav class="panel toc" aria-label="Index" data-pin-header-after>
+  <div class="panel-tab"><span class="panel-tab-title">Index</span></div>
+  <div class="panel-body">
+    <ol class="toc-menu">
+      <li>
+        <a class="toc-item" href="#map-rotation">
+          <span class="toc-num">01</span>
+          <span class="toc-text"><span class="toc-title">Map rotation</span><span class="toc-desc">Every map the server plays, in order, with map previews</span></span>
+        </a>
+      </li>
+      <li>
+        <a class="toc-item" href="#irc">
+          <span class="toc-num">02</span>
+          <span class="toc-text"><span class="toc-title">IRC</span><span class="toc-desc">Chat with the community outside the game</span></span>
+        </a>
+        <div class="toc-sub">
+          <a href="#irc-clients">Free clients</a>
+          <a href="#irc-connect">How to connect</a>
+        </div>
+      </li>
+    </ol>
+    <p class="toc-actions">
+      <button class="btn btn-small" type="button" data-expand-all>Expand all</button>
+      <button class="btn btn-small" type="button" data-collapse-all>Collapse all</button>
+    </p>
+  </div>
+</nav>
+
+<details class="panel" id="map-rotation" open>
+  <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
+  <div class="panel-body">
+    <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in [brackets].</p>
+    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include image-icon.svg %}</span> to open a preview of that map.</p>
+    {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
+    <div class="table-wrap">
+      <table class="map-table">
+        <thead><tr><th>Map</th><th>Campaign name / Note</th></tr></thead>
+        <tbody>
+          {%- for map in site.data.maps %}
+          {%- assign map_img = nil %}
+          {%- for ext in map_exts %}
+            {%- assign map_path = "/assets/images/maps/" | append: map.name | append: "." | append: ext %}
+            {%- assign map_file = site.static_files | where: "path", map_path | first %}
+            {%- if map_file and map_img == nil %}{% assign map_img = map_path %}{% endif %}
+          {%- endfor %}
+          {%- assign credit = nil %}
+          {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
+          <tr data-map="{{ map.name | escape }}"{% if map_img %} class="has-preview"{% endif %}>
+            <td><span class="map-cell">
+              {%- if map_img -%}
+              <a class="map-link" href="{{ map_img | relative_url }}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}>{% include image-icon.svg %}<code>{{ map.name }}</code></a>
+              {%- else -%}
+              <code>{{ map.name }}</code>
+              {%- endif -%}
+            </span></td>
+            <td>{{ map.description }}</td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a></p>
+
+    <dialog class="map-dialog" aria-labelledby="map-dialog-title">
+      <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
+      <div class="map-dialog-stage">
+        <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
+        <div class="map-dialog-panel">
+          <span class="now-playing map-dialog-now" hidden><span class="now-playing-dot" aria-hidden="true"></span>Now playing</span>
+          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-name"></span><span class="map-dialog-comment"></span></h3>
+          <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
+            <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
+          </div>
+          <div class="map-dialog-zoom" role="group" aria-label="Zoom">
+            <button class="btn btn-small" type="button" data-zoom="out" aria-label="Zoom out">&minus;</button>
+            <span class="map-dialog-zoom-level" aria-live="polite">100%</span>
+            <button class="btn btn-small" type="button" data-zoom="in" aria-label="Zoom in">+</button>
+            <button class="btn btn-small" type="button" data-zoom="reset">Reset</button>
+          </div>
+          <div class="map-dialog-foot">
+            <p class="map-dialog-credit" hidden>Credit to <a class="map-dialog-credit-name" href=""></a></p>
+            <span class="map-dialog-counter"></span>
+          </div>
+        </div>
+        <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="1" aria-label="Next map">&#10095;</button>
+      </div>
+    </dialog>
+  </div>
+</details>
+
+<details class="panel" id="irc">
+  <summary class="panel-tab"><h2 class="panel-tab-title">IRC</h2></summary>
+  <div class="panel-body">
+    {% capture irc %}{% include irc.md %}{% endcapture %}
+    {{ irc | markdownify }}
+  </div>
+</details>

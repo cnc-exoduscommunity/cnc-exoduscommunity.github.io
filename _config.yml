@@ -6,7 +6,35 @@ lang: en
 # cnc-exoduscommunity.github.io is an organization site served from the
 # domain root, so there is no baseurl.
 url: "https://cnc-exoduscommunity.github.io"
+# GitHub repository, used to link the footer's revision line to its commit.
+repository: "cnc-exoduscommunity/cnc-exoduscommunity.github.io"
 baseurl: ""
+
+# Header logo. If this file does not exist (or the line is removed), the
+# header shows the site title as text instead.
+logo: /assets/images/rg-logo.png
+
+# Links shown in the header and on the home page.
+discord_url: "https://discord.gg/vt4hURUG5a"
+steam_url: "https://steamcommunity.com/groups/Exoduscommunity"
+server:
+  address: "85.215.107.108:4852"
+  join_url: "renegade://85.215.107.108:4852"
+  location: "Europe"
+  # Live status (map, players, time left), read by the visitor's browser from
+  # CnCNet's public server list. Remove this line to hide the live status.
+  status_url: "https://api.cncnet.org/renegade?timeleft=&Time_Remaining=&_players=1&_callback="
+  status_source_name: "CnCNet"
+  status_source_url: "https://cncnet.org/renegade"
+
+# Shown under "Join Server" for players who don't know how to connect.
+connect_help:
+  - name: CnCNet
+    url: https://cncnet.org/renegade
+  - name: W3D Hub
+    url: https://w3dhub.com/
+  - name: Tiberian Technologies
+    url: https://www.tiberiantechnologies.org/
 
 markdown: kramdown
 kramdown:

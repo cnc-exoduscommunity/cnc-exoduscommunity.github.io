@@ -1,30 +1,641 @@
-:root {
-  --bg: #111;
-  --fg: #e6e6e6;
-  --muted: #9a9a9a;
-  --accent: #d4a017;
-  --border: #2a2a2a;
+/*
+ * Exodus Community - styled after Renegade's menus and loading screens:
+ * black and deep red backgrounds with faint circuit lines and a radar dial,
+ * bold condensed yellow titles with a red glow, slanted see-through menu bars
+ * and orange-outlined buttons. Dark is the default; [data-theme="light"] is
+ * the light version. All colours are set here, as variables.
+ */
+
+/* Oswald (SIL Open Font License, see assets/fonts/OFL.txt), hosted with the site. */
+@font-face {
+  font-family: "Oswald";
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url("../fonts/oswald-latin.woff2") format("woff2");
+}
+
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e0100;
+  --bg-glow-1: rgba(150, 22, 0, 0.55);
+  --bg-glow-2: rgba(110, 12, 0, 0.45);
+  --art-opacity: 0.13;
+  --grid-opacity: 0.09;
+  --header: rgba(12, 1, 0, 0.82);
+  --panel: rgba(18, 3, 0, 0.72);
+  --row-alt: rgba(255, 140, 40, 0.05);
+  --row-hover: rgba(255, 140, 40, 0.12);
+  --bar: rgba(160, 120, 30, 0.42);
+  --bar-hover: rgba(190, 140, 30, 0.6);
+  --border: #e88a2e;
+  --border-soft: rgba(232, 138, 46, 0.35);
+  --text: #f6dcb0;
+  --muted: #c9a57a;
+  --title: #ffd21a;
+  --title-shadow: 1px 1px 0 #5a0000, 2px 2px 0 #3a0000, 0 0 14px rgba(255, 60, 0, 0.6);
+  --link: #ffc93a;
+  --code-bg: rgba(0, 0, 0, 0.45);
+  --btn-bg: rgba(70, 8, 0, 0.55);
+  --btn-hover: rgba(120, 18, 0, 0.7);
+  --btn-text: #ffd27a;
+  --btn-glow: 0 0 12px rgba(255, 110, 20, 0.55);
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f1e6d4;
+  --bg-glow-1: rgba(230, 120, 60, 0.22);
+  --bg-glow-2: rgba(200, 60, 20, 0.12);
+  --art-opacity: 0.1;
+  --grid-opacity: 0.08;
+  --header: rgba(255, 250, 242, 0.92);
+  --panel: rgba(255, 251, 245, 0.92);
+  --row-alt: rgba(196, 85, 26, 0.06);
+  --row-hover: rgba(196, 85, 26, 0.13);
+  --bar: rgba(196, 120, 26, 0.22);
+  --bar-hover: rgba(196, 120, 26, 0.36);
+  --border: #c4551a;
+  --border-soft: rgba(196, 85, 26, 0.35);
+  --text: #2a140a;
+  --muted: #6e4a32;
+  --title: #9a1c00;
+  --title-shadow: none;
+  --link: #a52a00;
+  --code-bg: rgba(196, 85, 26, 0.08);
+  --btn-bg: rgba(255, 244, 228, 0.9);
+  --btn-hover: #f6dcc0;
+  --btn-text: #8a1a00;
+  --btn-glow: 0 0 10px rgba(196, 85, 26, 0.3);
 }
 
 * { box-sizing: border-box; }
 
+/* Elements marked hidden stay hidden, even when a rule below gives them a display style. */
+[hidden] { display: none !important; }
+
+html { scroll-padding-top: 5rem; } /* room for the header that follows the page */
+
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
+  min-height: 100vh;
+  color: var(--text);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 25% 15%, var(--bg-glow-1), transparent 70%),
+    radial-gradient(ellipse 60% 60% at 85% 75%, var(--bg-glow-2), transparent 70%);
+  background-attachment: fixed;
   font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  position: relative;
 }
 
-a { color: var(--accent); }
+/* Background art: a faint circuit grid over the whole page and a radar dial on the right. */
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+}
+body::before {
+  inset: 0;
+  background: url("../images/circuit.svg") repeat;
+  opacity: var(--grid-opacity);
+}
+body::after {
+  width: min(900px, 110vw);
+  aspect-ratio: 1;
+  right: max(-300px, -25vw);
+  top: 50%;
+  transform: translateY(-45%);
+  background: url("../images/radar.svg") center / contain no-repeat;
+  opacity: var(--art-opacity);
+}
 
-.site-header,
-.content,
+a { color: var(--link); }
+a:hover { text-decoration: none; }
+
+h1, h2, h3,
+.btn,
+.panel-tab-title,
+.site-title,
+th {
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  letter-spacing: 0.02em;
+}
+
+h1, h2, h3 { color: var(--title); line-height: 1.2; text-shadow: var(--title-shadow); font-weight: 700; }
+h3 { margin-top: 1.75rem; font-size: 1.3rem; }
+
+.icon { width: 1.15em; height: 1.15em; flex: none; }
+
+/* ---------- Header ---------- */
+
+.site-header {
+  background: var(--header);
+  border-bottom: 2px solid var(--border);
+  box-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.header-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+/* Header that follows the page (see site.js): it is lifted out of the page
+   (position: fixed) once scrolled past, hidden above the screen, and slides
+   in compact once the Index box reaches the top. */
+.site-header-slot { position: relative; z-index: 50; }
+.site-header.is-floating { position: fixed; top: 0; left: 0; right: 0; }
+.site-header.is-hidden { transform: translateY(-110%); }
+.site-header.is-pinned { transform: translateY(0); transition: transform 0.25s ease-out; box-shadow: 0 2px 22px rgba(0, 0, 0, 0.65); }
+.site-header.is-pinned .header-inner { padding-top: 0.35rem; padding-bottom: 0.35rem; }
+.site-header.is-pinned .site-logo { height: 40px; }
+.site-header.is-pinned .btn { padding-top: 0.3rem; padding-bottom: 0.3rem; font-size: 0.95rem; }
+
+/* Section quick links: only shown while the header follows the page. */
+.header-sections { display: none; flex-wrap: wrap; gap: 0.35rem; margin-right: auto; margin-left: 0.5rem; }
+.site-header.is-pinned .header-sections { display: flex; }
+.header-sections a {
+  padding: 0.25rem 0.85rem 0.25rem 1.2rem;
+  background: var(--bar);
+  clip-path: polygon(0.6rem 0, 100% 0, 100% 100%, 0 100%);
+  color: var(--title);
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.header-sections a:hover { background: var(--bar-hover); }
+
+.site-brand { display: inline-flex; align-items: center; text-decoration: none; }
+.site-logo { display: block; height: 60px; width: auto; filter: drop-shadow(0 0 8px rgba(255, 80, 0, 0.35)); }
+.site-title { color: var(--title); font-weight: 700; font-size: 1.6rem; text-shadow: var(--title-shadow); }
+
+.header-links { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+
+/* ---------- Buttons (like the in-game Options / Refresh / Join Game buttons) ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 1.1rem;
+  border: 2px solid var(--border);
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), inset 0 0 0 3px var(--border-soft);
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  font-size: 1.02rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.btn:hover {
+  background: var(--btn-hover);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.55), inset 0 0 0 3px var(--border-soft), var(--btn-glow);
+}
+.btn:focus-visible, summary:focus-visible { outline: 2px solid var(--title); outline-offset: 2px; }
+
+.btn-small { padding: 0.25rem 0.75rem; font-size: 0.9rem; }
+
+.btn-discord { background: #5865f2; border-color: #8a93ff; color: #fff; }
+.btn-discord:hover { background: #4752c4; }
+
+.btn-steam { background: linear-gradient(135deg, #1b2838, #2a475e); border-color: #66c0f4; color: #fff; }
+.btn-steam:hover { background: linear-gradient(135deg, #2a475e, #3d6c8d); }
+
+.btn-icon { padding: 0.45rem 0.6rem; }
+
+/* Header buttons share one fixed height; the theme toggle is a square of that size. */
+.header-links { --hdr-btn: 2.75rem; }
+.site-header.is-pinned .header-links { --hdr-btn: 2.35rem; }
+.header-links .btn { height: var(--hdr-btn); padding-top: 0; padding-bottom: 0; }
+.header-links .btn-icon { width: var(--hdr-btn); padding: 0; justify-content: center; }
+[data-theme="dark"] .theme-toggle .icon-moon,
+[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+
+/* ---------- Page ---------- */
+
+.content { max-width: 1000px; margin: 0 auto; padding: 1.75rem 1rem 2rem; }
+
+.page-title { margin: 0.25rem 0 0.25rem; font-size: clamp(2.2rem, 6vw, 3.2rem); text-transform: none; }
+.lead { margin: 0 0 1.75rem; color: var(--muted); font-size: 1.05rem; }
+
+/* Panels: a slanted see-through title bar (like the main menu items) over an outlined box. */
+
+.panel { margin: 0 0 1.75rem; }
+
+.panel-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.35rem 1.25rem 0.35rem 2.25rem;
+  background: var(--bar);
+  clip-path: polygon(1.5rem 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.panel-tab-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--title);
+  text-shadow: var(--title-shadow);
+}
+
+.panel-body {
+  margin-top: 0.5rem;
+  padding: 1.1rem 1.35rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--panel);
+  backdrop-filter: blur(3px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+.panel-body > :first-child { margin-top: 0; }
+.panel-body > :last-child { margin-bottom: 0; }
+
+/* Collapsible panels */
+summary.panel-tab { cursor: pointer; list-style: none; user-select: none; transition: background 0.15s; }
+summary.panel-tab::-webkit-details-marker { display: none; }
+summary.panel-tab:hover { background: var(--bar-hover); }
+summary.panel-tab::after {
+  content: "";
+  margin-left: auto;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-right: 3px solid var(--title);
+  border-bottom: 3px solid var(--title);
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+details[open] > summary.panel-tab::after { transform: rotate(45deg); }
+
+/* Message of the day */
+.motd-text {
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  color: var(--title);
+  text-shadow: var(--title-shadow);
+}
+
+.server-info { display: flex; flex-wrap: wrap; gap: 0.5rem 2.5rem; margin: 1rem 0; }
+.server-info dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.server-info dd { margin: 0; }
+
+.hint { font-size: 0.875rem; color: var(--muted); }
+
+/* Index: stacked, slanted menu bars like Renegade's main menu, each one stepped a little further right. */
+.toc-menu { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+.toc-menu > li:nth-child(2) { margin-left: 1.25rem; }
+.toc-menu > li:nth-child(3) { margin-left: 2.5rem; }
+.toc-menu > li:nth-child(4) { margin-left: 3.75rem; }
+
+.toc-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.55rem 1.25rem 0.55rem 2rem;
+  background: var(--bar);
+  clip-path: polygon(1.25rem 0, 100% 0, 100% 100%, 0 100%);
+  text-decoration: none;
+  transition: background 0.15s, transform 0.15s;
+}
+.toc-item:hover, .toc-item:focus-visible { background: var(--bar-hover); transform: translateX(0.4rem); outline: none; }
+.toc-num {
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--border);
+  opacity: 0.85;
+}
+.toc-text { display: flex; flex-direction: column; }
+.toc-title {
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--title);
+  text-shadow: var(--title-shadow);
+}
+.toc-desc { font-size: 0.9rem; color: var(--text); opacity: 0.85; }
+
+.toc-sub { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.45rem 0 0 3.6rem; }
+.toc-sub a {
+  padding: 0.15rem 0.7rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  color: var(--btn-text);
+  font-size: 0.88rem;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.toc-sub a::before { content: "\203A  "; color: var(--border); }
+.toc-sub a:hover { background: var(--row-hover); border-color: var(--border); }
+
+.toc-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem; }
+
+@media (max-width: 600px) {
+  .toc-menu > li:nth-child(n) { margin-left: 0; }
+  .toc-num { font-size: 1.6rem; }
+  .toc-title { font-size: 1.25rem; }
+  .toc-sub { margin-left: 1.5rem; }
+}
+
+/* ---------- Content elements ---------- */
+
+code {
+  background: var(--code-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 3px;
+  padding: 0.1em 0.35em;
+  font-size: 0.9em;
+}
+pre { background: var(--code-bg); border: 1px solid var(--border-soft); padding: 0.75rem; overflow-x: auto; }
+pre code { border: 0; padding: 0; background: none; }
+
+/* Tables, like the in-game server list: underlined headings, no grid lines. */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+th, td { padding: 0.4rem 0.8rem; text-align: left; vertical-align: top; }
+th {
+  color: var(--title);
+  font-size: 1.05rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  border-bottom: 1px solid var(--border-soft);
+}
+tbody tr:nth-child(even) { background: var(--row-alt); }
+tbody tr:hover { background: var(--row-hover); }
+td:first-child { white-space: nowrap; }
+
+/* OS icons (Bootstrap Icons, MIT): each SVG is used as a mask, so it takes the theme's colour. */
+.os-icon {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  vertical-align: middle;
+  background-color: var(--title);
+  -webkit-mask: center / contain no-repeat;
+  mask: center / contain no-repeat;
+}
+.os-windows { -webkit-mask-image: url("../images/os/windows.svg"); mask-image: url("../images/os/windows.svg"); }
+.os-macos { -webkit-mask-image: url("../images/os/macos.svg"); mask-image: url("../images/os/macos.svg"); }
+.os-linux { -webkit-mask-image: url("../images/os/linux.svg"); mask-image: url("../images/os/linux.svg"); }
+td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
+
+/* ---------- Footer ---------- */
+
 .site-footer {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 1rem;
+  border-top: 1px solid var(--border-soft);
+  color: var(--muted);
+  font-size: 0.875rem;
 }
 
-.site-header { border-bottom: 1px solid var(--border); }
-.site-title { font-weight: 700; font-size: 1.25rem; text-decoration: none; }
-.site-footer { border-top: 1px solid var(--border); color: var(--muted); font-size: 0.875rem; }
+@media (max-width: 600px) {
+  /* Small screens: Discord and Steam show just their logos, so the header fits on one row.
+     (font-size 0 hides the word visually; screen readers still read it.) */
+  .site-header .header-links .btn-discord, .site-header .header-links .btn-steam { font-size: 0; gap: 0; padding: 0; width: var(--hdr-btn); justify-content: center; }
+  .header-links .btn-discord .icon, .header-links .btn-steam .icon { width: 1.25rem; height: 1.25rem; }
+  html { scroll-padding-top: 7.5rem; }
+  .site-header.is-pinned .site-brand { display: none; }
+  .site-header.is-pinned .header-sections { width: 100%; justify-content: center; margin: 0; }
+  .site-logo { height: 46px; }
+  .header-inner { justify-content: center; }
+  .panel-tab-title { font-size: 1.35rem; }
+  .panel-body { padding: 0.9rem; }
+  body::after { opacity: calc(var(--art-opacity) * 0.7); }
+}
+
+/* ---------- Map previews ---------- */
+
+.map-link { display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
+.map-link code { text-decoration: underline; text-decoration-color: var(--border-soft); text-underline-offset: 3px; }
+.map-link:hover code { text-decoration-color: var(--link); background: var(--row-hover); }
+.map-link-icon { color: var(--link); }
+.map-link-icon-inline .icon { vertical-align: -0.15em; color: var(--link); }
+
+/* Full-screen dialog: round prev/next buttons hug the map panel's sides (like the Gears DB map modal). */
+.map-dialog {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  overflow: hidden;
+}
+.map-dialog[open] { display: flex; align-items: center; justify-content: center; }
+.map-dialog::backdrop { background: rgba(8, 0, 0, 0.85); backdrop-filter: blur(2px); }
+
+.map-dialog-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  height: 100%;
+  padding: 3.5rem 1rem;
+}
+
+.map-dialog-panel {
+  width: min(600px, calc(100vw - 9rem), calc(100vh - 16rem));
+  flex: none;
+  padding: 0.9rem 1rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  background-image: linear-gradient(var(--panel), var(--panel));
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), var(--btn-glow);
+}
+.map-dialog-title { margin: 0 0 0.6rem; font-size: 1.6rem; line-height: 1.2; }
+.map-dialog-name, .map-dialog-comment { display: block; }
+.map-dialog-comment { margin-top: 0.15rem; font-size: 0.62em; font-weight: 500; color: var(--btn-text); text-shadow: none; }
+.map-dialog-comment:empty { display: none; }
+
+/* Zoomable map: the image is scaled and moved inside a fixed square. */
+.map-dialog-viewport {
+  max-height: calc(100vh - 17rem);
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 1px solid var(--border-soft);
+  background: #000;
+  cursor: zoom-in;
+  touch-action: none;
+  user-select: none;
+}
+.map-dialog-viewport.is-zoomed { cursor: grab; }
+.map-dialog-viewport.is-zoomed:active { cursor: grabbing; }
+.map-dialog-image { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform; }
+
+.map-dialog-zoom { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.6rem; }
+.map-dialog-zoom .btn { min-width: 2.2rem; justify-content: center; }
+.map-dialog-zoom-level { min-width: 3.5rem; text-align: center; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.map-dialog-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 0.55rem; font-size: 0.85rem; color: var(--muted); }
+.map-dialog-credit { margin: 0; overflow-wrap: anywhere; }
+.map-dialog-counter { margin-left: auto; white-space: nowrap; }
+
+.map-dialog-btn {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  background: var(--btn-bg);
+  color: var(--btn-text);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.map-dialog-btn:hover { background: var(--btn-hover); box-shadow: var(--btn-glow); }
+.map-dialog-btn:focus-visible { outline: 2px solid var(--title); outline-offset: 2px; }
+.map-dialog-close { position: fixed; top: 1rem; right: 1rem; z-index: 2; width: 2.5rem; height: 2.5rem; }
+
+@media (max-width: 600px) {
+  .map-dialog-stage { gap: 0.4rem; padding: 3.5rem 0.4rem; }
+  .map-dialog-panel { width: min(calc(100vw - 6.5rem), calc(100vh - 15rem)); padding: 0.6rem; }
+  .map-dialog-btn { width: 2.4rem; height: 2.4rem; font-size: 0.95rem; }
+  .map-dialog-close { width: 2.25rem; height: 2.25rem; top: 0.6rem; right: 0.6rem; }
+  .map-dialog-title { font-size: 1.25rem; }
+}
+
+/* Footer revision line (last commit) */
+.site-footer p { margin: 0.3rem 0; }
+.site-revision { font-size: 0.8rem; color: var(--muted); overflow-wrap: anywhere; }
+.site-revision-title { font-weight: 700; }
+.site-revision-hash { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 700; color: var(--link); }
+
+/* Linked steps ("step 4"): briefly highlight the step that was jumped to. */
+.step-anchor { scroll-margin-top: 1rem; border-radius: 3px; }
+.step-anchor:target { animation: step-flash 2s ease-out; }
+@keyframes step-flash {
+  0%, 30% { background: var(--bar-hover); box-shadow: 0 0 0 4px var(--bar-hover); }
+  100% { background: transparent; box-shadow: 0 0 0 4px transparent; }
+}
+
+/* ---------- Live server status (Message Of The Day) ---------- */
+
+.live-status {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 3px;
+  background: var(--row-alt);
+}
+.live-head { display: flex; align-items: center; gap: 0.6rem; }
+.live-join { margin-left: auto; }
+.live-state { font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-weight: 600; font-size: 1.1rem; letter-spacing: 0.03em; }
+
+.live-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--muted); flex: none; }
+.live-status[data-state="online"] .live-dot { background: #3ddc5a; box-shadow: 0 0 8px #3ddc5a; animation: live-pulse 2s ease-in-out infinite; }
+.live-status[data-state="online"] .live-state { color: #5fe57a; }
+.live-status[data-state="offline"] .live-dot { background: #e5483a; }
+.live-status[data-state="offline"] .live-state { color: #ff7a6b; }
+[data-theme="light"] .live-status[data-state="online"] .live-state { color: #17803a; }
+[data-theme="light"] .live-status[data-state="offline"] .live-state { color: #b3261e; }
+@keyframes live-pulse { 50% { box-shadow: 0 0 2px #3ddc5a; } }
+
+.live-grid { display: flex; flex-wrap: wrap; gap: 0.5rem 2.5rem; margin: 0.6rem 0 0; }
+.live-grid dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.live-grid dd { margin: 0; font-weight: 600; }
+.live-map a, .live-map > span:first-child { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.live-map-note { display: block; margin-top: 0.1rem; font-weight: 400; color: var(--text); }
+
+.live-player-list { margin-top: 0.6rem; }
+.live-player-list summary { cursor: pointer; color: var(--link); }
+.live-player-list table { margin: 0.4rem 0 0; font-size: 0.92rem; }
+.live-source { margin: 0.4rem 0 0; }
+.live-player-list td { vertical-align: middle; }
+.live-player-list th:nth-child(2), .live-player-list td:nth-child(2) { text-align: center; } /* Team */
+
+/* Team badges in "Who's playing": GDI gold, Nod red. */
+.team-badge {
+  display: inline-block;
+  min-width: 3.2rem;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid;
+  border-radius: 3px;
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+.team-gdi { color: #ffd34d; border-color: #d6a21e; background: rgba(214, 162, 30, 0.18); }
+.team-nod { color: #ff5a4a; border-color: #c8102e; background: rgba(200, 16, 46, 0.22); }
+.team-other { color: var(--text); border-color: var(--border-soft); }
+[data-theme="light"] .team-gdi { color: #7a5500; background: #fbefc8; }
+[data-theme="light"] .team-nod { color: #a00d25; background: #fbe0e3; }
+
+/* Rows with a map preview: the whole row is clickable. */
+tr.has-preview { cursor: pointer; }
+tr.has-preview:hover { background: var(--bar) !important; }
+tr.has-preview:hover .map-link code { text-decoration-color: var(--link); }
+
+/* The map being played right now, in the rotation table. */
+.map-cell { display: inline-flex; align-items: center; gap: 0.5rem; vertical-align: middle; }
+tr.is-current { background: var(--bar) !important; }
+tr.is-current td { vertical-align: middle; }
+
+.now-playing {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.55rem 0.12rem 0.45rem;
+  border: 1px solid #3ddc5a;
+  border-radius: 3px;
+  background: rgba(8, 40, 14, 0.85);
+  color: #6dff8a;
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 0 8px rgba(61, 220, 90, 0.35);
+}
+.now-playing-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #3ddc5a;
+  box-shadow: 0 0 6px #3ddc5a;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+/* Same badge in the map preview's top-right corner. */
+.map-dialog-panel { position: relative; }
+.map-dialog-now { position: absolute; top: 0.9rem; right: 1rem; z-index: 1; }
+/* Room for the badge is always kept, so the box doesn't change size between maps. */
+.map-dialog-title { padding-right: 8.5rem; }
+@media (max-width: 600px) {
+  .map-dialog-now { top: 0.6rem; right: 0.6rem; }
+  .map-dialog-title { padding-right: 0; padding-top: 1.6rem; }
+}
+[data-theme="light"] .now-playing { background: #e3f7e7; color: #17803a; border-color: #2fb04e; box-shadow: none; }
