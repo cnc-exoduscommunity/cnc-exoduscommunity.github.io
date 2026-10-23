@@ -1,0 +1,73 @@
+# Map rotation, in the order the server plays them (in game: !rotation).
+# name: the map file name. description: campaign mission name and/or a note.
+# image_credit: key from _data/credits.yml, shown under the map's preview.
+#
+# A map gets a clickable preview when assets/images/maps/<name>.webp
+# (or .png / .jpg) exists, e.g. assets/images/maps/M01.webp.
+- name: ttm1
+  description: Custom map
+- name: City
+  description: Original multiplayer map, changed to allow co-op
+- name: Complex
+  description: Original multiplayer map, changed to allow co-op
+- name: Walls
+  description: Original multiplayer map, changed to allow co-op
+- name: Mesa
+  description: Original multiplayer map, changed to allow co-op
+- name: Canyon
+  description: Original multiplayer map, changed to allow co-op
+- name: Under
+  description: Original multiplayer map, changed to allow co-op
+- name: Coop_B01_B6
+  description: Custom co-op map
+- name: Coop_B02_B10
+  description: Custom co-op map
+- name: Coop_Tropics_B1
+  description: Custom co-op map
+- name: Volcano
+  description: Original multiplayer map, changed to allow co-op
+- name: Islands
+  description: Original multiplayer map, changed to allow co-op
+- name: Hourglass
+  description: Original multiplayer map, changed to allow co-op
+- name: Skirmish00
+  description: Original skirmish map
+- name: M00_Tutorial
+  description: Tutorial - campaign training level
+  image_credit: vgmaps
+- name: M13
+  description: "Mission 1: The Scorpion Hunters - the first mission's file is numbered 13"
+  image_credit: vgmaps
+- name: M01
+  description: "Mission 2: Rescue and Retribution"
+  image_credit: vgmaps
+- name: M02
+  description: "Mission 3: Armored Assault"
+  image_credit: vgmaps
+- name: M03
+  description: "Mission 4: The Plot Erupts"
+  image_credit: vgmaps
+- name: M04
+  description: "Mission 5: Stowaway"
+  image_credit: vgmaps
+- name: M05
+  description: "Mission 6: Deadly Reunion"
+  image_credit: vgmaps
+- name: M06
+  description: "Mission 7: The Grip of the Black Hand"
+  image_credit: vgmaps
+- name: M07
+  description: "Mission 8: Obelisk of Oppression"
+  image_credit: vgmaps
+- name: M08
+  description: "Mission 9: Evolution of Evil"
+  image_credit: vgmaps
+- name: M09
+  description: "Mission 10: All Brains, No Brawn"
+  image_credit: vgmaps
+- name: M10
+  description: "Mission 11: Tomorrow's Technology Today"
+  image_credit: vgmaps
+- name: M11
+  description: "Mission 12: Stomping on Holy Ground"
+  image_credit: vgmaps

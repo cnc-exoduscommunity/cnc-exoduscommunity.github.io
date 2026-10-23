@@ -1,0 +1,4 @@
+# Image credits, referred to by key from _data/maps.yml (image_credit: <key>).
+vgmaps:
+  name: vgmaps.de
+  url: https://vgmaps.de/maps/pc/command-and-conquer-renegade
