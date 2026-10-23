@@ -1,0 +1,32 @@
+# Site settings. Changes here need a server restart to show up locally.
+title: "Exodus Community"
+description: "Command & Conquer: Renegade - Exodus Co-Op community site."
+lang: en
+
+# cnc-exoduscommunity.github.io is an organization site served from the
+# domain root, so there is no baseurl.
+url: "https://cnc-exoduscommunity.github.io"
+baseurl: ""
+
+markdown: kramdown
+kramdown:
+  input: GFM
+highlighter: rouge
+
+plugins:
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: "default"
+
+exclude:
+  - README.md
+  - tools/
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - .bundle/
