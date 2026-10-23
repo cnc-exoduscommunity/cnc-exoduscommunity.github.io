@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none" stroke="#ff5a1e" stroke-width="1">
+  <!-- Faint circuit-board tile drawn for this site. -->
+  <path d="M0 20h40l10 10h40M120 0v30l-10 10v40M0 90h30v30h50l10 10h70M60 160v-20l10-10M140 60h20M140 60v40h-30M20 140h20v20"/>
+  <rect x="88" y="26" width="8" height="8"/><rect x="106" y="78" width="8" height="8"/><rect x="26" y="86" width="8" height="8"/><rect x="132" y="56" width="8" height="8"/>
+  <circle cx="40" cy="20" r="2"/><circle cx="80" cy="120" r="2"/><circle cx="110" cy="100" r="2"/>
+</svg>
