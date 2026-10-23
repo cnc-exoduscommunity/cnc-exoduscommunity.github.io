@@ -65,7 +65,9 @@ for /f "tokens=5" %%P in ('netstat -ano ^| findstr /c:":%JEKYLL_PORT% " ^| finds
 if "%FOUND_OLD%"=="1" timeout /t 1 /nobreak >nul
 
 echo Open http://localhost:%JEKYLL_PORT% when the server is ready. Press Ctrl+C to stop it.
+echo Saving any file rebuilds the site; changing _config.yml restarts the server by itself.
 echo.
 
-call bundle exec jekyll serve --host %JEKYLL_HOST% --port %JEKYLL_PORT% --livereload --incremental
+rem Serves the site, rebuilding on every change and restarting when _config.yml changes.
+ruby tools\serve.rb %JEKYLL_HOST% %JEKYLL_PORT%
 pause
