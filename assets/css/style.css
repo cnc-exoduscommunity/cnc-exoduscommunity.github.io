@@ -428,8 +428,8 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 /* ---------- Map previews ---------- */
 
 .map-link { display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
-.map-link code { text-decoration: underline; text-decoration-color: var(--border-soft); text-underline-offset: 3px; }
-.map-link:hover code { text-decoration-color: var(--link); background: var(--row-hover); }
+.map-link code { text-decoration: none; }
+.map-link:hover code { border-color: var(--link); background: var(--row-hover); }
 .map-link-icon { color: var(--link); }
 .map-link-icon-inline .icon { vertical-align: -0.15em; color: var(--link); }
 
@@ -596,7 +596,7 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 /* Rows with a map preview: the whole row is clickable. */
 tr.has-preview { cursor: pointer; }
 tr.has-preview:hover { background: var(--bar) !important; }
-tr.has-preview:hover .map-link code { text-decoration-color: var(--link); }
+tr.has-preview:hover .map-link code { border-color: var(--link); }
 
 /* The map being played right now, in the rotation table. */
 .map-cell { display: inline-flex; align-items: center; gap: 0.5rem; vertical-align: middle; }

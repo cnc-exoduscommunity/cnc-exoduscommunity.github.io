@@ -363,12 +363,19 @@ function makeZoom(viewport, img, label) {
     return String(t).replace(/\./g, ":");
   }
 
+  // CnCNet reports the original maps with a "C&C_" prefix ("C&C_City"),
+  // while the rotation table uses the short name ("City").
+  function sameMap(a, b) {
+    function norm(s) { return String(s || "").toLowerCase().replace(/^c&c_/, "").replace(/\.mix$/, ""); }
+    return norm(a) === norm(b);
+  }
+
   function markCurrentMap(name) {
     document.querySelectorAll("tr.is-current").forEach(function (tr) { tr.classList.remove("is-current"); });
     document.querySelectorAll("tr .now-playing").forEach(function (b) { b.remove(); });
     if (!name) return;
     document.querySelectorAll("tr[data-map]").forEach(function (tr) {
-      if (tr.getAttribute("data-map").toLowerCase() !== name.toLowerCase()) return;
+      if (!sameMap(tr.getAttribute("data-map"), name)) return;
       tr.classList.add("is-current");
       var badge = document.createElement("span");
       badge.className = "now-playing";
@@ -383,10 +390,10 @@ function makeZoom(viewport, img, label) {
     mapEl.textContent = "";
     if (!name) { mapEl.textContent = "-"; return; }
     var preview = Array.prototype.find.call(document.querySelectorAll(".map-link"), function (a) {
-      return a.getAttribute("data-map-name").toLowerCase() === name.toLowerCase();
+      return sameMap(a.getAttribute("data-map-name"), name);
     });
     var row = document.querySelector('tr[data-map]') && Array.prototype.find.call(document.querySelectorAll("tr[data-map]"), function (tr) {
-      return tr.getAttribute("data-map").toLowerCase() === name.toLowerCase();
+      return sameMap(tr.getAttribute("data-map"), name);
     });
     var label = document.createElement(preview ? "a" : "span");
     label.textContent = name;
