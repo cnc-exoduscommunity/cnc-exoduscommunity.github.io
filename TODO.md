@@ -1,7 +1,7 @@
-# TODO: player list from IRC (ExaBot)
+# TODO: player list from IRC
 
-Branch for getting the real player list on Nod maps. Merge into `main` only
-when it works.
+Getting the real player list on Nod maps, where the server reports 0 players.
+Nothing here is built yet.
 
 ## Why
 
@@ -29,7 +29,24 @@ worth reporting to the server admin; fixing it there fixes everything.
 ExaBot does **not** answer private messages, and it sometimes skips a request
 (ask again after ~10-15 s).
 
-## Plan: listen in #Mission-Coop (no commands, no spam)
+## Chosen plan: ExaBot `!pl` once an hour + listen in between
+
+- `!pl` (ExaBot) gives the full, correct list with scores. Ask it at most once
+  an hour, and only on a **Nod map where the servers say 0 players**; also
+  once when a new Nod map starts. Maps run ~2 hours, so ~2-3 `!pl` per Nod map
+  and none on GDI maps (8 lines per `!pl` in `#Mission-Coop`).
+- In between, keep the list from BRenBot's join / leave / kill lines below.
+- If ExaBot skips the request, wait ~15 s and ask once more; otherwise keep
+  the listened list until the next hour.
+- Scores are only as fresh as the last `!pl`: show "scores as of hh:mm".
+
+Timing: a job starts every 30 minutes and stays connected ~35 minutes
+(`concurrency: cancel-in-progress` hands over to the newer one), so one is
+almost always listening. Store the time of the last `!pl` in `players.json`.
+If GitHub starts a job late, joins/leaves in the gap are missed until the
+next kill line or `!pl` (at most an hour).
+
+## Listening in #Mission-Coop (no commands)
 
 Mission-Coop (BRenBot) posts joins, leaves and kills in `#Mission-Coop` by
 itself, even on Nod maps (seen 31-10-2026):
@@ -58,8 +75,8 @@ ExaBot's `!pl` (posts in the channel) stays as a manual check only.
 
 ## Before building
 
-- [ ] Permission from Deth to have a listening bot nick in `#Mission-Coop`
-      (asked 31-10-2026; it never types anything)
+- [ ] Permission from Deth for a bot nick in `#Mission-Coop` that listens,
+      and types `!pl` at most once an hour, only on Nod maps (asked 31-10-2026)
 - [ ] Register the bot nick (e.g. `ryanMapListGithub`, max 30 characters;
       MAXNICKLEN=30): connect, wait 30 minutes,
       `/msg NickServ REGISTER <password> <email>`
@@ -69,22 +86,21 @@ ExaBot's `!pl` (posts in the channel) stays as a manual check only.
 
 ## Build
 
-- [ ] Workflow every 5 minutes (GitHub's minimum) that stays connected for
-      ~5 minutes, so there is (almost) always one listening; keep the list
-      between runs in `players.json` on the `server-status` branch
+- [ ] Workflow every 30 minutes that stays connected ~35 minutes (see Timing);
+      keep the list between runs in `players.json` on the `server-status` branch
 - [ ] Connect to `85.215.107.108:6667`, identify with `IRC_PASSWORD`, join
-      `#Mission-Coop`, read only - never send a message to the channel
-- [ ] Save `players.json`: map, list of names, `checked_at`
+      `#Mission-Coop`; the only thing it ever sends is the hourly `!pl`
+- [ ] Save `players.json` every minute: map, names (+ scores from the last
+      `!pl`), `checked_at`, `last_pl_at`
 - [ ] Site: when CnCNet / the direct check say 0 players and `players.json`
-      is recent, show its count and names, with an "IRC" badge (no scores:
-      kill lines don't give them)
+      is recent, show its count and names, with an "IRC" badge
 
-## Other option: ExaBot `!pl`
+## Notes on ExaBot
 
-ExaBot's `!pl` gives names and scores, but it only answers in a channel (not
-by private message), sometimes skips a request, and every 5 minutes would spam
-`#Mission-Coop`. Only worth it with a quiet channel that ExaBot's owner
-(PruServ) adds ExaBot to.
+ExaBot only answers in a channel (not by private message) and sometimes skips
+a request. Asking every 5 minutes would spam `#Mission-Coop`, hence once an
+hour. With a quiet channel that ExaBot's owner (PruServ) adds ExaBot to, it
+could ask more often.
 
 ## Better alternative
 
