@@ -128,7 +128,8 @@ sections:
             {%- if map.objectives %}
             <ol class="map-objectives" hidden>
               {%- for step in map.objectives %}
-              <li>{{ step | escape | replace: "GDI", '<span class="team-badge team-badge-inline team-gdi">GDI</span>' | replace: "Nod", '<span class="team-badge team-badge-inline team-nod">Nod</span>' }}</li>
+              {%- assign optional = step | slice: 0, 9 %}
+              <li{% if optional == "Optional:" %} class="objective-optional"{% endif %}>{{ step | escape | replace: "Optional:", '<strong>Optional:</strong>' | replace: "GDI", '<span class="team-badge team-badge-inline team-gdi">GDI</span>' | replace: "Nod", '<span class="team-badge team-badge-inline team-nod">Nod</span>' }}</li>
               {%- endfor %}
             </ol>
             {%- endif %}</td>

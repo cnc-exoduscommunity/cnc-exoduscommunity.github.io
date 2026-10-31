@@ -4,6 +4,7 @@
 # faction: GDI or Nod - the side players are on. Leave it out to show "-".
 # objectives: what the map tells you to do (top left in game), one line per step.
 #   Leave it out to show "-". The words GDI and Nod are shown as faction badges.
+#   A step starting with "Optional:" is shown without a number.
 # image_credit: key from _data/credits.yml, shown under the map's preview.
 #
 # A map gets a clickable preview when assets/images/maps/<name>.webp
@@ -63,6 +64,12 @@
 - name: Islands
   description: Original multiplayer map, changed to allow co-op
   faction: Nod
+  objectives:
+    - GDI has taken the field. Destroy all enemy vehicles and the mini console to reclaim it.
+    - Well done. Now destroy the GDI base.
+    - Base destroyed. Good Job. Now find that beacon in the tunnels and make Kane proud.
+    - Destroy all GDI vehicles inside the GDI base in order to unlock the pedestal.
+    - "Optional: Destroying GDI Guard Towers will allow Nod stealth units easy access."
 - name: Hourglass
   description: Original multiplayer map, changed to allow co-op
   faction: Nod

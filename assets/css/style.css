@@ -632,6 +632,9 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .live-map-note { display: block; margin-top: 0.1rem; font-weight: 400; color: var(--text); }
 /* Objectives: collapsible list in the status box (the map preview shows them too). */
 .live-objectives ol { margin: 0.4rem 0 0.2rem; padding-left: 1.4rem; line-height: 1.9; }
+/* Optional steps: no number, after the numbered ones. */
+li.objective-optional { list-style: none; margin-top: 0.5rem; color: var(--muted); }
+li.objective-optional strong { color: var(--text); font-weight: 600; }
 .live-objectives { margin-top: 0.6rem; }
 .live-objectives summary { cursor: pointer; color: var(--link); }
 

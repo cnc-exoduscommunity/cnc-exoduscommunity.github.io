@@ -439,7 +439,8 @@ function makeZoom(viewport, img, label) {
     ol.textContent = "";
     var items = row ? row.querySelectorAll(".map-objectives li") : [];
     Array.prototype.forEach.call(items, function (li) { ol.appendChild(li.cloneNode(true)); });
-    objBox.querySelector("summary").textContent = "Objectives" + (items.length ? " (" + items.length + ")" : "");
+    var numbered = Array.prototype.filter.call(items, function (li) { return !li.classList.contains("objective-optional"); }).length;
+    objBox.querySelector("summary").textContent = "Objectives" + (numbered ? " (" + numbered + ")" : "");
     objBox.hidden = items.length === 0;
   }
 
