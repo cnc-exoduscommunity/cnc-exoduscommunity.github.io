@@ -58,6 +58,7 @@ defaults:
 
 exclude:
   - README.md
+  - TODO.md
   - tools/
   - Gemfile
   - Gemfile.lock
