@@ -1,0 +1,53 @@
+name: Server status
+
+# Asks the Renegade server for its status directly every few minutes and
+# publishes it as status.json on the "server-status" branch. The site uses it
+# when the server is missing from CnCNet's list (which happens on the co-op
+# maps with Nod characters, even though the server is running).
+#
+# GitHub runs scheduled jobs every 5 minutes at best, and often later.
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: server-status
+  cancel-in-progress: true
+
+env:
+  SERVER_HOST: 85.215.107.108
+  QUERY_PORT: "23506"   # the server's GameSpy query port (game port is 4852)
+
+jobs:
+  query:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools
+          persist-credentials: false
+
+      - name: Query the server
+        run: |
+          mkdir -p out
+          python3 tools/query_server.py "$SERVER_HOST" "$QUERY_PORT" out/status.json
+
+      - name: Publish to the server-status branch
+        # One commit, force-pushed each time, so the branch never grows.
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd out
+          git init -q -b server-status
+          git config user.name "github-actions[bot]"
+          git config user.email "41898341+github-actions[bot]@users.noreply.github.com"
+          git add status.json
+          git commit -q -m "Server status $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q --force "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" server-status

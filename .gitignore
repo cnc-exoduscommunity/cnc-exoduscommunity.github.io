@@ -16,3 +16,6 @@ Gemfile.lock
 .DS_Store
 Thumbs.db
 .claude/
+
+# Python
+__pycache__/
