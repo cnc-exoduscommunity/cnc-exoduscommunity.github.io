@@ -129,6 +129,9 @@
   description: "Mission 7: The Grip of the Black Hand"
   faction: GDI
   image_credit: vgmaps
+  weapons:
+    - Maintenance Tool
+    - Grenade Launcher
 - name: M07
   description: "Mission 8: Obelisk of Oppression"
   faction: GDI
