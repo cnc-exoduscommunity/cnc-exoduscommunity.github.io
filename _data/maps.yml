@@ -73,6 +73,14 @@
 - name: Hourglass
   description: Original multiplayer map, changed to allow co-op
   faction: Nod
+  objectives:
+    - Break the GDI siege by destroying enemy vehicles.
+    - Now move out to the sides and destroy vehicles there to unlock the hill.
+    - Destroy the Advanced Guard tower to unlock the side paths into GDI base.
+    - Now destroy that GDI base from the inside!
+    - Destroy all GDI vehicles inside the GDI base in order to gain access to the GDI WF.
+    - Locke has been detected in the tunnels. Kill him and anyone who tries to protect him.
+    - Now nuke the pedestal to end this. In the name of Kane.
 - name: Skirmish00
   description: Original skirmish map
   faction: GDI
