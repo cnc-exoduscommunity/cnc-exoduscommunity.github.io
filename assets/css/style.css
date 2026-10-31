@@ -642,6 +642,9 @@ li.objective-optional strong { color: var(--text); font-weight: 600; }
 .live-player-list summary { cursor: pointer; color: var(--link); }
 .live-player-list table { margin: 0.4rem 0 0; font-size: 0.92rem; }
 .live-source { margin: 0.4rem 0 0; }
+.live-state-note { font-size: 0.9rem; color: var(--muted); }
+.live-state-note:empty { display: none; }
+.live-state-note strong { color: var(--text); }
 /* Two tidy lines under the status box instead of one long wrapped sentence. */
 .join-hint span { display: block; }
 .join-hint span + span { margin-top: 0.15rem; }

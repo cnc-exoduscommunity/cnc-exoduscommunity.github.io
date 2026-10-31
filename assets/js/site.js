@@ -519,10 +519,11 @@ function makeZoom(viewport, img, label) {
   }
 
   // Where the data comes from:
-  //  - "direct": status.json from the "Server status" workflow, which asks the
-  //    server itself every few minutes. Sees the players on every map.
-  //  - "cncnet": CnCNet's public list, used when status.json is missing or out
-  //    of date. On the Nod maps it shows the server with 0 players.
+  //  - "cncnet" (first): CnCNet's public list, refreshed every minute.
+  //  - "direct" (backup): status.json from the "Server status" workflow, which
+  //    asks the server itself every few minutes; used when CnCNet doesn't list it.
+  //  Both get the same answer from the server, which reports 0 players on Nod
+  //  maps unless someone is on GDI.
   var directUrl = box.getAttribute("data-direct-url");
   var cncnetName = box.getAttribute("data-cncnet-name") || "CnCNet";
   var cncnetUrl = box.getAttribute("data-cncnet-url") || url;
@@ -555,8 +556,8 @@ function makeZoom(viewport, img, label) {
     badge.setAttribute("data-source", kind);
     badge.textContent = kind === "direct" ? "Direct" : "CnCNet";
     var tip = kind === "direct"
-      ? "Real-time: read from the server itself, so players show on every map, GDI and Nod. New check every ~5 minutes."
-      : "Fallback: the direct check isn't available right now, so this comes from CnCNet's server list. On Nod maps it shows 0 players.";
+      ? "Backup: read from the server itself, used when CnCNet doesn't list the server. New check every ~5 minutes."
+      : "From CnCNet's server list, refreshed every minute. On Nod maps it can show 0 players.";
     var tipEl = el("span", "source-tip");
     tipEl.setAttribute("role", "tooltip");
     addText(tipEl, tip);
@@ -568,34 +569,35 @@ function makeZoom(viewport, img, label) {
     source.textContent = "";
     if (kind === "direct") {
       var mins = Math.max(0, Math.round((Date.now() - when.getTime()) / 60000));
-      source.appendChild(document.createTextNode("Real-time from the server itself · checked " + clock(when) +
+      source.appendChild(document.createTextNode("Backup: from the server itself · checked " + clock(when) +
         (mins ? ", " + mins + " min ago" : ", just now") + " · new check every ~5 minutes"));
     } else {
-      source.appendChild(document.createTextNode("Fallback: currently using "));
+      source.appendChild(document.createTextNode("Live data from "));
       var a = el("a", null, cncnetName); a.href = cncnetUrl;
       source.appendChild(a);
       source.appendChild(document.createTextNode(" · last checked " + clock(when) + " · refreshes every minute"));
     }
   }
 
-  // The amber note under the numbers.
-  function setWarning(kind, faction) {
+  // The amber note under the numbers: on Nod maps the server reports 0 players
+  // (to everyone) unless someone is on GDI; ExaBot's !pl in #Mission-Coop is right.
+  function setWarning(faction, missing) {
     warning.textContent = "";
-    if (kind === "cncnet") {
-      addText(warning, "Using CnCNet as a fallback: on Nod maps the master server doesn't show the players, so this can say 0 when people are playing. Check ");
+    if (faction === "nod" || missing) {
+      addText(warning, missing
+        ? "On Nod maps the server can drop off the lists or show 0 players, even while people are playing. Check "
+        : "Nod map: the server lists can show 0 players here, even while people are playing. Check ");
       var a = el("a", null, "IRC"); if (ircLink) a.href = ircLink;
       warning.appendChild(ircLink ? a : document.createTextNode("IRC"));
       warning.appendChild(document.createTextNode(" (type "));
-      warning.appendChild(el("code", null, "!pi"));
+      warning.appendChild(el("code", null, "!pl"));
       warning.appendChild(document.createTextNode(" in "));
-      warning.appendChild(el("code", null, "#exodus-home"));
-      warning.appendChild(document.createTextNode(") or go in game."));
-    } else if (kind === "direct" && faction === "nod") {
-      addText(warning, "Nod map: the server may be missing from the in-game list and the W3D Hub launcher, or show 0 players there. It is running - use ");
+      warning.appendChild(el("code", null, "#Mission-Coop"));
+      warning.appendChild(document.createTextNode(") or join in game: use "));
       warning.appendChild(el("strong", null, "Join Server"));
-      warning.appendChild(document.createTextNode(", or join "));
+      warning.appendChild(document.createTextNode(" or "));
       warning.appendChild(el("code", null, address));
-      warning.appendChild(document.createTextNode(" by address."));
+      warning.appendChild(document.createTextNode("."));
     }
     warning.hidden = !warning.textContent;
   }
@@ -610,32 +612,31 @@ function makeZoom(viewport, img, label) {
     markCurrentMap(server.mapname);
     setBadge(kind);
     setSource(kind, when);
-    setWarning(kind, faction);
+    setWarning(faction, false);
   }
 
-  function showMissing(kind, text) {
+  // note: an extra line under the state, e.g. that "not listed" doesn't mean offline.
+  var stateNote = el("span", "live-state-note");
+  state.insertAdjacentElement("afterend", stateNote);
+  function showMissing(kind, text, note) {
     setState(kind, text);
+    stateNote.textContent = "";
+    if (note) note(stateNote);
     showMap(null); showFaction(null);
     playersEl.textContent = "-"; timeEl.textContent = "-";
     showPlayers([]); markCurrentMap(null);
     setBadge("cncnet");
     setSource("cncnet", new Date());
-    setWarning(kind === "offline" ? "cncnet" : null);
+    setWarning(null, kind === "offline");
+  }
+  function notListedNote(n) {
+    n.appendChild(document.createTextNode("This doesn't mean the server is "));
+    n.appendChild(el("strong", null, "offline"));
+    n.appendChild(document.createTextNode(" or that it has no players."));
   }
 
-  // 1. The server itself (status.json), when it is recent and the server answered.
-  function tryDirect() {
-    if (!directUrl) return Promise.reject(new Error("no direct status"));
-    return fetch(directUrl, { cache: "no-store" })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (data) {
-        var checked = new Date(data.checked_at);
-        if (!data.online || isNaN(checked) || Date.now() - checked.getTime() > DIRECT_MAX_AGE) throw new Error("stale");
-        showServer(data, "direct", checked);
-      });
-  }
-
-  // 2. Fallback: CnCNet's public server list.
+  // 1. CnCNet's public server list (refreshed every minute).
+  //    Resolves true when the server is listed, false when it isn't.
   function tryCncnet() {
     return fetch(url, { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
@@ -644,20 +645,41 @@ function makeZoom(viewport, img, label) {
         var data = JSON.parse(text.replace(/^[^\[{]*\(/, "").replace(/\)\s*;?\s*$/, ""));
         var servers = Array.isArray(data) ? data : Object.values(data);
         var server = servers.find(function (s) { return s.ip + ":" + s.hostport === address; });
-        if (server) showServer(server, "cncnet", new Date());
-        else showMissing("offline", "Not on CnCNet's list right now");
-      }, function () {
-        showMissing("unknown", "Couldn't reach the server list - trying again in a minute");
+        if (!server) return false;
+        stateNote.textContent = "";
+        showServer(server, "cncnet", new Date());
+        return true;
+      });
+  }
+
+  // 2. Backup: the server itself (status.json from the "Server status" workflow), when recent.
+  function tryDirect() {
+    if (!directUrl) return Promise.reject(new Error("no direct status"));
+    return fetch(directUrl, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) {
+        var checked = new Date(data.checked_at);
+        if (!data.online || isNaN(checked) || Date.now() - checked.getTime() > DIRECT_MAX_AGE) throw new Error("stale");
+        stateNote.textContent = "";
+        showServer(data, "direct", checked);
       });
   }
 
   function refresh() {
     if (busy) return;
     busy = true;
-    tryDirect()
-      .catch(tryCncnet)
-      .catch(function () { showMissing("unknown", "Couldn't reach the server list - trying again in a minute"); })
-      .then(function () { busy = false; });
+    tryCncnet()
+      .then(function (listed) {
+        if (listed) return;
+        return tryDirect().catch(function () {
+          showMissing("offline", "Not on CnCNet's list right now", notListedNote);
+        });
+      }, function () {
+        return tryDirect().catch(function () {
+          showMissing("unknown", "Couldn't reach the server list - trying again in a minute");
+        });
+      })
+      .then(function () { busy = false; }, function () { busy = false; });
   }
 
   refresh();

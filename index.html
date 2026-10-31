@@ -20,7 +20,7 @@ sections:
       <div><dt>Address</dt><dd><code>{{ site.server.address }}</code></dd></div>
     </dl>
     {%- if site.server.status_url %}
-    {%- comment %} Live status, filled in by site.js: from the server itself (status.json), or CnCNet's list as a fallback. Hidden without JavaScript. {% endcomment %}
+    {%- comment %} Live status, filled in by site.js: from CnCNet's list, or the server itself (status.json) as a backup. Hidden without JavaScript. {% endcomment %}
     <div class="live-status" data-status-url="{{ site.server.status_url }}" data-address="{{ site.server.address }}"{% if site.server.direct_status_url %} data-direct-url="{{ site.server.direct_status_url }}"{% endif %} data-cncnet-name="{{ site.server.status_source_name }}" data-cncnet-url="{{ site.server.status_source_url }}" hidden>
       <div class="live-head">
         <span class="source-badge" tabindex="0" hidden></span>
@@ -98,7 +98,7 @@ sections:
 <details class="panel" id="map-rotation" open>
   <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
   <div class="panel-body">
-    <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution".</p>
+    <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution", or <code>[M00_Tutorial]</code> which would be: <span class="team-badge team-badge-inline team-nod">Nod</span> "Tutorial".</p>
     <p class="hint">Click a row with <span class="map-link-icon-inline">{% include image-icon.svg %}</span> (map) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
     <div class="table-wrap">
