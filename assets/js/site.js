@@ -59,10 +59,26 @@
 
   var name = dialog.querySelector(".map-dialog-name");
   var comment = dialog.querySelector(".map-dialog-comment");
+  var noteEl = dialog.querySelector(".map-dialog-note");
+  // "co-op" must not break across lines: use a non-breaking hyphen between letters.
+  function keepWords(t) { return (t || "").replace(/(\w)-(\w)/g, "$1\u2011$2"); }
   var image = dialog.querySelector(".map-dialog-image");
   var credit = dialog.querySelector(".map-dialog-credit");
   var creditName = dialog.querySelector(".map-dialog-credit-name");
   var counter = dialog.querySelector(".map-dialog-counter");
+  // "No map data" message for maps without an image; objectives below the map (narrow screens).
+  var frame = dialog.querySelector(".map-dialog-frame");
+  var emptyMsg = dialog.querySelector(".map-dialog-empty");
+  var below = dialog.querySelector(".map-dialog-below");
+  var belowList = below && below.querySelector("ol");
+  var zoomRow = dialog.querySelector(".map-dialog-zoom");
+  // Wide screens: the objectives go in a card beside the map instead of below it.
+  var side = dialog.querySelector(".map-dialog-side");
+  var sideList = side && side.querySelector("ol");
+  var sideNone = side && side.querySelector(".map-dialog-side-none");
+  var panelEl = dialog.querySelector(".map-dialog-panel");
+  function matchSideHeight() { if (side) side.style.height = panelEl.offsetHeight + "px"; }
+  function hasImage(l) { return l.getAttribute("data-has-image") !== "0"; }
   var navButtons = dialog.querySelectorAll("[data-map-step]");
   var current = 0;
   var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), image, dialog.querySelector(".map-dialog-zoom-level"));
@@ -92,23 +108,26 @@
   var titleEl = dialog.querySelector(".map-dialog-title");
   var largest = null;
   function measureTitles() {
-    var keepName = name.textContent, keepComment = comment.textContent, tallest = 0;
+    var keepName = name.textContent, keepComment = comment.textContent, keepNote = noteEl.textContent, tallest = 0;
     titleEl.style.minHeight = "";
     links.forEach(function (l) {
       name.textContent = l.getAttribute("data-map-name");
-      comment.textContent = l.getAttribute("data-map-description") || "";
+      comment.textContent = keepWords(l.getAttribute("data-map-description"));
+      noteEl.textContent = keepWords(l.getAttribute("data-map-note"));
       tallest = Math.max(tallest, titleEl.offsetHeight);
     });
     name.textContent = keepName;
     comment.textContent = keepComment;
+    noteEl.textContent = keepNote;
     titleEl.style.minHeight = tallest + "px";
   }
   function sizeToLargest() {
     measureTitles();
     if (largest) return;
     largest = { w: 0, h: 0 };
-    var pending = links.length;
-    links.forEach(function (l) {
+    var withImages = links.filter(hasImage);
+    var pending = withImages.length;
+    withImages.forEach(function (l) {
       var probe = new Image();
       probe.onload = probe.onerror = function () {
         largest.w = Math.max(largest.w, probe.naturalWidth || 0);
@@ -121,7 +140,7 @@
       probe.src = l.getAttribute("href");
     });
   }
-  window.addEventListener("resize", function () { if (dialog.open) { measureTitles(); zoom.refresh(); } });
+  window.addEventListener("resize", function () { if (dialog.open) { measureTitles(); zoom.refresh(); matchSideHeight(); } });
 
   function show(index) {
     current = (index + links.length) % links.length;
@@ -129,9 +148,35 @@
     var mapName = link.getAttribute("data-map-name");
     var mapComment = link.getAttribute("data-map-description") || "";
     name.textContent = mapName;
-    comment.textContent = mapComment;
-    image.src = link.getAttribute("href");
-    image.alt = "Overhead map of " + mapName;
+    comment.textContent = keepWords(mapComment);
+    noteEl.textContent = keepWords(link.getAttribute("data-map-note"));
+    var withImage = hasImage(link);
+    if (withImage) {
+      image.src = link.getAttribute("href");
+      image.alt = "Overhead map of " + mapName;
+    } else {
+      image.removeAttribute("src");
+      image.alt = "";
+      zoom.reset();
+    }
+    image.hidden = !withImage;
+    emptyMsg.hidden = withImage;
+    frame.classList.toggle("is-empty", !withImage);
+    // Zoom only makes sense with an image; keep its space so the box doesn't change size.
+    Array.prototype.forEach.call(zoomRow.querySelectorAll("[data-zoom], .map-dialog-zoom-level"), function (e) {
+      e.style.visibility = withImage ? "" : "hidden";
+    });
+    // Objectives from the map's row in the table.
+    var steps = link.closest("tr") ? link.closest("tr").querySelectorAll(".map-objectives li") : [];
+    belowList.textContent = "";
+    Array.prototype.forEach.call(steps, function (li) { belowList.appendChild(li.cloneNode(true)); });
+    below.hidden = !steps.length;
+    if (side) {
+      sideList.textContent = "";
+      Array.prototype.forEach.call(steps, function (li) { sideList.appendChild(li.cloneNode(true)); });
+      sideList.hidden = !steps.length;
+      sideNone.hidden = !!steps.length;
+    }
     var url = link.getAttribute("data-credit-url");
     // visibility (not hidden) so the line keeps its space and the box never changes height.
     credit.hidden = false;
@@ -148,6 +193,7 @@
       sizeToLargest();
     }
     zoom.refresh();
+    matchSideHeight();
   }
 
   links.forEach(function (link, i) {
@@ -159,7 +205,7 @@
     // Clicking anywhere on the map's row opens the preview too.
     var row = link.closest("tr");
     if (row) row.addEventListener("click", function (e) {
-      if (e.target.closest("a, button")) return;             // the link handles its own clicks
+      if (e.target.closest("a, button, details")) return;    // links and the objectives toggle handle their own clicks
       if (window.getSelection && String(window.getSelection())) return; // don't fight text selection
       show(i);
     });
@@ -184,7 +230,7 @@
   image.addEventListener("load", function () {
     [current - 1, current + 1].forEach(function (i) {
       var l = links[(i + links.length) % links.length];
-      new Image().src = l.getAttribute("href");
+      if (hasImage(l)) new Image().src = l.getAttribute("href");
     });
   });
 })();
@@ -349,7 +395,6 @@ function makeZoom(viewport, img, label) {
   var timeEl = box.querySelector(".live-time");
   var list = box.querySelector(".live-player-list");
   var tbody = list.querySelector("tbody");
-  var updated = box.querySelector(".live-updated");
   var busy = false;
 
   function setState(kind, text) {
@@ -380,15 +425,27 @@ function makeZoom(viewport, img, label) {
       var badge = document.createElement("span");
       badge.className = "now-playing";
       badge.innerHTML = '<span class="now-playing-dot" aria-hidden="true"></span>Now playing';
-      (tr.querySelector(".map-cell") || tr.cells[0]).appendChild(badge);
+      (tr.querySelector(".now-cell") || tr.cells[0]).appendChild(badge);
     });
     // Lets an open map preview update its own "Now playing" badge.
     document.dispatchEvent(new CustomEvent("currentmapchange"));
   }
 
+  // The current map's objectives, copied from its row in the rotation table.
+  var objBox = box.querySelector(".live-objectives");
+  function showObjectives(row) {
+    if (!objBox) return;
+    var ol = objBox.querySelector("ol");
+    ol.textContent = "";
+    var items = row ? row.querySelectorAll(".map-objectives li") : [];
+    Array.prototype.forEach.call(items, function (li) { ol.appendChild(li.cloneNode(true)); });
+    objBox.querySelector("summary").textContent = "Objectives" + (items.length ? " (" + items.length + ")" : "");
+    objBox.hidden = items.length === 0;
+  }
+
   function showMap(name) {
     mapEl.textContent = "";
-    if (!name) { mapEl.textContent = "-"; return; }
+    if (!name) { mapEl.textContent = "-"; showObjectives(null); return; }
     var preview = Array.prototype.find.call(document.querySelectorAll(".map-link"), function (a) {
       return sameMap(a.getAttribute("data-map-name"), name);
     });
@@ -403,11 +460,14 @@ function makeZoom(viewport, img, label) {
       label.addEventListener("click", function (e) { e.preventDefault(); preview.click(); });
     }
     mapEl.appendChild(label);
+    showObjectives(row);
     if (row) {
       var note = document.createElement("span");
       note.className = "live-map-note";
-      note.textContent = row.cells[1].textContent.trim();
+      note.textContent = (row.querySelector(".map-desc") || row.cells[3]).textContent.trim();
       mapEl.appendChild(note);
+      var extra = row.querySelector(".map-note-extra");
+      if (extra) mapEl.appendChild(el("span", "live-map-note live-map-note-extra", extra.textContent.trim()));
     }
   }
 
@@ -436,39 +496,166 @@ function makeZoom(viewport, img, label) {
     list.hidden = players.length === 0;
   }
 
-  function refresh() {
-    if (busy) return;
-    busy = true;
-    fetch(url, { cache: "no-store" })
+  // Visitor's own time, with their UTC offset: "11:32 (UTC+1)".
+  function clock(d) {
+    var off = -d.getTimezoneOffset();
+    var zone = "UTC" + (off === 0 ? "" : (off > 0 ? "+" : "-") + Math.floor(Math.abs(off) / 60) +
+      (Math.abs(off) % 60 ? ":" + String(Math.abs(off) % 60).padStart(2, "0") : ""));
+    return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0") + " (" + zone + ")";
+  }
+  // Appends text to parent, turning the words Nod and GDI into faction badges.
+  function addText(parent, text) {
+    text.split(/\b(Nod|GDI)\b/).forEach(function (part, i) {
+      if (i % 2) parent.appendChild(el("span", "team-badge team-badge-inline team-" + part.toLowerCase(), part === "Nod" ? "Nod" : "GDI"));
+      else if (part) parent.appendChild(document.createTextNode(part));
+    });
+  }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  // Where the data comes from:
+  //  - "direct": status.json from the "Server status" workflow, which asks the
+  //    server itself every few minutes. Sees the players on every map.
+  //  - "cncnet": CnCNet's public list, used when status.json is missing or out
+  //    of date. On the Nod maps it shows the server with 0 players.
+  var directUrl = box.getAttribute("data-direct-url");
+  var cncnetName = box.getAttribute("data-cncnet-name") || "CnCNet";
+  var cncnetUrl = box.getAttribute("data-cncnet-url") || url;
+  var DIRECT_MAX_AGE = 15 * 60 * 1000; // GitHub runs the workflow every 5 min at best, often later
+  var badge = box.querySelector(".source-badge");
+  var warning = box.querySelector(".live-warning");
+  var source = box.querySelector(".live-source");
+  var factionEl = box.querySelector(".live-faction");
+  var ircLink = document.getElementById("irc") ? "#irc" : null;
+
+  function factionOf(mapName) {
+    if (!mapName) return null;
+    var row = Array.prototype.find.call(document.querySelectorAll("tr[data-map]"), function (tr) {
+      return sameMap(tr.getAttribute("data-map"), mapName);
+    });
+    return row && row.getAttribute("data-faction");
+  }
+  function showFaction(mapName) {
+    factionEl.textContent = "";
+    var f = factionOf(mapName);
+    if (!f) { factionEl.textContent = "-"; return null; }
+    var key = /gdi/i.test(f) ? "gdi" : /nod/i.test(f) ? "nod" : "other";
+    factionEl.appendChild(el("span", "team-badge team-" + key, key === "nod" ? "Nod" : f));
+    return key;
+  }
+
+  function setBadge(kind) {
+    badge.hidden = !kind;
+    if (!kind) return;
+    badge.setAttribute("data-source", kind);
+    badge.textContent = kind === "direct" ? "Direct" : "CnCNet";
+    var tip = kind === "direct"
+      ? "Real-time: read from the server itself, so players show on every map, GDI and Nod. New check every ~5 minutes."
+      : "Fallback: the direct check isn't available right now, so this comes from CnCNet's server list. On Nod maps it shows 0 players.";
+    var tipEl = el("span", "source-tip");
+    tipEl.setAttribute("role", "tooltip");
+    addText(tipEl, tip);
+    badge.appendChild(tipEl);
+    badge.setAttribute("aria-label", badge.firstChild.textContent + " - " + tip);
+  }
+
+  function setSource(kind, when) {
+    source.textContent = "";
+    if (kind === "direct") {
+      var mins = Math.max(0, Math.round((Date.now() - when.getTime()) / 60000));
+      source.appendChild(document.createTextNode("Real-time from the server itself · checked " + clock(when) +
+        (mins ? ", " + mins + " min ago" : ", just now") + " · new check every ~5 minutes"));
+    } else {
+      source.appendChild(document.createTextNode("Fallback: currently using "));
+      var a = el("a", null, cncnetName); a.href = cncnetUrl;
+      source.appendChild(a);
+      source.appendChild(document.createTextNode(" · last checked " + clock(when) + " · refreshes every minute"));
+    }
+  }
+
+  // The amber note under the numbers.
+  function setWarning(kind, faction) {
+    warning.textContent = "";
+    if (kind === "cncnet") {
+      addText(warning, "Using CnCNet as a fallback: on Nod maps the master server doesn't show the players, so this can say 0 when people are playing. Check ");
+      var a = el("a", null, "IRC"); if (ircLink) a.href = ircLink;
+      warning.appendChild(ircLink ? a : document.createTextNode("IRC"));
+      warning.appendChild(document.createTextNode(" (type "));
+      warning.appendChild(el("code", null, "!pi"));
+      warning.appendChild(document.createTextNode(" in "));
+      warning.appendChild(el("code", null, "#exodus-home"));
+      warning.appendChild(document.createTextNode(") or go in game."));
+    } else if (kind === "direct" && faction === "nod") {
+      addText(warning, "Nod map: the server may be missing from the in-game list and the W3D Hub launcher, or show 0 players there. It is running - use ");
+      warning.appendChild(el("strong", null, "Join Server"));
+      warning.appendChild(document.createTextNode(", or join "));
+      warning.appendChild(el("code", null, address));
+      warning.appendChild(document.createTextNode(" by address."));
+    }
+    warning.hidden = !warning.textContent;
+  }
+
+  function showServer(server, kind, when) {
+    setState("online", "Online");
+    showMap(server.mapname);
+    var faction = showFaction(server.mapname);
+    playersEl.textContent = (server.numplayers || 0) + " / " + (server.maxplayers || "?");
+    timeEl.textContent = formatTime(server.timeleft || server["Time Remaining"]);
+    showPlayers(server.players);
+    markCurrentMap(server.mapname);
+    setBadge(kind);
+    setSource(kind, when);
+    setWarning(kind, faction);
+  }
+
+  function showMissing(kind, text) {
+    setState(kind, text);
+    showMap(null); showFaction(null);
+    playersEl.textContent = "-"; timeEl.textContent = "-";
+    showPlayers([]); markCurrentMap(null);
+    setBadge("cncnet");
+    setSource("cncnet", new Date());
+    setWarning(kind === "offline" ? "cncnet" : null);
+  }
+
+  // 1. The server itself (status.json), when it is recent and the server answered.
+  function tryDirect() {
+    if (!directUrl) return Promise.reject(new Error("no direct status"));
+    return fetch(directUrl, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) {
+        var checked = new Date(data.checked_at);
+        if (!data.online || isNaN(checked) || Date.now() - checked.getTime() > DIRECT_MAX_AGE) throw new Error("stale");
+        showServer(data, "direct", checked);
+      });
+  }
+
+  // 2. Fallback: CnCNet's public server list.
+  function tryCncnet() {
+    return fetch(url, { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
       .then(function (text) {
         // The list is plain JSON; strip a JSONP wrapper just in case.
         var data = JSON.parse(text.replace(/^[^\[{]*\(/, "").replace(/\)\s*;?\s*$/, ""));
         var servers = Array.isArray(data) ? data : Object.values(data);
         var server = servers.find(function (s) { return s.ip + ":" + s.hostport === address; });
-        if (!server) {
-          setState("offline", "Offline (not in the server list right now)");
-          showMap(null); playersEl.textContent = "-"; timeEl.textContent = "-";
-          showPlayers([]); markCurrentMap(null);
-        } else {
-          setState("online", "Online");
-          showMap(server.mapname);
-          playersEl.textContent = (server.numplayers || 0) + " / " + (server.maxplayers || "?");
-          timeEl.textContent = formatTime(server.timeleft || server["Time Remaining"]);
-          showPlayers(server.players);
-          markCurrentMap(server.mapname);
-        }
-        var now = new Date();
-        // Visitor's own time, with their UTC offset: "updated 11:32 (UTC+1)".
-        var off = -now.getTimezoneOffset();
-        var zone = "UTC" + (off === 0 ? "" : (off > 0 ? "+" : "-") + Math.floor(Math.abs(off) / 60) +
-          (Math.abs(off) % 60 ? ":" + String(Math.abs(off) % 60).padStart(2, "0") : ""));
-        updated.textContent = " · last checked " + String(now.getHours()).padStart(2, "0") + ":" +
-          String(now.getMinutes()).padStart(2, "0") + " (" + zone + ")";
-      })
-      .catch(function () {
-        setState("unknown", "Couldn't reach the server list - trying again in a minute");
-      })
+        if (server) showServer(server, "cncnet", new Date());
+        else showMissing("offline", "Not on CnCNet's list right now");
+      }, function () {
+        showMissing("unknown", "Couldn't reach the server list - trying again in a minute");
+      });
+  }
+
+  function refresh() {
+    if (busy) return;
+    busy = true;
+    tryDirect()
+      .catch(tryCncnet)
+      .catch(function () { showMissing("unknown", "Couldn't reach the server list - trying again in a minute"); })
       .then(function () { busy = false; });
   }
 

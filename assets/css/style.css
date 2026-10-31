@@ -140,7 +140,7 @@ h3 { margin-top: 1.75rem; font-size: 1.3rem; }
 }
 
 .header-inner {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0.6rem 1rem;
   display: flex;
@@ -228,7 +228,7 @@ h3 { margin-top: 1.75rem; font-size: 1.3rem; }
 
 /* ---------- Page ---------- */
 
-.content { max-width: 1000px; margin: 0 auto; padding: 1.75rem 1rem 2rem; }
+.content { max-width: 1200px; margin: 0 auto; padding: 1.75rem 1rem 2rem; }
 
 .page-title { margin: 0.25rem 0 0.25rem; font-size: clamp(2.2rem, 6vw, 3.2rem); text-transform: none; }
 .lead { margin: 0 0 1.75rem; color: var(--muted); font-size: 1.05rem; }
@@ -402,7 +402,7 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 /* ---------- Footer ---------- */
 
 .site-footer {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1rem;
   border-top: 1px solid var(--border-soft);
@@ -430,7 +430,8 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .map-link { display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
 .map-link code { text-decoration: none; }
 .map-link:hover code { border-color: var(--link); background: var(--row-hover); }
-.map-link-icon { color: var(--link); }
+.map-link-icon, .map-objectives-icon { color: var(--link); flex: none; }
+.map-cell .map-link-icon, .map-cell .map-objectives-icon { width: 1.75rem; height: 1.75rem; }
 .map-link-icon-inline .icon { vertical-align: -0.15em; color: var(--link); }
 
 /* Full-screen dialog: round prev/next buttons hug the map panel's sides (like the Gears DB map modal). */
@@ -472,7 +473,8 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .map-dialog-title { margin: 0 0 0.6rem; font-size: 1.6rem; line-height: 1.2; }
 .map-dialog-name, .map-dialog-comment { display: block; }
 .map-dialog-comment { margin-top: 0.15rem; font-size: 0.62em; font-weight: 500; color: var(--btn-text); text-shadow: none; }
-.map-dialog-comment:empty { display: none; }
+.map-dialog-comment:empty, .map-dialog-note:empty { display: none; }
+.map-dialog-note { display: block; margin-top: 0.3rem; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 0.55em; font-weight: 400; line-height: 1.4; color: var(--muted); text-shadow: none; }
 
 /* Zoomable map: the image is scaled and moved inside a fixed square. */
 .map-dialog-viewport {
@@ -489,6 +491,64 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .map-dialog-viewport.is-zoomed { cursor: grab; }
 .map-dialog-viewport.is-zoomed:active { cursor: grabbing; }
 .map-dialog-image { display: block; width: 100%; height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform; }
+.map-dialog-image[hidden] { display: none; }
+
+/* "No map data" message, over the empty map square. */
+.map-dialog-frame { position: relative; }
+.map-dialog-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  color: var(--muted);
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+.map-dialog-empty[hidden] { display: none; }
+.map-dialog-objectives-title { margin: 0 0 0.4rem; font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--title); }
+
+/* Narrow screens: objectives below the map, and the preview scrolls. */
+.map-dialog-below { margin-top: 0.8rem; padding-top: 0.7rem; border-top: 1px solid var(--border-soft); font-size: 0.95rem; line-height: 1.9; }
+.map-dialog-below ol { margin: 0; padding-left: 1.4rem; }
+.map-dialog-below li + li { margin-top: 0.35rem; }
+.map-dialog-below[hidden] { display: none; }
+
+/* Objectives card beside the map (wide screens only; narrower ones use the overlay above). */
+.map-dialog-side, .map-dialog-spacer { display: none; flex: none; width: 22rem; }
+.map-dialog-side {
+  flex-direction: column;
+  padding: 0.9rem 1rem 1rem;
+  overflow: auto;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  background-image: linear-gradient(var(--panel), var(--panel));
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7), var(--btn-glow);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+.map-dialog-side ol { margin: 0; padding-left: 1.4rem; }
+.map-dialog-side li + li { margin-top: 0.45rem; }
+.map-dialog-side ol[hidden], .map-dialog-side-none[hidden] { display: none; }
+.map-dialog-side-none { margin: 0; color: var(--muted); }
+@media (max-width: 1099px) {
+  .map-dialog { overflow-y: auto; }
+  .map-dialog-stage { height: auto; min-height: 100%; }
+}
+@media (min-width: 1100px) {
+  .map-dialog-side { display: flex; }
+  .map-dialog-panel { width: min(600px, calc(100vw - 33rem), calc(100vh - 16rem)); }
+  .map-dialog-below { display: none !important; }
+}
+/* Room for a matching spacer on the left too, so the map stays in the middle of the screen. */
+@media (min-width: 1500px) {
+  .map-dialog-spacer { display: block; }
+}
 
 .map-dialog-zoom { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.6rem; }
 .map-dialog-zoom .btn { min-width: 2.2rem; justify-content: center; }
@@ -563,13 +623,80 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .live-grid { display: flex; flex-wrap: wrap; gap: 0.5rem 2.5rem; margin: 0.6rem 0 0; }
 .live-grid dt { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .live-grid dd { margin: 0; font-weight: 600; }
+/* Faction, Players and Time left: label and value centred, values on one line height
+   so the faction badge lines up with the numbers. */
+.live-grid > div:not(:first-child) { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.live-grid > div:not(:first-child) dd { display: flex; align-items: center; justify-content: center; min-height: 1.75rem; }
+.live-faction .team-badge { vertical-align: middle; }
 .live-map a, .live-map > span:first-child { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
 .live-map-note { display: block; margin-top: 0.1rem; font-weight: 400; color: var(--text); }
+/* Objectives: collapsible list in the status box (the map preview shows them too). */
+.live-objectives ol { margin: 0.4rem 0 0.2rem; padding-left: 1.4rem; line-height: 1.9; }
+.live-objectives { margin-top: 0.6rem; }
+.live-objectives summary { cursor: pointer; color: var(--link); }
 
 .live-player-list { margin-top: 0.6rem; }
 .live-player-list summary { cursor: pointer; color: var(--link); }
 .live-player-list table { margin: 0.4rem 0 0; font-size: 0.92rem; }
 .live-source { margin: 0.4rem 0 0; }
+/* Two tidy lines under the status box instead of one long wrapped sentence. */
+.join-hint span { display: block; }
+.join-hint span + span { margin-top: 0.15rem; }
+
+/* Data source badge left of "Online": Direct (the server itself) or CnCNet (fallback).
+   Fixed width so it is the same size either way; the tooltip opens below it. */
+.source-badge {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex: none;
+  width: 4.9rem;
+  padding: 0.15rem 0;
+  border: 1px solid;
+  border-radius: 3px;
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: help;
+}
+.source-badge[data-source="direct"] { color: #6dff8a; border-color: #3ddc5a; background: rgba(8, 40, 14, 0.85); }
+.source-badge[data-source="cncnet"] { color: #ffb15c; border-color: #e8892a; background: rgba(60, 30, 4, 0.85); }
+[data-theme="light"] .source-badge[data-source="direct"] { color: #17803a; border-color: #2fb04e; background: #e3f7e7; }
+[data-theme="light"] .source-badge[data-source="cncnet"] { color: #9a4f00; border-color: #d9822b; background: #fdebd6; }
+.source-tip {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 20;
+  width: max-content;
+  max-width: min(22rem, 85vw);
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: 1.55;
+  text-align: left;
+  text-transform: none;
+  white-space: normal;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.source-badge:hover .source-tip, .source-badge:focus-visible .source-tip { opacity: 1; visibility: visible; }
+/* Faction badge used inside a sentence (notes and tooltip). */
+.team-badge-inline { vertical-align: baseline; margin: 0 0.1rem; line-height: 1.45; }
+.live-warning { margin: 0.6rem 0 0; padding: 0.55rem 0.85rem; border: 1px solid #c98a1a; border-left-width: 4px; border-radius: 4px; background: rgba(201, 138, 26, 0.12); font-size: 1rem; line-height: 1.85; }
+.live-warning code { white-space: nowrap; }
 .live-player-list td { vertical-align: middle; }
 .live-player-list th:nth-child(2), .live-player-list td:nth-child(2) { text-align: center; } /* Team */
 
@@ -599,6 +726,35 @@ tr.has-preview:hover { background: var(--bar) !important; }
 tr.has-preview:hover .map-link code { border-color: var(--link); }
 
 /* The map being played right now, in the rotation table. */
+.map-table th.col-fit, .map-table td.col-fit { width: 1%; white-space: nowrap; }
+/* Badges (Now playing, Faction) sit in the middle of their cells. */
+.map-table td { vertical-align: middle; }
+.map-table th:nth-child(2), .map-table th:nth-child(3),
+.map-table td.now-cell, .map-table td.col-fit:not(.now-cell) { text-align: center; }
+/* Every badge in the table (Now playing, GDI, Nod) has the same height, on every row. */
+.map-table td .team-badge, .map-table td .now-playing {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 1.5rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 1;
+  vertical-align: middle;
+}
+.map-table .muted { color: var(--muted); }
+.map-table td.map-note { min-width: 12rem; }
+.map-note-extra { color: var(--muted); font-size: 0.9em; }
+.map-note-extra::before { content: " · "; }
+.live-map-note-extra { margin-top: 0; font-size: 0.9em; color: var(--muted); }
+/* Phones: drop the Now playing column so Map, Faction and Name fit on screen;
+   the highlighted row still shows which map is on. */
+@media (max-width: 600px) {
+  .map-table th:nth-child(2), .map-table td.now-cell { display: none; }
+  .map-table th, .map-table td { padding: 0.4rem 0.45rem; }
+  .map-table td.map-note { min-width: 0; }
+}
 .map-cell { display: inline-flex; align-items: center; gap: 0.5rem; vertical-align: middle; }
 tr.is-current { background: var(--bar) !important; }
 tr.is-current td { vertical-align: middle; }
@@ -607,7 +763,7 @@ tr.is-current td { vertical-align: middle; }
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.12rem 0.55rem 0.12rem 0.45rem;
+  padding: 0.15rem 0.5rem;
   border: 1px solid #3ddc5a;
   border-radius: 3px;
   background: rgba(8, 40, 14, 0.85);
@@ -633,9 +789,10 @@ tr.is-current td { vertical-align: middle; }
 .map-dialog-panel { position: relative; }
 .map-dialog-now { position: absolute; top: 0.9rem; right: 1rem; z-index: 1; }
 /* Room for the badge is always kept, so the box doesn't change size between maps. */
-.map-dialog-title { padding-right: 8.5rem; }
+.map-dialog-name { padding-right: 8.5rem; }
 @media (max-width: 600px) {
   .map-dialog-now { top: 0.6rem; right: 0.6rem; }
-  .map-dialog-title { padding-right: 0; padding-top: 1.6rem; }
+  .map-dialog-name { padding-right: 0; }
+  .map-dialog-title { padding-top: 1.6rem; }
 }
 [data-theme="light"] .now-playing { background: #e3f7e7; color: #17803a; border-color: #2fb04e; box-shadow: none; }

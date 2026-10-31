@@ -21,11 +21,16 @@ server:
   address: "85.215.107.108:4852"
   join_url: "renegade://85.215.107.108:4852"
   location: "Europe"
-  # Live status (map, players, time left), read by the visitor's browser from
-  # CnCNet's public server list. Remove this line to hide the live status.
+  # Live status (map, faction, players, time left), checked by the visitor's
+  # browser every minute. First choice: status.json from the "Server status"
+  # workflow, which asks the server itself every few minutes (it sees players
+  # on every map). Fallback when that is missing or out of date: CnCNet's
+  # public server list (it shows 0 players on the Nod maps).
+  # Remove status_url to hide the live status.
   status_url: "https://api.cncnet.org/renegade?timeleft=&Time_Remaining=&_players=1&_callback="
   status_source_name: "CnCNet"
   status_source_url: "https://cncnet.org/renegade"
+  direct_status_url: "https://raw.githubusercontent.com/cnc-exoduscommunity/cnc-exoduscommunity.github.io/server-status/status.json"
 
 # Shown under "Join Server" for players who don't know how to connect.
 connect_help:

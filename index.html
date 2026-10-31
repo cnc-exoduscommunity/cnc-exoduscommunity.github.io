@@ -20,9 +20,10 @@ sections:
       <div><dt>Address</dt><dd><code>{{ site.server.address }}</code></dd></div>
     </dl>
     {%- if site.server.status_url %}
-    {%- comment %} Live status, filled in by site.js from CnCNet's public server list. Hidden without JavaScript. {% endcomment %}
-    <div class="live-status" data-status-url="{{ site.server.status_url }}" data-address="{{ site.server.address }}" hidden>
+    {%- comment %} Live status, filled in by site.js: from the server itself (status.json), or CnCNet's list as a fallback. Hidden without JavaScript. {% endcomment %}
+    <div class="live-status" data-status-url="{{ site.server.status_url }}" data-address="{{ site.server.address }}"{% if site.server.direct_status_url %} data-direct-url="{{ site.server.direct_status_url }}"{% endif %} data-cncnet-name="{{ site.server.status_source_name }}" data-cncnet-url="{{ site.server.status_source_url }}" hidden>
       <div class="live-head">
+        <span class="source-badge" tabindex="0" hidden></span>
         <span class="live-dot" aria-hidden="true"></span>
         <span class="live-state" aria-live="polite">Checking the server&hellip;</span>
         <a class="btn btn-primary live-join" href="{{ site.server.join_url }}">
@@ -32,10 +33,16 @@ sections:
       </div>
       <dl class="live-grid">
         <div><dt>Current map</dt><dd class="live-map">-</dd></div>
+        <div><dt>Faction</dt><dd class="live-faction">-</dd></div>
         <div><dt>Players</dt><dd class="live-players">-</dd></div>
         <div><dt>Time left</dt><dd class="live-time">-</dd></div>
       </dl>
-      <p class="hint live-source">Live data from <a href="{{ site.server.status_source_url }}">{{ site.server.status_source_name }}</a><span class="live-updated"></span> &middot; refreshes every minute</p>
+      <p class="live-warning" hidden></p>
+      <p class="hint live-source"></p>
+      <details class="live-objectives" hidden>
+        <summary>Objectives</summary>
+        <ol></ol>
+      </details>
       <details class="live-player-list" hidden>
         <summary>Who's playing</summary>
         <div class="table-wrap">
@@ -47,7 +54,10 @@ sections:
       </details>
     </div>
     {%- endif %}
-    <p class="hint">"Join Server" opens the game straight onto the server if your Renegade install handles <code>renegade://</code> links. If nothing happens, join <code>{{ site.server.address }}</code> from the in-game server list.</p>
+    <p class="hint join-hint">
+      <span><strong>Join Server</strong> opens Renegade straight onto the server (your install needs to handle <code>renegade://</code> links).</span>
+      <span>Nothing happens? Join <code>{{ site.server.address }}</code> from the in-game server list.</span>
+    </p>
     {%- if site.connect_help %}
     <p class="hint">Not sure how to connect? Have a look at
       {%- for help in site.connect_help %}
@@ -88,12 +98,12 @@ sections:
 <details class="panel" id="map-rotation" open>
   <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
   <div class="panel-body">
-    <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in [brackets].</p>
-    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include image-icon.svg %}</span> to open a preview of that map.</p>
+    <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution".</p>
+    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include image-icon.svg %}</span> (map) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
     <div class="table-wrap">
       <table class="map-table">
-        <thead><tr><th>Map</th><th>Campaign name / Note</th></tr></thead>
+        <thead><tr><th class="col-fit">Map</th><th class="col-fit">Now playing</th><th class="col-fit">Faction</th><th>Name</th></tr></thead>
         <tbody>
           {%- for map in site.data.maps %}
           {%- assign map_img = nil %}
@@ -104,15 +114,33 @@ sections:
           {%- endfor %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map_img %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
-              {%- if map_img -%}
-              <a class="map-link" href="{{ map_img | relative_url }}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}>{% include image-icon.svg %}<code>{{ map.name }}</code></a>
+              {%- if map_img or map.objectives -%}
+              <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}>
+                {%- if map_img %}{% include image-icon.svg %}{% endif -%}
+                {%- if map.objectives %}{% include objectives-icon.svg %}{% endif -%}
+                <code>{{ map.name }}</code></a>
               {%- else -%}
               <code>{{ map.name }}</code>
               {%- endif -%}
-            </span></td>
-            <td>{{ map.description }}</td>
+            </span>
+            {%- if map.objectives %}
+            <ol class="map-objectives" hidden>
+              {%- for step in map.objectives %}
+              <li>{{ step | escape | replace: "GDI", '<span class="team-badge team-badge-inline team-gdi">GDI</span>' | replace: "Nod", '<span class="team-badge team-badge-inline team-nod">Nod</span>' }}</li>
+              {%- endfor %}
+            </ol>
+            {%- endif %}</td>
+            <td class="col-fit now-cell"></td>
+            <td class="col-fit">
+              {%- assign faction = map.faction | downcase -%}
+              {%- if faction == "gdi" %}<span class="team-badge team-gdi">GDI</span>
+              {%- elsif faction == "nod" %}<span class="team-badge team-nod">Nod</span>
+              {%- elsif map.faction %}<span class="team-badge team-other">{{ map.faction }}</span>
+              {%- else %}<span class="muted">-</span>{% endif -%}
+            </td>
+            <td class="map-note"><span class="map-desc">{{ map.description }}</span>{% if map.note %}<span class="map-note-extra">{{ map.note }}</span>{% endif %}</td>
           </tr>
           {%- endfor %}
         </tbody>
@@ -123,12 +151,16 @@ sections:
     <dialog class="map-dialog" aria-labelledby="map-dialog-title">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
       <div class="map-dialog-stage">
+        <div class="map-dialog-spacer" aria-hidden="true"></div>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
           <span class="now-playing map-dialog-now" hidden><span class="now-playing-dot" aria-hidden="true"></span>Now playing</span>
-          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-name"></span><span class="map-dialog-comment"></span></h3>
-          <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
-            <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
+          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-name"></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
+          <div class="map-dialog-frame">
+            <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
+              <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
+            </div>
+            <div class="map-dialog-empty" hidden>No Map Data at This Time</div>
           </div>
           <div class="map-dialog-zoom" role="group" aria-label="Zoom">
             <button class="btn btn-small" type="button" data-zoom="out" aria-label="Zoom out">&minus;</button>
@@ -140,8 +172,17 @@ sections:
             <p class="map-dialog-credit" hidden>Credit to <a class="map-dialog-credit-name" href=""></a></p>
             <span class="map-dialog-counter"></span>
           </div>
+          <div class="map-dialog-below" hidden>
+            <p class="map-dialog-objectives-title">Objectives</p>
+            <ol></ol>
+          </div>
         </div>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="1" aria-label="Next map">&#10095;</button>
+        <aside class="map-dialog-side" aria-label="Objectives">
+          <p class="map-dialog-objectives-title">Objectives</p>
+          <ol></ol>
+          <p class="map-dialog-side-none">No objectives listed for this map yet.</p>
+        </aside>
       </div>
     </dialog>
   </div>
