@@ -29,34 +29,65 @@ worth reporting to the server admin; fixing it there fixes everything.
 ExaBot does **not** answer private messages, and it sometimes skips a request
 (ask again after ~10-15 s).
 
+## Plan: listen in #Mission-Coop (no commands, no spam)
+
+Mission-Coop (BRenBot) posts joins, leaves and kills in `#Mission-Coop` by
+itself, even on Nod maps (seen 31-10-2026):
+
+```
+<Mission-Coop> Player RyanTurner1331 joined the game
+<Mission-Coop> Player RyanTurner1331 left the game
+<Mission-Coop> Host: [BR] RyanTurner1331 is no longer among us to fight in the war
+<Mission-Coop> Host: [BR] Melody destroyed an enemy Guard Tower
+<Mission-Coop> Host: [BR] ChaosLegionnaire destroyed an enemy Humm-Vee (Chemical Warrior/ APC)
+```
+
+A job that only listens can keep the player list from these lines, without
+typing anything in the channel.
+
+- `Player <name> joined the game` -> add `<name>`
+- `Player <name> left the game` (or `... is no longer among us ...`) -> remove
+- `Host: [BR] <name> destroyed ...` -> make sure `<name>` is in the list
+  (catches players who joined while nobody was listening)
+- New map / game over line (check what BRenBot posts) -> keep the list, but
+  check it against the next joins/leaves
+- If the server ever reports players again (someone on GDI), trust that and
+  reset the list from it
+
+ExaBot's `!pl` (posts in the channel) stays as a manual check only.
+
 ## Before building
 
-- [ ] Permission from Deth / the channel owners for a bot nick asking every
-      ~5 minutes
-- [ ] A quiet channel with **ExaBot in it** (ExaBot's owner, PruServ, has to add
-      it), so `!pl` replies don't spam `#Mission-Coop`
-- [ ] Register the bot nick (e.g. `ryanMapListGithub`, max 30 characters):
-      connect, wait 30 minutes, `/msg NickServ REGISTER <password> <email>`
+- [ ] Permission from Deth to have a listening bot nick in `#Mission-Coop`
+      (asked 31-10-2026; it never types anything)
+- [ ] Register the bot nick (e.g. `ryanMapListGithub`, max 30 characters;
+      MAXNICKLEN=30): connect, wait 30 minutes,
+      `/msg NickServ REGISTER <password> <email>`
 - [ ] Add the password on GitHub: Settings > Secrets and variables > Actions >
       New repository secret, name `IRC_PASSWORD` (never in a file or a chat)
+- [ ] Note the exact line BRenBot posts when a map ends / the next map loads
 
 ## Build
 
-- [ ] Workflow (every 5 minutes, GitHub's minimum): only ask ExaBot when the
-      current map is a Nod map in `_data/maps.yml` **and** the server reports
-      0 players
-- [ ] Connect to `85.215.107.108:6667`, identify with `IRC_PASSWORD`, join the
-      quiet channel, send `!pl`, read ExaBot's lines for ~15 s, retry once
-- [ ] Parse `<map>.mix <n> players` and `<name> Score: Kills: Deaths: Credits:`
-      (no team or time left: faction comes from the map list, time left from
-      CnCNet / the direct check)
-- [ ] Save as `players.json` on the `server-status` branch next to
-      `status.json`
-- [ ] Site: when the current source says 0 players on a Nod map and
-      `players.json` is recent, show its count and list, with an "IRC" badge
+- [ ] Workflow every 5 minutes (GitHub's minimum) that stays connected for
+      ~5 minutes, so there is (almost) always one listening; keep the list
+      between runs in `players.json` on the `server-status` branch
+- [ ] Connect to `85.215.107.108:6667`, identify with `IRC_PASSWORD`, join
+      `#Mission-Coop`, read only - never send a message to the channel
+- [ ] Save `players.json`: map, list of names, `checked_at`
+- [ ] Site: when CnCNet / the direct check say 0 players and `players.json`
+      is recent, show its count and names, with an "IRC" badge (no scores:
+      kill lines don't give them)
+
+## Other option: ExaBot `!pl`
+
+ExaBot's `!pl` gives names and scores, but it only answers in a channel (not
+by private message), sometimes skips a request, and every 5 minutes would spam
+`#Mission-Coop`. Only worth it with a quiet channel that ExaBot's owner
+(PruServ) adds ExaBot to.
 
 ## Better alternative
 
-Ask whoever runs ExaBot whether it could publish the list itself (a small web
-page or file). Then no IRC login or secret is needed and it could update every
-minute.
+Ask whoever runs the server / ExaBot whether the player list could be
+published as a small web page or file, or whether the server's count on Nod
+maps can be fixed. Then nothing here is needed.
