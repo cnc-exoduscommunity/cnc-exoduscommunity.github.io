@@ -1,0 +1,36 @@
+# Weapon pictures for the "Starting weapons" lists in the map previews.
+# name: as written under weapons: in _data/maps.yml (aliases: other names for it).
+# image: file in assets/images/weapons/. A weapon without an entry shows its name only.
+# Everyone also spawns with a Pistol and Timed C4 (shown as a note).
+- name: Maintenance Tool
+  aliases: [Repair Gun]
+  image: repair-gun.webp
+- name: Automatic Rifle
+  image: automatic-rifle.webp
+- name: Chaingun
+  image: chaingun.webp
+- name: Sniper Rifle
+  image: sniper-rifle.webp
+- name: Tiberium Flechette Gun
+  image: tiberium-flechette-gun.webp
+- name: Tiberium Auto Rifle
+  image: tiberium-auto-rifle.webp
+- name: Laser Rifle
+  image: laser-rifle.webp
+- name: Laser Chaingun
+  image: laser-chaingun.webp
+- name: Volt Auto Rifle
+  image: volt-auto-rifle.webp
+- name: Railgun
+  image: railgun.webp
+- name: Personal Ion Cannon
+  image: personal-ion-cannon.webp
+- name: Grenade Launcher
+  image: grenade-launcher.webp
+- name: Rocket Launcher
+  image: rocket-launcher.webp
+- name: Flamethrower
+  image: flamethrower.webp
+- name: Chemical Sprayer
+  aliases: [Chem Sprayer]
+  image: chemical-sprayer.webp

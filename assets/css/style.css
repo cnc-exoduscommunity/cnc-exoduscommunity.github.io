@@ -534,8 +534,15 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 }
 .map-dialog-side ol { margin: 0; padding-left: 1.4rem; }
 /* Starting weapons lists (left card, right card, below the map). */
-.map-dialog-weapons { margin: 0 0 0.2rem; padding-left: 1.3rem; }
-.map-dialog-weapons li::marker { color: var(--title); }
+.map-dialog-weapons { margin: 0 0 0.2rem; padding: 0; list-style: none; }
+.map-dialog-weapons li { display: flex; align-items: center; gap: 0.7rem; min-height: 1.9rem; }
+.map-dialog-weapons li + li { margin-top: 0.5rem; }
+/* Weapon picture in a fixed-size box, so the names line up. */
+.weapon-pic { flex: none; display: flex; align-items: center; justify-content: center; width: 7.5rem; height: 3.2rem; padding: 0.25rem 0.4rem;
+  border: 1px solid var(--border-soft); border-radius: 3px; background: rgba(0, 0, 0, 0.35); box-sizing: border-box; }
+.weapon-pic img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.map-dialog-weapons li:not(:has(.weapon-pic))::before { content: ""; flex: none; width: 7.5rem; }
+.map-dialog-weapons-also { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); }
 .map-dialog-side-weapons { margin-bottom: 0.9rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-soft); }
 .map-dialog-side-weapons[hidden], .map-dialog-below-weapons[hidden], .map-dialog-below-obj-title[hidden], .map-dialog-weapons-none[hidden] { display: none; }
 .map-dialog-below-weapons { margin-bottom: 0.7rem; }

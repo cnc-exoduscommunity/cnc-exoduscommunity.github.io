@@ -137,7 +137,9 @@ sections:
             {%- if map.weapons %}
             <ul class="map-weapons" hidden>
               {%- for weapon in map.weapons %}
-              <li>{{ weapon | escape }}</li>
+              {%- assign weapon_img = nil %}
+              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% endif %}{% endfor %}
+              <li>{% if weapon_img %}<span class="weapon-pic"><img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt="" loading="lazy"></span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
               {%- endfor %}
             </ul>
             {%- endif %}</td>
@@ -164,6 +166,7 @@ sections:
           <p class="map-dialog-objectives-title">Starting weapons</p>
           <ul class="map-dialog-weapons"></ul>
           <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
+          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
         </aside>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
@@ -189,6 +192,7 @@ sections:
             <div class="map-dialog-below-weapons">
               <p class="map-dialog-objectives-title">Starting weapons</p>
               <ul class="map-dialog-weapons"></ul>
+          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
             </div>
             <p class="map-dialog-objectives-title map-dialog-below-obj-title">Objectives</p>
             <ol></ol>
@@ -199,6 +203,7 @@ sections:
           <div class="map-dialog-side-weapons">
             <p class="map-dialog-objectives-title">Starting weapons</p>
             <ul class="map-dialog-weapons"></ul>
+          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
           </div>
           <p class="map-dialog-objectives-title">Objectives</p>
           <ol></ol>
