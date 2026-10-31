@@ -430,8 +430,8 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .map-link { display: inline-flex; align-items: center; gap: 0.4rem; text-decoration: none; }
 .map-link code { text-decoration: none; }
 .map-link:hover code { border-color: var(--link); background: var(--row-hover); }
-.map-link-icon, .map-objectives-icon { color: var(--link); flex: none; }
-.map-cell .map-link-icon, .map-cell .map-objectives-icon { width: 1.75rem; height: 1.75rem; }
+.map-link-icon, .map-objectives-icon, .map-weapons-icon { color: var(--link); flex: none; }
+.map-cell .map-link-icon, .map-cell .map-objectives-icon, .map-cell .map-weapons-icon { width: 1.75rem; height: 1.75rem; }
 .map-link-icon-inline .icon { vertical-align: -0.15em; color: var(--link); }
 
 /* Full-screen dialog: round prev/next buttons hug the map panel's sides (like the Gears DB map modal). */
@@ -520,7 +520,7 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 
 /* Objectives card beside the map (wide screens only; narrower ones use the overlay above). */
 .map-dialog-side, .map-dialog-spacer { display: none; flex: none; width: 22rem; }
-.map-dialog-side {
+.map-dialog-side, .map-dialog-weapons-card {
   flex-direction: column;
   padding: 0.9rem 1rem 1rem;
   overflow: auto;
@@ -533,6 +533,12 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
   line-height: 1.9;
 }
 .map-dialog-side ol { margin: 0; padding-left: 1.4rem; }
+/* Starting weapons lists (left card, right card, below the map). */
+.map-dialog-weapons { margin: 0 0 0.2rem; padding-left: 1.3rem; }
+.map-dialog-weapons li::marker { color: var(--title); }
+.map-dialog-side-weapons { margin-bottom: 0.9rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-soft); }
+.map-dialog-side-weapons[hidden], .map-dialog-below-weapons[hidden], .map-dialog-below-obj-title[hidden], .map-dialog-weapons-none[hidden] { display: none; }
+.map-dialog-below-weapons { margin-bottom: 0.7rem; }
 .map-dialog-side li + li { margin-top: 0.45rem; }
 .map-dialog-side ol[hidden], .map-dialog-side-none[hidden] { display: none; }
 .map-dialog-side-none { margin: 0; color: var(--muted); }
@@ -547,7 +553,9 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 }
 /* Room for a matching spacer on the left too, so the map stays in the middle of the screen. */
 @media (min-width: 1500px) {
-  .map-dialog-spacer { display: block; }
+  /* The left card shows the starting weapons, so the right card doesn't repeat them. */
+  .map-dialog-spacer { display: flex; }
+  .map-dialog-side-weapons { display: none !important; }
 }
 
 .map-dialog-zoom { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.6rem; }

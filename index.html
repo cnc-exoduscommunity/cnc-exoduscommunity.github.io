@@ -99,7 +99,7 @@ sections:
   <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
   <div class="panel-body">
     <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution", or <code>[M00_Tutorial]</code> which would be: <span class="team-badge team-badge-inline team-nod">Nod</span> "Tutorial".</p>
-    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include image-icon.svg %}</span> (map) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
+    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include image-icon.svg %}</span> (map), <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) or <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (starting weapons) to open its preview.</p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
     <div class="table-wrap">
       <table class="map-table">
@@ -114,12 +114,13 @@ sections:
           {%- endfor %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives or map.weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
-              {%- if map_img or map.objectives -%}
+              {%- if map_img or map.objectives or map.weapons -%}
               <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}>
                 {%- if map_img %}{% include image-icon.svg %}{% endif -%}
                 {%- if map.objectives %}{% include objectives-icon.svg %}{% endif -%}
+                {%- if map.weapons %}{% include weapons-icon.svg %}{% endif -%}
                 <code>{{ map.name }}</code></a>
               {%- else -%}
               <code>{{ map.name }}</code>
@@ -132,6 +133,13 @@ sections:
               <li{% if optional == "Optional:" %} class="objective-optional"{% endif %}>{{ step | escape | replace: "Optional:", '<strong>Optional:</strong>' | replace: "GDI", '<span class="team-badge team-badge-inline team-gdi">GDI</span>' | replace: "Nod", '<span class="team-badge team-badge-inline team-nod">Nod</span>' }}</li>
               {%- endfor %}
             </ol>
+            {%- endif %}
+            {%- if map.weapons %}
+            <ul class="map-weapons" hidden>
+              {%- for weapon in map.weapons %}
+              <li>{{ weapon | escape }}</li>
+              {%- endfor %}
+            </ul>
             {%- endif %}</td>
             <td class="col-fit now-cell"></td>
             <td class="col-fit">
@@ -152,7 +160,11 @@ sections:
     <dialog class="map-dialog" aria-labelledby="map-dialog-title">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
       <div class="map-dialog-stage">
-        <div class="map-dialog-spacer" aria-hidden="true"></div>
+        <aside class="map-dialog-spacer map-dialog-weapons-card" aria-label="Starting weapons">
+          <p class="map-dialog-objectives-title">Starting weapons</p>
+          <ul class="map-dialog-weapons"></ul>
+          <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
+        </aside>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
           <span class="now-playing map-dialog-now" hidden><span class="now-playing-dot" aria-hidden="true"></span>Now playing</span>
@@ -174,12 +186,20 @@ sections:
             <span class="map-dialog-counter"></span>
           </div>
           <div class="map-dialog-below" hidden>
-            <p class="map-dialog-objectives-title">Objectives</p>
+            <div class="map-dialog-below-weapons">
+              <p class="map-dialog-objectives-title">Starting weapons</p>
+              <ul class="map-dialog-weapons"></ul>
+            </div>
+            <p class="map-dialog-objectives-title map-dialog-below-obj-title">Objectives</p>
             <ol></ol>
           </div>
         </div>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="1" aria-label="Next map">&#10095;</button>
         <aside class="map-dialog-side" aria-label="Objectives">
+          <div class="map-dialog-side-weapons">
+            <p class="map-dialog-objectives-title">Starting weapons</p>
+            <ul class="map-dialog-weapons"></ul>
+          </div>
           <p class="map-dialog-objectives-title">Objectives</p>
           <ol></ol>
           <p class="map-dialog-side-none">No objectives listed for this map yet.</p>

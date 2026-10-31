@@ -77,7 +77,17 @@
   var sideList = side && side.querySelector("ol");
   var sideNone = side && side.querySelector(".map-dialog-side-none");
   var panelEl = dialog.querySelector(".map-dialog-panel");
-  function matchSideHeight() { if (side) side.style.height = panelEl.offsetHeight + "px"; }
+  // Starting weapons: a card on the left (widest screens), in the right card, or below the map.
+  var weaponsCard = dialog.querySelector(".map-dialog-weapons-card");
+  var weaponLists = dialog.querySelectorAll(".map-dialog-weapons");
+  var weaponsNone = dialog.querySelector(".map-dialog-weapons-none");
+  var sideWeapons = dialog.querySelector(".map-dialog-side-weapons");
+  var belowWeapons = dialog.querySelector(".map-dialog-below-weapons");
+  var belowObjTitle = dialog.querySelector(".map-dialog-below-obj-title");
+  function matchSideHeight() {
+    if (side) side.style.height = panelEl.offsetHeight + "px";
+    if (weaponsCard) weaponsCard.style.height = panelEl.offsetHeight + "px";
+  }
   function hasImage(l) { return l.getAttribute("data-has-image") !== "0"; }
   var navButtons = dialog.querySelectorAll("[data-map-step]");
   var current = 0;
@@ -170,7 +180,16 @@
     var steps = link.closest("tr") ? link.closest("tr").querySelectorAll(".map-objectives li") : [];
     belowList.textContent = "";
     Array.prototype.forEach.call(steps, function (li) { belowList.appendChild(li.cloneNode(true)); });
-    below.hidden = !steps.length;
+    var weapons = link.closest("tr") ? link.closest("tr").querySelectorAll(".map-weapons li") : [];
+    Array.prototype.forEach.call(weaponLists, function (ul) {
+      ul.textContent = "";
+      Array.prototype.forEach.call(weapons, function (li) { ul.appendChild(li.cloneNode(true)); });
+    });
+    if (weaponsNone) weaponsNone.hidden = !!weapons.length;
+    if (sideWeapons) sideWeapons.hidden = !weapons.length;
+    if (belowWeapons) belowWeapons.hidden = !weapons.length;
+    if (belowObjTitle) belowObjTitle.hidden = !steps.length;
+    below.hidden = !steps.length && !weapons.length;
     if (side) {
       sideList.textContent = "";
       Array.prototype.forEach.call(steps, function (li) { sideList.appendChild(li.cloneNode(true)); });
