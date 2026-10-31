@@ -123,6 +123,7 @@
   image_credit: vgmaps
 - name: M05
   description: "Mission 6: Deadly Reunion"
+  note: "The night version"
   faction: GDI
   image_credit: vgmaps
 - name: M06
@@ -134,6 +135,7 @@
     - Grenade Launcher
 - name: M07
   description: "Mission 8: Obelisk of Oppression"
+  note: "The day version of M05, with an almost inverted path (going back)"
   faction: GDI
   image_credit: vgmaps
 - name: M08
@@ -150,5 +152,6 @@
   image_credit: vgmaps
 - name: M11
   description: "Mission 12: Stomping on Holy Ground"
+  note: "The map shown is the one used in game, since there's no map data for this mission"
   faction: GDI
   image_credit: vgmaps
