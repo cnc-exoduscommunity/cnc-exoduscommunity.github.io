@@ -77,11 +77,11 @@
   var sideList = side && side.querySelector("ol");
   var sideNone = side && side.querySelector(".map-dialog-side-none");
   var panelEl = dialog.querySelector(".map-dialog-panel");
-  // Starting weapons: a card on the left (widest screens), in the right card, or below the map.
+  // Weapons: a card on the left of the map, or below the map on narrow screens.
   var weaponsCard = dialog.querySelector(".map-dialog-weapons-card");
-  var weaponLists = dialog.querySelectorAll(".map-dialog-weapons");
+  var weaponLists = dialog.querySelectorAll(".map-dialog-weapons:not(.map-dialog-onmap-list)");
+  var onmapBoxes = dialog.querySelectorAll(".map-dialog-onmap");
   var weaponsNone = dialog.querySelector(".map-dialog-weapons-none");
-  var sideWeapons = dialog.querySelector(".map-dialog-side-weapons");
   var belowWeapons = dialog.querySelector(".map-dialog-below-weapons");
   var belowObjTitle = dialog.querySelector(".map-dialog-below-obj-title");
   function matchSideHeight() {
@@ -185,11 +185,17 @@
       ul.textContent = "";
       Array.prototype.forEach.call(weapons, function (li) { ul.appendChild(li.cloneNode(true)); });
     });
+    var onmap = link.closest("tr") ? link.closest("tr").querySelectorAll(".map-onmap-weapons li") : [];
+    Array.prototype.forEach.call(onmapBoxes, function (box) {
+      var ul = box.querySelector("ul");
+      ul.textContent = "";
+      Array.prototype.forEach.call(onmap, function (li) { ul.appendChild(li.cloneNode(true)); });
+      box.hidden = !onmap.length;
+    });
     if (weaponsNone) weaponsNone.hidden = !!weapons.length;
-    if (sideWeapons) sideWeapons.hidden = !weapons.length;
-    if (belowWeapons) belowWeapons.hidden = !weapons.length;
+    if (belowWeapons) belowWeapons.hidden = !weapons.length && !onmap.length;
     if (belowObjTitle) belowObjTitle.hidden = !steps.length;
-    below.hidden = !steps.length && !weapons.length;
+    below.hidden = !steps.length && !weapons.length && !onmap.length;
     if (side) {
       sideList.textContent = "";
       Array.prototype.forEach.call(steps, function (li) { sideList.appendChild(li.cloneNode(true)); });

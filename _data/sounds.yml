@@ -1,0 +1,12 @@
+# In-game sounds (type !sounds in game to see them). Shown in the Sounds section,
+# numbered in this order. While this list is empty the section is greyed out.
+#
+# command: what you type, e.g. "!yes"
+# name:    optional, a short description
+# audio:   optional, a file in assets/sounds/ (e.g. yes.mp3) to play on the site
+#
+# Example:
+# - command: "!yes"
+#   name: Yes sir
+#   audio: yes.mp3
+[]

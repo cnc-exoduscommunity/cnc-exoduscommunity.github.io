@@ -333,6 +333,15 @@ details[open] > summary.panel-tab::after { transform: rotate(45deg); }
   text-shadow: var(--title-shadow);
 }
 .toc-desc { font-size: 0.9rem; color: var(--text); opacity: 0.85; }
+/* Sections that aren't filled in yet: greyed out with a "Coming soon" tag. */
+.toc-item.is-soon, .panel.is-soon > .panel-tab { filter: grayscale(1); opacity: 0.55; }
+.panel.is-soon > .panel-body { filter: grayscale(1); opacity: 0.7; }
+.soon-tag { display: inline-block; margin-left: 0.5rem; padding: 0.05rem 0.45rem; border: 1px solid currentColor; border-radius: 3px;
+  font-size: 0.55em; letter-spacing: 0.08em; text-transform: uppercase; vertical-align: middle; }
+.sounds-table td { vertical-align: middle; }
+.sounds-table .sound-name { margin-left: 0.5rem; color: var(--muted); }
+.sounds-table audio { height: 2rem; max-width: 100%; }
+.sounds-table .muted { color: var(--muted); }
 
 .toc-sub { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.45rem 0 0 3.6rem; }
 .toc-sub a {
@@ -543,8 +552,9 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .weapon-pic img { max-width: 100%; max-height: 100%; object-fit: contain; }
 .map-dialog-weapons li:not(:has(.weapon-pic))::before { content: ""; flex: none; width: 7.5rem; }
 .map-dialog-weapons-also { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); }
-.map-dialog-side-weapons { margin-bottom: 0.9rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border-soft); }
-.map-dialog-side-weapons[hidden], .map-dialog-below-weapons[hidden], .map-dialog-below-obj-title[hidden], .map-dialog-weapons-none[hidden] { display: none; }
+.map-dialog-onmap { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border-soft); }
+.map-dialog-onmap[hidden] { display: none; }
+.map-dialog-below-weapons[hidden], .map-dialog-below-obj-title[hidden], .map-dialog-weapons-none[hidden] { display: none; }
 .map-dialog-below-weapons { margin-bottom: 0.7rem; }
 .map-dialog-side li + li { margin-top: 0.45rem; }
 .map-dialog-side ol[hidden], .map-dialog-side-none[hidden] { display: none; }
@@ -553,16 +563,20 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
   .map-dialog { overflow-y: auto; }
   .map-dialog-stage { height: auto; min-height: 100%; }
 }
+/* Room beside the map: weapons in a card on the left, objectives on the right,
+   with the map in the middle. Narrower cards on mid-size screens. */
 @media (min-width: 1100px) {
-  .map-dialog-side { display: flex; }
-  .map-dialog-panel { width: min(600px, calc(100vw - 33rem), calc(100vh - 16rem)); }
+  .map-dialog-side, .map-dialog-spacer { display: flex; width: 18rem; }
+  .map-dialog-panel { width: min(600px, calc(100vw - 9rem - 38rem), calc(100vh - 16rem)); }
   .map-dialog-below { display: none !important; }
+  .map-dialog-weapons-card .weapon-pic { width: 6rem; height: 2.7rem; }
+  .map-dialog-weapons-card li:not(:has(.weapon-pic))::before { width: 6rem; }
 }
-/* Room for a matching spacer on the left too, so the map stays in the middle of the screen. */
 @media (min-width: 1500px) {
-  /* The left card shows the starting weapons, so the right card doesn't repeat them. */
-  .map-dialog-spacer { display: flex; }
-  .map-dialog-side-weapons { display: none !important; }
+  .map-dialog-side, .map-dialog-spacer { width: 22rem; }
+  .map-dialog-panel { width: min(600px, calc(100vw - 9rem - 46rem), calc(100vh - 16rem)); }
+  .map-dialog-weapons-card .weapon-pic { width: 7.5rem; height: 3.2rem; }
+  .map-dialog-weapons-card li:not(:has(.weapon-pic))::before { width: 7.5rem; }
 }
 
 .map-dialog-zoom { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.6rem; }

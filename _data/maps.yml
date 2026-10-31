@@ -6,6 +6,7 @@
 #   Leave it out to show "-". The words GDI and Nod are shown as faction badges.
 #   A step starting with "Optional:" is shown without a number.
 # weapons: the starting weapons on that map, one per line (shown in the map preview).
+# map_weapons: weapons lying around on the map to pick up, one per line.
 # image_credit: key from _data/credits.yml, shown under the map's preview.
 #
 # A map gets a clickable preview when assets/images/maps/<name>.webp

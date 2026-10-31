@@ -87,6 +87,13 @@ sections:
           <a href="#irc-connect">How to connect</a>
         </div>
       </li>
+      {%- assign sounds_ready = site.data.sounds | size %}
+      <li>
+        <a class="toc-item{% if sounds_ready == 0 %} is-soon{% endif %}" href="#sounds">
+          <span class="toc-num">03</span>
+          <span class="toc-text"><span class="toc-title">Sounds{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</span><span class="toc-desc">The in-game <code>!sounds</code> commands, with a preview of each</span></span>
+        </a>
+      </li>
     </ol>
     <p class="toc-actions">
       <button class="btn btn-small" type="button" data-expand-all>Expand all</button>
@@ -114,13 +121,13 @@ sections:
           {%- endfor %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives or map.weapons %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
-              {%- if map_img or map.objectives or map.weapons -%}
+              {%- if map_img or map.objectives or map.weapons or map.map_weapons -%}
               <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}>
                 {%- if map_img %}{% include image-icon.svg %}{% endif -%}
                 {%- if map.objectives %}{% include objectives-icon.svg %}{% endif -%}
-                {%- if map.weapons %}{% include weapons-icon.svg %}{% endif -%}
+                {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
                 <code>{{ map.name }}</code></a>
               {%- else -%}
               <code>{{ map.name }}</code>
@@ -133,6 +140,15 @@ sections:
               <li{% if optional == "Optional:" %} class="objective-optional"{% endif %}>{{ step | escape | replace: "Optional:", '<strong>Optional:</strong>' | replace: "GDI", '<span class="team-badge team-badge-inline team-gdi">GDI</span>' | replace: "Nod", '<span class="team-badge team-badge-inline team-nod">Nod</span>' }}</li>
               {%- endfor %}
             </ol>
+            {%- endif %}
+            {%- if map.map_weapons %}
+            <ul class="map-onmap-weapons" hidden>
+              {%- for weapon in map.map_weapons %}
+              {%- assign weapon_img = nil %}
+              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% endif %}{% endfor %}
+              <li>{% if weapon_img %}<span class="weapon-pic"><img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt="" loading="lazy"></span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
+              {%- endfor %}
+            </ul>
             {%- endif %}
             {%- if map.weapons %}
             <ul class="map-weapons" hidden>
@@ -167,6 +183,10 @@ sections:
           <ul class="map-dialog-weapons"></ul>
           <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
           <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
+          <div class="map-dialog-onmap" hidden>
+            <p class="map-dialog-objectives-title">Weapons on the map</p>
+            <ul class="map-dialog-weapons map-dialog-onmap-list"></ul>
+          </div>
         </aside>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
@@ -193,6 +213,10 @@ sections:
               <p class="map-dialog-objectives-title">Starting weapons</p>
               <ul class="map-dialog-weapons"></ul>
           <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
+              <div class="map-dialog-onmap" hidden>
+                <p class="map-dialog-objectives-title">Weapons on the map</p>
+                <ul class="map-dialog-weapons map-dialog-onmap-list"></ul>
+              </div>
             </div>
             <p class="map-dialog-objectives-title map-dialog-below-obj-title">Objectives</p>
             <ol></ol>
@@ -200,11 +224,6 @@ sections:
         </div>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="1" aria-label="Next map">&#10095;</button>
         <aside class="map-dialog-side" aria-label="Objectives">
-          <div class="map-dialog-side-weapons">
-            <p class="map-dialog-objectives-title">Starting weapons</p>
-            <ul class="map-dialog-weapons"></ul>
-          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
-          </div>
           <p class="map-dialog-objectives-title">Objectives</p>
           <ol></ol>
           <p class="map-dialog-side-none">No objectives listed for this map yet.</p>
@@ -219,5 +238,29 @@ sections:
   <div class="panel-body">
     {% capture irc %}{% include irc.md %}{% endcapture %}
     {{ irc | markdownify }}
+  </div>
+</details>
+
+{%- assign sounds_ready = site.data.sounds | size %}
+<details class="panel{% if sounds_ready == 0 %} is-soon{% endif %}" id="sounds">
+  <summary class="panel-tab"><h2 class="panel-tab-title">Sounds{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</h2></summary>
+  <div class="panel-body">
+    <p>In game, type <code>!sounds</code> to see the list, then type a command to play that sound for everyone.</p>
+    <div class="table-wrap">
+      <table class="sounds-table">
+        <thead><tr><th class="col-fit">#</th><th>Name / Command</th><th>Audio</th></tr></thead>
+        <tbody>
+          {%- for sound in site.data.sounds %}
+          <tr>
+            <td class="col-fit">{{ forloop.index }}</td>
+            <td><code>{{ sound.command | escape }}</code>{% if sound.name %} <span class="sound-name">{{ sound.name | escape }}</span>{% endif %}</td>
+            <td>{% if sound.audio %}<audio controls preload="none" src="{{ '/assets/sounds/' | append: sound.audio | relative_url }}"></audio>{% else %}<span class="muted">-</span>{% endif %}</td>
+          </tr>
+          {%- else %}
+          <tr class="sounds-empty"><td class="col-fit">-</td><td>The list of sounds is coming soon.</td><td><span class="muted">-</span></td></tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </details>
