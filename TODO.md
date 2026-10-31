@@ -7,8 +7,16 @@ when it works.
 
 On Nod maps the server reports **0 players** to everyone who asks (the in-game
 list, W3D Hub, CnCNet, and our direct check on query port 23506), unless at
-least one player is on GDI. Mission-Coop (BRenBot 1.53) also says "There are
-no players ingame at this time."
+least one player is on GDI. Even the server's own bot, Mission-Coop
+(BRenBot 1.53), can't see them, while 6 people were playing:
+
+```
+<Mission-Coop> There are no players ingame at this time.
+<Mission-Coop> Gameinfo: (WOL) Map: C&C_Islands.mix GDI: 0/36 players  0 points Nod: 0/36 players  0 points 1.34.20 mins left SFPS: 59
+```
+
+So the problem is in the server or its scripts, not in the server lists -
+worth reporting to the server admin; fixing it there fixes everything.
 
 **ExaBot's `!pl` is always right**, for example:
 
