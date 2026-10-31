@@ -93,7 +93,9 @@ ExaBot's `!pl` (posts in the channel) stays as a manual check only.
 - [ ] Save `players.json` every minute: map, names (+ scores from the last
       `!pl`), `checked_at`, `last_pl_at`
 - [ ] Site: when CnCNet / the direct check say 0 players and `players.json`
-      is recent, show its count and names, with an "IRC" badge
+      is recent, show its count and names, with an "IRC" badge and a note
+      like "From IRC · full list 23 min ago · on Nod maps this can be wrong"
+      (Nod as a badge), so visitors know it's an estimate between `!pl`s
 
 ## Notes on ExaBot
 
