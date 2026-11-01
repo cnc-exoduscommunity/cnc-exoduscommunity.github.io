@@ -16,15 +16,19 @@
   faction: GDI
 - name: City
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: GDI
 - name: Complex
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: GDI
 - name: Walls
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: GDI
 - name: Mesa
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: GDI
   objectives:
     - Destroy all vehicles besieging our base as well as the 2 MCT's inside the tiberium cave.
@@ -40,12 +44,14 @@
     - Grenade Launcher
 - name: Canyon
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: Nod
   weapons:
     - Maintenance Tool
     - Laser Rifle
 - name: Under
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: Nod
 - name: Coop_B01_B6
   description: Custom co-op map
@@ -60,6 +66,7 @@
     - Destroy the GDI Base.
 - name: Volcano
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: Nod
   objectives:
     - Our base has been overrun. Eliminate GDI (non-rocket) officers and Dead 6 to regain control.
@@ -71,6 +78,7 @@
     - Destroy all GDI vehicles inside the GDI base in order to gain access to the GDI WF.
 - name: Islands
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: Nod
   objectives:
     - GDI has taken the field. Destroy all enemy vehicles and the mini console to reclaim it.
@@ -80,6 +88,7 @@
     - "Optional: Destroying GDI Guard Towers will allow Nod stealth units easy access."
 - name: Hourglass
   description: Original multiplayer map, changed to allow co-op
+  image_credit: cncnz
   faction: Nod
   objectives:
     - Break the GDI siege by destroying enemy vehicles.
