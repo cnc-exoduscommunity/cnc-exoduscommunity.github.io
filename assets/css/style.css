@@ -743,6 +743,8 @@ li.objective-optional strong { color: var(--text); font-weight: 600; }
 .team-badge-inline { margin: 0 0.1rem; }
 .live-warning { margin: 0.6rem 0 0; padding: 0.55rem 0.85rem; border: 1px solid #c98a1a; border-left-width: 4px; border-radius: 4px; background: rgba(201, 138, 26, 0.12); font-size: 1rem; line-height: 1.85; }
 .live-warning code { white-space: nowrap; }
+.join-inline { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.05rem 0.55rem; font-size: 0.85rem; line-height: 1.5; vertical-align: middle; }
+.join-inline .icon { width: 0.75rem; height: 0.75rem; }
 .live-player-list td { vertical-align: middle; }
 .live-player-list th:nth-child(2), .live-player-list td:nth-child(2) { text-align: center; } /* Team */
 

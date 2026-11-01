@@ -643,9 +643,15 @@ function makeZoom(viewport, img, label) {
       warning.appendChild(el("code", null, "!pl"));
       warning.appendChild(document.createTextNode(" in "));
       warning.appendChild(el("code", null, "#Mission-Coop"));
-      warning.appendChild(document.createTextNode(") or join in game: use "));
-      warning.appendChild(el("strong", null, "Join Server"));
-      warning.appendChild(document.createTextNode(" or "));
+      warning.appendChild(document.createTextNode(") or join in game: use the "));
+      // A small copy of the Join Server button, which works the same way.
+      var join = el("a", "btn btn-primary btn-small join-inline");
+      var src = box.querySelector(".live-join");
+      join.href = src ? src.getAttribute("href") : "#";
+      join.title = src ? src.title || "" : "";
+      join.innerHTML = '<svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>Join Server';
+      warning.appendChild(join);
+      warning.appendChild(document.createTextNode(" button, or the IP and port: "));
       warning.appendChild(el("code", null, address));
       warning.appendChild(document.createTextNode("."));
     }

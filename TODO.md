@@ -13,6 +13,16 @@ it (`F:\Gears Website\New`):
 - [ ] A simple editor page (local only) to click on the map and place / move
       marks, then copy the resulting data into the repo
 
+## Gallery tagging tool
+
+A tool to go through the gallery photos and say which map each one is from:
+
+- [ ] Show a gallery photo and pick its map from the rotation list (or "none")
+- [ ] Save the links as data (e.g. `_data/gallery.yml`: photo file name -> map
+      name, optional caption) so nothing has to be renamed
+- [ ] Gallery: show the map name on each photo and filter the gallery by map
+- [ ] Map preview: a "Photos" link or strip with that map's gallery photos
+
 ## Player list from IRC (dropped)
 
 > **Decision (01-11-2026): not doing this.** Deth: asking the bots on a
