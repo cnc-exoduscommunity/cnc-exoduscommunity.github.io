@@ -848,6 +848,11 @@ tr.is-current td { vertical-align: middle; }
 /* Room for the badge is always kept, so the box doesn't change size between maps. */
 .map-dialog-headline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; padding-right: 8.5rem; }
 .map-dialog-zoom .map-dialog-view { margin-left: 0.6rem; }
+/* Both labels share one grid cell, so the button keeps the width of the longer one. */
+.map-dialog-view:not([hidden]) { display: inline-grid; justify-items: center; }
+.map-dialog-view .view-label { grid-area: 1 / 1; }
+.map-dialog-view[aria-pressed="false"] .view-label-map,
+.map-dialog-view[aria-pressed="true"] .view-label-photo { visibility: hidden; }
 .map-dialog-faction:empty { display: none; }
 .map-dialog-faction .team-badge { text-shadow: none; }
 .map-dialog-view[hidden] { display: none; }

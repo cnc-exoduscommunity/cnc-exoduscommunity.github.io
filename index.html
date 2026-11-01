@@ -192,7 +192,7 @@ sections:
         </tbody>
       </table>
     </div>
-    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and {{ site.data.credits.ryanturner.name }} (campaign)</p>
+    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a> (campaign)</p>
 
     <dialog class="map-dialog" aria-labelledby="map-dialog-title">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
@@ -223,7 +223,7 @@ sections:
             <span class="map-dialog-zoom-level" aria-live="polite">100%</span>
             <button class="btn btn-small" type="button" data-zoom="in" aria-label="Zoom in">+</button>
             <button class="btn btn-small" type="button" data-zoom="reset">Reset</button>
-            <button class="btn btn-small map-dialog-view" type="button" hidden>Show In-Game Photo</button>
+            <button class="btn btn-small map-dialog-view" type="button" aria-pressed="false" hidden><span class="view-label view-label-photo">Show In-Game Photo</span><span class="view-label view-label-map">Show Map</span></button>
           </div>
           <div class="map-dialog-foot">
             <p class="map-dialog-credit" hidden>Credit to <a class="map-dialog-credit-name" href=""></a></p>
@@ -288,24 +288,25 @@ sections:
 </details>
 
 {%- comment %} Gallery: every photo in assets/images/gallery/ (thumbnails in thumbs/). {% endcomment %}
+{%- assign gallery_credit = site.data.credits[site.gallery.credit] %}
 {%- assign gallery_count = 0 %}
 {%- for f in site.static_files %}{% if f.path contains '/assets/images/gallery/' %}{% unless f.path contains '/thumbs/' %}{% assign gallery_count = gallery_count | plus: 1 %}{% endunless %}{% endif %}{% endfor %}
 <details class="panel" id="gallery">
   <summary class="panel-tab"><h2 class="panel-tab-title">Gallery</h2></summary>
   <div class="panel-body">
-    <p>{{ gallery_count }} screenshots from the server, taken by {{ site.gallery.credit }}. Click one to see it full size.</p>
+    <p>{{ gallery_count }} screenshots from the server, taken by <a href="{{ gallery_credit.url }}">{{ gallery_credit.name }}</a>. Click one to see it full size.</p>
     <ul class="gallery-grid">
       {%- for f in site.static_files %}
       {%- if f.path contains '/assets/images/gallery/' %}{% unless f.path contains '/thumbs/' %}
       {%- assign b = f.basename %}
       {%- capture shot_date %}{{ b | slice: 6, 2 }}-{{ b | slice: 4, 2 }}-{{ b | slice: 0, 4 }} {{ b | slice: 8, 2 }}:{{ b | slice: 10, 2 }}{% endcapture %}
-      {%- capture caption %}Taken by {{ site.gallery.credit }}{% if b.size >= 14 %} · {{ shot_date }}{% endif %}{% endcapture %}
+      {%- capture caption %}Taken by {{ gallery_credit.name }}{% if b.size >= 14 %} · {{ shot_date }}{% endif %}{% endcapture %}
       <li><a class="gallery-item" href="{{ f.path | relative_url }}" data-caption="{{ caption | strip | escape }}"><img src="{{ f.path | replace: '/assets/images/gallery/', '/assets/images/gallery/thumbs/' | relative_url }}" alt="{{ caption | strip | escape }}" loading="lazy" width="480" height="270"></a></li>
       {%- endunless %}{% endif %}
       {%- endfor %}
     </ul>
 
-    <dialog class="gallery-dialog" aria-label="Screenshot">
+    <dialog class="gallery-dialog" aria-label="Screenshot" data-credit-name="{{ gallery_credit.name | escape }}" data-credit-url="{{ gallery_credit.url | escape }}">
       <button class="map-dialog-btn map-dialog-close gallery-close" type="button" aria-label="Close">&#10005;</button>
       <div class="gallery-stage">
         <button class="map-dialog-btn" type="button" data-gallery-step="-1" aria-label="Previous screenshot">&#10094;</button>

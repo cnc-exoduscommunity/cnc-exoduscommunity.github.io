@@ -182,8 +182,7 @@
     var showPhoto = !!(wantPhoto && photo && withImage);
     if (viewBtn) {
       viewBtn.hidden = !(photo && withImage);
-      viewBtn.textContent = showPhoto ? "Show Map" : "Show In-Game Photo";
-      viewBtn.setAttribute("aria-pressed", String(showPhoto));
+      viewBtn.setAttribute("aria-pressed", String(showPhoto));   // CSS shows the matching label
     }
     if (withImage) {
       image.src = showPhoto ? photo : link.getAttribute("href");
@@ -758,7 +757,18 @@ function makeZoom(viewport, img, label) {
     var a = items[current];
     img.src = a.getAttribute("href");
     img.alt = a.getAttribute("data-caption") || "";
-    caption.textContent = a.getAttribute("data-caption") || "";
+    caption.textContent = "";
+    var text = a.getAttribute("data-caption") || "";
+    var who = dialog.getAttribute("data-credit-name"), url = dialog.getAttribute("data-credit-url");
+    var at = who && url ? text.indexOf(who) : -1;
+    if (at < 0) caption.textContent = text;
+    else {
+      var link = document.createElement("a");
+      link.href = url; link.textContent = who; link.target = "_blank"; link.rel = "noopener";
+      caption.appendChild(document.createTextNode(text.slice(0, at)));
+      caption.appendChild(link);
+      caption.appendChild(document.createTextNode(text.slice(at + who.length)));
+    }
     counter.textContent = (current + 1) + " / " + items.length;
     if (!dialog.open) dialog.showModal();
     // Preload the neighbours so stepping feels instant.

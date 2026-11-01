@@ -36,7 +36,7 @@ server:
 # same name in assets/images/gallery/thumbs/), oldest first. Photo names like
 # 20250816183829_1 (Steam screenshots) give the date shown under each photo.
 gallery:
-  credit: RyanTurner
+  credit: ryanturner   # key from _data/credits.yml (name and link)
 
 # Shown under "Join Server" for players who don't know how to connect.
 connect_help:
