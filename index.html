@@ -106,7 +106,7 @@ sections:
   <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
   <div class="panel-body">
     <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution", or <code>[M00_Tutorial]</code> which would be: <span class="team-badge team-badge-inline team-nod">Nod</span> "Tutorial".</p>
-    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include image-icon.svg %}</span> (map), <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) or <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (starting weapons) to open its preview.</p>
+    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (weapons), <span class="map-link-icon-inline">{% include image-icon.svg %}</span> (map) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
     <div class="table-wrap">
       <table class="map-table">
@@ -125,9 +125,10 @@ sections:
             <td><span class="map-cell">
               {%- if map_img or map.objectives or map.weapons or map.map_weapons -%}
               <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}>
+                {%- comment %} Same order as the preview: weapons (left), map, objectives (right). {% endcomment -%}
+                {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
                 {%- if map_img %}{% include image-icon.svg %}{% endif -%}
                 {%- if map.objectives %}{% include objectives-icon.svg %}{% endif -%}
-                {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
                 <code>{{ map.name }}</code></a>
               {%- else -%}
               <code>{{ map.name }}</code>
