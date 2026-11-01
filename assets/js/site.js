@@ -1,3 +1,13 @@
+// "16-08-2025 18:38" -> "Saturday, 16 August 2025, 18:38" (written out, so the day and month can't be mixed up).
+function longDate(s) {
+  var m = /^(\d{2})-(\d{2})-(\d{4})(?: (\d{2}):(\d{2}))?$/.exec(s || "");
+  if (!m) return "";
+  var d = new Date(+m[3], +m[2] - 1, +m[1]);
+  var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return days[d.getDay()] + ", " + (+m[1]) + " " + months[+m[2] - 1] + " " + m[3] + (m[4] ? ", " + m[4] + ":" + m[5] : "");
+}
+
 // Theme toggle: switches between the dark (default) and light theme and remembers the choice.
 (function () {
   var root = document.documentElement;
@@ -72,7 +82,7 @@
   var below = dialog.querySelector(".map-dialog-below");
   var belowList = below && below.querySelector("ol");
   var zoomRow = dialog.querySelector(".map-dialog-zoom");
-  var creditDate = null;
+  var creditDate = null, creditShort = null;
   // Wide screens: the objectives go in a card beside the map instead of below it.
   var side = dialog.querySelector(".map-dialog-side");
   var sideList = side && side.querySelector("ol");
@@ -237,8 +247,12 @@
     }
     // A player's own photo: when it was taken, like the gallery captions.
     var taken = showPhoto ? link.getAttribute("data-ingame-date") : null;
-    if (!creditDate) { creditDate = document.createElement("span"); creditDate.className = "shot-date map-dialog-credit-date"; credit.appendChild(creditDate); }
-    creditDate.textContent = taken ? "(" + taken + ")" : "\u00a0";
+    if (!creditDate) {
+      creditShort = document.createElement("span"); creditName.insertAdjacentElement("afterend", creditShort);
+      creditDate = document.createElement("span"); creditDate.className = "shot-date map-dialog-credit-date"; credit.appendChild(creditDate);
+    }
+    creditShort.textContent = taken ? " " + taken : "";
+    creditDate.textContent = taken ? "(" + longDate(taken) + ")" : "\u00a0";
     counter.textContent = (current + 1) + " / " + links.length;
     updateNowPlaying();
     // The zoom level and position carry over from map to map (Reset or 0 to undo).
@@ -763,7 +777,6 @@ function makeZoom(viewport, img, label) {
     img.src = a.getAttribute("href");
     img.alt = a.getAttribute("data-caption") || "";
     var date = a.getAttribute("data-date");
-    dialog.querySelector(".gallery-date").textContent = date ? "(" + date + ")" : "";
     caption.textContent = "";
     var text = a.getAttribute("data-caption") || "";
     var who = dialog.getAttribute("data-credit-name"), url = dialog.getAttribute("data-credit-url");
@@ -776,6 +789,9 @@ function makeZoom(viewport, img, label) {
       caption.appendChild(link);
       caption.appendChild(document.createTextNode(text.slice(at + who.length)));
     }
+    // Short date after the name; written out on the line below.
+    if (date) caption.appendChild(document.createTextNode(" " + date));
+    dialog.querySelector(".gallery-date").textContent = date ? "(" + longDate(date) + ")" : "";
     counter.textContent = (current + 1) + " / " + items.length;
     if (!dialog.open) dialog.showModal();
     // Preload the neighbours so stepping feels instant.

@@ -336,8 +336,10 @@ details[open] > summary.panel-tab::after { transform: rotate(45deg); }
 /* Sections that aren't filled in yet: greyed out with a "Coming soon" tag. */
 .toc-item.is-soon, .panel.is-soon > .panel-tab { filter: grayscale(1); opacity: 0.55; }
 .panel.is-soon > .panel-body { filter: grayscale(1); opacity: 0.7; }
-.soon-tag { display: inline-block; margin-left: 0.5rem; padding: 0.05rem 0.45rem; border: 1px solid currentColor; border-radius: 3px;
-  font-size: 0.55em; letter-spacing: 0.08em; text-transform: uppercase; vertical-align: middle; }
+/* Same approach as the GDI / Nod badges: fixed height, line box = inner height, indent balances the letter spacing. */
+.soon-tag { display: inline-block; box-sizing: border-box; margin-left: 0.5rem; height: 1.6em; line-height: calc(1.6em - 2px); padding: 0 0.5em;
+  border: 1px solid currentColor; border-radius: 3px; font-size: 0.55em; letter-spacing: 0.08em; text-indent: 0.08em;
+  text-transform: uppercase; text-shadow: none; vertical-align: middle; position: relative; top: -0.1em; }
 .sounds-table td { vertical-align: middle; }
 .sounds-table .sound-name { margin-left: 0.5rem; color: var(--muted); }
 .sounds-table audio { height: 2rem; max-width: 100%; }
