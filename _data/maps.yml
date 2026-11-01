@@ -1,6 +1,7 @@
 # Map rotation, in the order the server plays them (in game: !rotation).
 # name: the map file name. description: the map's name or what it is.
-# note: optional extra detail, shown smaller under/after the description.
+# note: optional extra detail, shown smaller under/after the description. `text` shows as a code box.
+# images_from: use another map's images (e.g. Skirmish00 is played on Under).
 # faction: GDI or Nod - the side players are on. Leave it out to show "-".
 # objectives: what the map tells you to do (top left in game), one line per step.
 #   Leave it out to show "-". The words GDI and Nod are shown as faction badges.
@@ -105,7 +106,10 @@
     - Laser Rifle
     - Rocket Launcher
 - name: Skirmish00
-  description: Original skirmish map
+  description: Multiplayer Practice / Offline Skirmish mode
+  note: "Played on the map `Under`"
+  images_from: Under
+  image_credit: cncnz
   faction: GDI
 - name: M00_Tutorial
   description: Tutorial

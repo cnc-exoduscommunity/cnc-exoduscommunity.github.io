@@ -72,6 +72,15 @@ function longDate(s) {
   var noteEl = dialog.querySelector(".map-dialog-note");
   // "co-op" must not break across lines: use a non-breaking hyphen between letters.
   function keepWords(t) { return (t || "").replace(/(\w)-(\w)/g, "$1\u2011$2"); }
+  // Note text where `name` shows as a code box (like the map names in the table).
+  function setNote(el, t) {
+    el.textContent = "";
+    keepWords(t).split("`").forEach(function (part, i) {
+      if (!part) return;
+      if (i % 2) { var c = document.createElement("code"); c.textContent = part; el.appendChild(c); }
+      else el.appendChild(document.createTextNode(part));
+    });
+  }
   var image = dialog.querySelector(".map-dialog-image");
   var credit = dialog.querySelector(".map-dialog-credit");
   var creditName = dialog.querySelector(".map-dialog-credit-name");
@@ -133,17 +142,17 @@ function longDate(s) {
   var titleEl = dialog.querySelector(".map-dialog-title");
   var largest = null;
   function measureTitles() {
-    var keepName = name.textContent, keepComment = comment.textContent, keepNote = noteEl.textContent, tallest = 0;
+    var keepName = name.textContent, keepComment = comment.textContent, keepNote = noteEl.innerHTML, tallest = 0;
     titleEl.style.minHeight = "";
     links.forEach(function (l) {
       name.textContent = l.getAttribute("data-map-name");
       comment.textContent = keepWords(l.getAttribute("data-map-description"));
-      noteEl.textContent = keepWords(l.getAttribute("data-map-note"));
+      setNote(noteEl, l.getAttribute("data-map-note"));
       tallest = Math.max(tallest, titleEl.offsetHeight);
     });
     name.textContent = keepName;
     comment.textContent = keepComment;
-    noteEl.textContent = keepNote;
+    noteEl.innerHTML = keepNote;
     titleEl.style.minHeight = tallest + "px";
   }
   function sizeToLargest() {
@@ -174,7 +183,7 @@ function longDate(s) {
     var mapComment = link.getAttribute("data-map-description") || "";
     name.textContent = mapName;
     comment.textContent = keepWords(mapComment);
-    noteEl.textContent = keepWords(link.getAttribute("data-map-note"));
+    setNote(noteEl, link.getAttribute("data-map-note"));
     // Faction badge after the name (from the map's row in the table).
     var factionBox = dialog.querySelector(".map-dialog-faction");
     if (factionBox) {
@@ -536,7 +545,7 @@ function makeZoom(viewport, img, label) {
       note.textContent = (row.querySelector(".map-desc") || row.cells[3]).textContent.trim();
       mapEl.appendChild(note);
       var extra = row.querySelector(".map-note-extra");
-      if (extra) mapEl.appendChild(el("span", "live-map-note live-map-note-extra", extra.textContent.trim()));
+      if (extra) { var ex = el("span", "live-map-note live-map-note-extra"); ex.innerHTML = extra.innerHTML; mapEl.appendChild(ex); }
     }
   }
 

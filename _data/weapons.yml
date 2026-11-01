@@ -52,7 +52,42 @@
   aliases: [Chem Sprayer]
   image: chemical-sprayer.webp
   hotkey: 4
+# Pictures from Prima's Official Strategy Guide (no in-game render yet): credit: prima
+- name: Pistol
+  image: pistol.webp
+  credit: prima
+  hotkey: 1
 - name: Shotgun
+  image: shotgun.webp
+  credit: prima
   hotkey: 2
 - name: Ramjet Rifle
+  image: ramjet-rifle.webp
+  credit: prima
   hotkey: 3
+- name: Advanced Repair Gun
+  image: advanced-repair-gun.webp
+  credit: prima
+  hotkey: 7
+- name: Remote C4
+  image: remote-c4.webp
+  credit: prima
+  hotkey: 9
+- name: Proximity C4
+  image: proximity-c4.webp
+  credit: prima
+  hotkey: 9
+- name: Timed C4
+  image: timed-c4.webp
+  credit: prima
+  hotkey: 9
+- name: Ion Cannon Beacon
+  aliases: [Ion Beacon]
+  image: ion-cannon-beacon.webp
+  credit: prima
+  hotkey: 0
+- name: Nuclear Strike Beacon
+  aliases: [Nuke Beacon, Nuclear Beacon]
+  image: nuclear-strike-beacon.webp
+  credit: prima
+  hotkey: 0
