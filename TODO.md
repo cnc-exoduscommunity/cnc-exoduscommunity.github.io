@@ -1,5 +1,12 @@
 # TODO: player list from IRC
 
+> **Decision (01-11-2026): not doing this.** Deth: asking the bots on a
+> schedule would be too spammy, even every 10 minutes. The Nod player count
+> is wrong because the server runs an old version of BRenBot; updating BRenBot
+> will fix it. Until then the site relies on CnCNet (direct check as backup)
+> and its Nod map note. The built version is kept on the `irc-player-list`
+> branch, unused.
+
 Getting the real player list on Nod maps, where the server reports 0 players.
 Nothing here is built yet.
 

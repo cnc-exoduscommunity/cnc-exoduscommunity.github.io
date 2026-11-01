@@ -6,6 +6,8 @@ sections:
     id: map-rotation
   - title: IRC
     id: irc
+  - title: Gallery
+    id: gallery
 ---
 
 <h1 class="page-title">Exodus Community</h1>
@@ -94,6 +96,12 @@ sections:
           <span class="toc-text"><span class="toc-title">Sounds{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</span><span class="toc-desc">The in-game <code>!sounds</code> commands, with a preview of each</span></span>
         </a>
       </li>
+      <li>
+        <a class="toc-item" href="#gallery">
+          <span class="toc-num">04</span>
+          <span class="toc-text"><span class="toc-title">Gallery</span><span class="toc-desc">Screenshots from the server</span></span>
+        </a>
+      </li>
     </ol>
     <p class="toc-actions">
       <button class="btn btn-small" type="button" data-expand-all>Expand all</button>
@@ -133,7 +141,7 @@ sections:
           <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
               {%- if map_img or map.objectives or map.weapons or map.map_weapons -%}
-              <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}" data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}>
+              <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, objectives (right). {% endcomment -%}
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
                 {%- if map_img %}{% include image-icon.svg %}{% endif -%}
@@ -183,7 +191,7 @@ sections:
         </tbody>
       </table>
     </div>
-    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a></p>
+    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and {{ site.data.credits.ryanturner.name }} (campaign)</p>
 
     <dialog class="map-dialog" aria-labelledby="map-dialog-title">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
@@ -201,7 +209,7 @@ sections:
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
           <span class="now-playing map-dialog-now" hidden><span class="now-playing-dot" aria-hidden="true"></span>Now playing</span>
-          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span><span class="map-dialog-faction"></span><button class="btn btn-small map-dialog-view" type="button" hidden>Show In-Game Photo</button></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
+          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span><span class="map-dialog-faction"></span></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
           <div class="map-dialog-frame">
             <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
               <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
@@ -213,6 +221,7 @@ sections:
             <span class="map-dialog-zoom-level" aria-live="polite">100%</span>
             <button class="btn btn-small" type="button" data-zoom="in" aria-label="Zoom in">+</button>
             <button class="btn btn-small" type="button" data-zoom="reset">Reset</button>
+            <button class="btn btn-small map-dialog-view" type="button" hidden>Show In-Game Photo</button>
           </div>
           <div class="map-dialog-foot">
             <p class="map-dialog-credit" hidden>Credit to <a class="map-dialog-credit-name" href=""></a></p>
@@ -272,5 +281,37 @@ sections:
         </tbody>
       </table>
     </div>
+  </div>
+</details>
+
+{%- comment %} Gallery: every photo in assets/images/gallery/ (thumbnails in thumbs/). {% endcomment %}
+{%- assign gallery_count = 0 %}
+{%- for f in site.static_files %}{% if f.path contains '/assets/images/gallery/' %}{% unless f.path contains '/thumbs/' %}{% assign gallery_count = gallery_count | plus: 1 %}{% endunless %}{% endif %}{% endfor %}
+<details class="panel" id="gallery">
+  <summary class="panel-tab"><h2 class="panel-tab-title">Gallery</h2></summary>
+  <div class="panel-body">
+    <p>{{ gallery_count }} screenshots from the server, taken by {{ site.gallery.credit }}. Click one to see it full size.</p>
+    <ul class="gallery-grid">
+      {%- for f in site.static_files %}
+      {%- if f.path contains '/assets/images/gallery/' %}{% unless f.path contains '/thumbs/' %}
+      {%- assign b = f.basename %}
+      {%- capture shot_date %}{{ b | slice: 6, 2 }}-{{ b | slice: 4, 2 }}-{{ b | slice: 0, 4 }} {{ b | slice: 8, 2 }}:{{ b | slice: 10, 2 }}{% endcapture %}
+      {%- capture caption %}Taken by {{ site.gallery.credit }}{% if b.size >= 14 %} · {{ shot_date }}{% endif %}{% endcapture %}
+      <li><a class="gallery-item" href="{{ f.path | relative_url }}" data-caption="{{ caption | strip | escape }}"><img src="{{ f.path | replace: '/assets/images/gallery/', '/assets/images/gallery/thumbs/' | relative_url }}" alt="{{ caption | strip | escape }}" loading="lazy" width="480" height="270"></a></li>
+      {%- endunless %}{% endif %}
+      {%- endfor %}
+    </ul>
+
+    <dialog class="gallery-dialog" aria-label="Screenshot">
+      <button class="map-dialog-btn map-dialog-close gallery-close" type="button" aria-label="Close">&#10005;</button>
+      <div class="gallery-stage">
+        <button class="map-dialog-btn" type="button" data-gallery-step="-1" aria-label="Previous screenshot">&#10094;</button>
+        <figure class="gallery-figure">
+          <img class="gallery-image" alt="">
+          <figcaption><span class="gallery-caption"></span><span class="gallery-counter"></span></figcaption>
+        </figure>
+        <button class="map-dialog-btn" type="button" data-gallery-step="1" aria-label="Next screenshot">&#10095;</button>
+      </div>
+    </dialog>
   </div>
 </details>

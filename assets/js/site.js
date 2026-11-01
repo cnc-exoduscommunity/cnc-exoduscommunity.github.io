@@ -227,12 +227,13 @@
       sideNone.hidden = !!steps.length;
     }
     var url = link.getAttribute(showPhoto ? "data-ingame-credit-url" : "data-credit-url");
+    var who = link.getAttribute(showPhoto ? "data-ingame-credit-name" : "data-credit-name");
     // visibility (not hidden) so the line keeps its space and the box never changes height.
     credit.hidden = false;
-    credit.style.visibility = url ? "visible" : "hidden";
-    if (url) {
-      creditName.textContent = link.getAttribute(showPhoto ? "data-ingame-credit-name" : "data-credit-name");
-      creditName.href = url;
+    credit.style.visibility = who ? "visible" : "hidden";
+    if (who) {
+      creditName.textContent = who;
+      if (url) creditName.href = url; else creditName.removeAttribute("href");  // a name without a link (e.g. a player's own photo)
     }
     counter.textContent = (current + 1) + " / " + links.length;
     updateNowPlaying();
@@ -734,4 +735,45 @@ function makeZoom(viewport, img, label) {
   refresh();
   setInterval(function () { if (!document.hidden) refresh(); }, 60000);
   document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
+})();
+
+// Gallery: clicking a screenshot opens it full size, with previous/next buttons and
+// the left/right arrow keys. Without JavaScript the link just opens the image.
+(function () {
+  var dialog = document.querySelector(".gallery-dialog");
+  var items = Array.prototype.slice.call(document.querySelectorAll(".gallery-item"));
+  if (!dialog || !items.length || typeof dialog.showModal !== "function") return;
+  var img = dialog.querySelector(".gallery-image");
+  var caption = dialog.querySelector(".gallery-caption");
+  var counter = dialog.querySelector(".gallery-counter");
+  var current = 0;
+  function show(i) {
+    current = (i + items.length) % items.length;
+    var a = items[current];
+    img.src = a.getAttribute("href");
+    img.alt = a.getAttribute("data-caption") || "";
+    caption.textContent = a.getAttribute("data-caption") || "";
+    counter.textContent = (current + 1) + " / " + items.length;
+    if (!dialog.open) dialog.showModal();
+    // Preload the neighbours so stepping feels instant.
+    [current - 1, current + 1].forEach(function (n) { new Image().src = items[(n + items.length) % items.length].getAttribute("href"); });
+  }
+  items.forEach(function (a, i) {
+    a.addEventListener("click", function (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      show(i);
+    });
+  });
+  dialog.querySelector(".gallery-close").addEventListener("click", function () { dialog.close(); });
+  dialog.querySelectorAll("[data-gallery-step]").forEach(function (b) {
+    b.addEventListener("click", function () { show(current + Number(b.getAttribute("data-gallery-step"))); });
+  });
+  dialog.addEventListener("click", function (e) {
+    if (e.target === dialog || e.target.classList.contains("gallery-stage")) dialog.close();
+  });
+  dialog.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") { e.preventDefault(); show(current + 1); }
+    if (e.key === "ArrowLeft") { e.preventDefault(); show(current - 1); }
+  });
 })();

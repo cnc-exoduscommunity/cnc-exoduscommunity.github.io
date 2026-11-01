@@ -32,6 +32,12 @@ server:
   status_source_url: "https://cncnet.org/renegade"
   direct_status_url: "https://raw.githubusercontent.com/cnc-exoduscommunity/cnc-exoduscommunity.github.io/server-status/status.json"
 
+# Gallery section: every photo in assets/images/gallery/ (with a small copy of the
+# same name in assets/images/gallery/thumbs/), oldest first. Photo names like
+# 20250816183829_1 (Steam screenshots) give the date shown under each photo.
+gallery:
+  credit: RyanTurner
+
 # Shown under "Join Server" for players who don't know how to connect.
 connect_help:
   - name: CnCNet
