@@ -563,6 +563,7 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .weapon-key-inline { vertical-align: 0.05em; margin: 0 0.1rem; }
 .map-dialog-weapons li:not(:has(.weapon-pic))::before { content: ""; flex: none; width: 7.5rem; }
 .map-dialog-weapons-also { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); }
+.map-dialog-weapons-keys { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--muted); }
 .map-dialog-onmap { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border-soft); }
 .map-dialog-onmap[hidden] { display: none; }
 .map-dialog-below-weapons[hidden], .map-dialog-below-obj-title[hidden], .map-dialog-weapons-none[hidden] { display: none; }
