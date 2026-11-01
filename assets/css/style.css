@@ -457,6 +457,9 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
   overflow: hidden;
 }
 .map-dialog[open] { display: flex; align-items: center; justify-content: center; }
+/* While a preview is open the page behind it doesn't scroll, and its scrollbar goes away,
+   so the preview (sized to the window) lines up with the buttons fixed to the window edges. */
+html:has(.map-dialog[open]), html:has(.gallery-dialog[open]) { overflow: hidden; }
 .map-dialog::backdrop { background: rgba(8, 0, 0, 0.85); backdrop-filter: blur(2px); }
 
 .map-dialog-stage {
@@ -487,6 +490,7 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 
 /* Zoomable map: the image is scaled and moved inside a fixed square. */
 .map-dialog-viewport {
+  margin-inline: auto;
   max-height: calc(100vh - 17rem);
   position: relative;
   aspect-ratio: 1;
@@ -579,14 +583,18 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
    with the map in the middle. Narrower cards on mid-size screens. */
 @media (min-width: 1100px) {
   .map-dialog-side, .map-dialog-spacer { display: flex; width: 18rem; }
-  .map-dialog-panel { width: min(600px, calc(100vw - 9rem - 38rem), calc(100vh - 16rem)); }
+  /* Previous / next sit at the screen edges; the map panel fills the space between the cards. */
+  .map-dialog-stage { padding-left: 5rem; padding-right: 5rem; }
+  .map-dialog-nav { position: fixed; top: 50%; transform: translateY(-50%); z-index: 2; }
+  .map-dialog-nav[data-map-step="-1"] { left: 1rem; }
+  .map-dialog-nav[data-map-step="1"] { right: 1rem; }
+  .map-dialog-panel { flex: 1 1 auto; width: auto; min-width: 0; max-width: 1100px; }
   .map-dialog-below { display: none !important; }
   .map-dialog-weapons-card .weapon-pic { width: 6rem; height: 2.7rem; }
   .map-dialog-weapons-card li:not(:has(.weapon-pic))::before { width: 6rem; }
 }
 @media (min-width: 1500px) {
   .map-dialog-side, .map-dialog-spacer { width: 22rem; }
-  .map-dialog-panel { width: min(600px, calc(100vw - 9rem - 46rem), calc(100vh - 16rem)); }
   .map-dialog-weapons-card .weapon-pic { width: 7.5rem; height: 3.2rem; }
   .map-dialog-weapons-card li:not(:has(.weapon-pic))::before { width: 7.5rem; }
 }
@@ -596,6 +604,10 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .map-dialog-zoom-level { min-width: 3.5rem; text-align: center; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .map-dialog-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 0.55rem; font-size: 0.85rem; color: var(--muted); }
 .map-dialog-credit { margin: 0; overflow-wrap: anywhere; }
+/* When a player's photo was taken: under the "Taken by" / "Credit to" line, in brackets. */
+.shot-date { display: block; font-size: 0.8em; color: var(--muted); opacity: 0.85; }
+.shot-date:empty { display: none; }
+.gallery-caption-wrap { display: flex; flex-direction: column; }
 .map-dialog-counter { margin-left: auto; white-space: nowrap; }
 
 .map-dialog-btn {

@@ -142,7 +142,7 @@ sections:
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons -%}
-              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
+              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, objectives (right). {% endcomment -%}
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
                 {%- if map_img and ingame_img %}{% include map-photo-icon.svg %}{% elsif map_img %}{% include map-icon.svg %}{% elsif ingame_img %}{% include photo-icon.svg %}{% endif -%}
@@ -300,8 +300,8 @@ sections:
       {%- if f.path contains '/assets/images/gallery/' %}{% unless f.path contains '/thumbs/' %}
       {%- assign b = f.basename %}
       {%- capture shot_date %}{{ b | slice: 6, 2 }}-{{ b | slice: 4, 2 }}-{{ b | slice: 0, 4 }} {{ b | slice: 8, 2 }}:{{ b | slice: 10, 2 }}{% endcapture %}
-      {%- capture caption %}Taken by {{ gallery_credit.name }}{% if b.size >= 14 %} · {{ shot_date }}{% endif %}{% endcapture %}
-      <li><a class="gallery-item" href="{{ f.path | relative_url }}" data-caption="{{ caption | strip | escape }}"><img src="{{ f.path | replace: '/assets/images/gallery/', '/assets/images/gallery/thumbs/' | relative_url }}" alt="{{ caption | strip | escape }}" loading="lazy" width="480" height="270"></a></li>
+      {%- capture caption %}Taken by {{ gallery_credit.name }}{% endcapture %}
+      <li><a class="gallery-item" href="{{ f.path | relative_url }}" data-caption="{{ caption | strip | escape }}"{% if b.size >= 14 %} data-date="{{ shot_date | strip }}"{% endif %}><img src="{{ f.path | replace: '/assets/images/gallery/', '/assets/images/gallery/thumbs/' | relative_url }}" alt="{{ caption | strip | escape }}{% if b.size >= 14 %} ({{ shot_date | strip }}){% endif %}" loading="lazy" width="480" height="270"></a></li>
       {%- endunless %}{% endif %}
       {%- endfor %}
     </ul>
@@ -312,7 +312,7 @@ sections:
         <button class="map-dialog-btn" type="button" data-gallery-step="-1" aria-label="Previous screenshot">&#10094;</button>
         <figure class="gallery-figure">
           <img class="gallery-image" alt="">
-          <figcaption><span class="gallery-caption"></span><span class="gallery-counter"></span></figcaption>
+          <figcaption><span class="gallery-caption-wrap"><span class="gallery-caption"></span><span class="shot-date gallery-date"></span></span><span class="gallery-counter"></span></figcaption>
         </figure>
         <button class="map-dialog-btn" type="button" data-gallery-step="1" aria-label="Next screenshot">&#10095;</button>
       </div>

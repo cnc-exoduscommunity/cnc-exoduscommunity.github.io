@@ -72,6 +72,7 @@
   var below = dialog.querySelector(".map-dialog-below");
   var belowList = below && below.querySelector("ol");
   var zoomRow = dialog.querySelector(".map-dialog-zoom");
+  var creditDate = null;
   // Wide screens: the objectives go in a card beside the map instead of below it.
   var side = dialog.querySelector(".map-dialog-side");
   var sideList = side && side.querySelector("ol");
@@ -234,6 +235,10 @@
       creditName.textContent = who;
       if (url) creditName.href = url; else creditName.removeAttribute("href");  // a name without a link (e.g. a player's own photo)
     }
+    // A player's own photo: when it was taken, like the gallery captions.
+    var taken = showPhoto ? link.getAttribute("data-ingame-date") : null;
+    if (!creditDate) { creditDate = document.createElement("span"); creditDate.className = "shot-date map-dialog-credit-date"; credit.appendChild(creditDate); }
+    creditDate.textContent = taken ? "(" + taken + ")" : "\u00a0";
     counter.textContent = (current + 1) + " / " + links.length;
     updateNowPlaying();
     // The zoom level and position carry over from map to map (Reset or 0 to undo).
@@ -757,6 +762,8 @@ function makeZoom(viewport, img, label) {
     var a = items[current];
     img.src = a.getAttribute("href");
     img.alt = a.getAttribute("data-caption") || "";
+    var date = a.getAttribute("data-date");
+    dialog.querySelector(".gallery-date").textContent = date ? "(" + date + ")" : "";
     caption.textContent = "";
     var text = a.getAttribute("data-caption") || "";
     var who = dialog.getAttribute("data-credit-name"), url = dialog.getAttribute("data-credit-url");

@@ -9,6 +9,7 @@
 # map_weapons: weapons lying around on the map to pick up, one per line.
 # image_credit: key from _data/credits.yml, shown under the map's preview.
 # ingame_credit: the same for the in-game photo (assets/images/ingame/<name>.webp); default fandom.
+# ingame_date: when that photo was taken (dd-mm-yyyy hh:mm), shown after its credit.
 #
 # A map gets a clickable preview when assets/images/maps/<name>.webp
 # (or .png / .jpg) exists, e.g. assets/images/maps/M01.webp.
@@ -123,27 +124,32 @@
 - name: M02
   description: "Mission 3: Armored Assault"
   ingame_credit: ryanturner
+  ingame_date: "01-08-2025 21:22"
   faction: GDI
   image_credit: vgmaps
 - name: M03
   description: "Mission 4: The Plot Erupts"
   ingame_credit: ryanturner
+  ingame_date: "04-08-2025 15:35"
   faction: GDI
   image_credit: vgmaps
 - name: M04
   description: "Mission 5: Stowaway"
   ingame_credit: ryanturner
+  ingame_date: "08-08-2025 14:09"
   faction: GDI
   image_credit: vgmaps
 - name: M05
   description: "Mission 6: Deadly Reunion"
   ingame_credit: ryanturner
+  ingame_date: "08-08-2025 14:24"
   note: "The night version"
   faction: GDI
   image_credit: vgmaps
 - name: M06
   description: "Mission 7: The Grip of the Black Hand"
   ingame_credit: ryanturner
+  ingame_date: "11-08-2025 22:12"
   faction: GDI
   image_credit: vgmaps
   weapons:
@@ -152,27 +158,32 @@
 - name: M07
   description: "Mission 8: Obelisk of Oppression"
   ingame_credit: ryanturner
+  ingame_date: "11-08-2025 22:13"
   note: "The day version of M05, with an almost inverted path (going back)"
   faction: GDI
   image_credit: vgmaps
 - name: M08
   description: "Mission 9: Evolution of Evil"
   ingame_credit: ryanturner
+  ingame_date: "13-08-2025 14:50"
   faction: GDI
   image_credit: vgmaps
 - name: M09
   description: "Mission 10: All Brains, No Brawn"
   ingame_credit: ryanturner
+  ingame_date: "13-08-2025 14:53"
   faction: GDI
   image_credit: vgmaps
 - name: M10
   description: "Mission 11: Tomorrow's Technology Today"
   ingame_credit: ryanturner
+  ingame_date: "13-08-2025 17:14"
   faction: GDI
   image_credit: vgmaps
 - name: M11
   description: "Mission 12: Stomping on Holy Ground"
   ingame_credit: ryanturner
+  ingame_date: "16-08-2025 15:00"
   note: "The map shown is the one used in game, since there's no map data for this mission"
   faction: GDI
   image_credit: vgmaps
