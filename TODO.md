@@ -1,4 +1,19 @@
-# TODO: player list from IRC
+# TODO
+
+## Map marking tool
+
+A tool to mark things on the map images, based on how the Gears DB website does
+it (`F:\Gears Website\New`):
+
+- [ ] Mark **starting positions** (GDI / Nod spawns) on a map image
+- [ ] Mark **objectives** (numbered, matching the objectives list) on the map
+- [ ] Save the marks as data (e.g. `_data/map_marks.yml`: map, kind, x/y as a
+      percentage of the image, label) so they scale with the image
+- [ ] Show the marks as an overlay in the map preview, with a way to hide them
+- [ ] A simple editor page (local only) to click on the map and place / move
+      marks, then copy the resulting data into the repo
+
+## Player list from IRC (dropped)
 
 > **Decision (01-11-2026): not doing this.** Deth: asking the bots on a
 > schedule would be too spammy, even every 10 minutes. The Nod player count

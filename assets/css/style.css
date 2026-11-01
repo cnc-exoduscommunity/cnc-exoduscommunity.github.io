@@ -729,17 +729,25 @@ li.objective-optional strong { color: var(--text); font-weight: 600; }
 }
 .source-badge:hover .source-tip, .source-badge:focus-visible .source-tip { opacity: 1; visibility: visible; }
 /* Faction badge used inside a sentence (notes and tooltip). */
-.team-badge-inline { vertical-align: baseline; margin: 0 0.1rem; line-height: 1.45; }
+.team-badge-inline { margin: 0 0.1rem; }
 .live-warning { margin: 0.6rem 0 0; padding: 0.55rem 0.85rem; border: 1px solid #c98a1a; border-left-width: 4px; border-radius: 4px; background: rgba(201, 138, 26, 0.12); font-size: 1rem; line-height: 1.85; }
 .live-warning code { white-space: nowrap; }
 .live-player-list td { vertical-align: middle; }
 .live-player-list th:nth-child(2), .live-player-list td:nth-child(2) { text-align: center; } /* Team */
 
 /* Team badges in "Who's playing": GDI gold, Nod red. */
+/* GDI / Nod badge: whole-pixel height so the letters round the same way everywhere;
+   text-indent balances the letter spacing after the last letter, so the word is centred. */
 .team-badge {
   display: inline-block;
+  box-sizing: border-box;
   min-width: 3.2rem;
-  padding: 0.05rem 0.5rem;
+  height: 1.5rem;
+  line-height: calc(1.5rem - 2px);
+  padding: 0 0.5rem;
+  text-indent: 0.12em;
+  vertical-align: middle;
+  white-space: nowrap;
   border: 1px solid;
   border-radius: 3px;
   font-family: "Oswald", "Arial Narrow", Impact, sans-serif;
@@ -767,7 +775,7 @@ tr.has-preview:hover .map-link code { border-color: var(--link); }
 .map-table th:nth-child(2), .map-table th:nth-child(3),
 .map-table td.now-cell, .map-table td.col-fit:not(.now-cell) { text-align: center; }
 /* Every badge in the table (Now playing, GDI, Nod) has the same height, on every row. */
-.map-table td .team-badge, .map-table td .now-playing {
+.map-table td .now-playing {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -827,7 +835,7 @@ tr.is-current td { vertical-align: middle; }
 .map-dialog-headline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; padding-right: 8.5rem; }
 .map-dialog-zoom .map-dialog-view { margin-left: 0.6rem; }
 .map-dialog-faction:empty { display: none; }
-.map-dialog-faction .team-badge { display: inline-flex; align-items: center; height: 1.5rem; padding-top: 0; padding-bottom: 0; font-size: 0.8rem; line-height: 1; text-shadow: none; vertical-align: middle; }
+.map-dialog-faction .team-badge { text-shadow: none; }
 .map-dialog-view[hidden] { display: none; }
 @media (max-width: 600px) {
   .map-dialog-now { top: 0.6rem; right: 0.6rem; }
