@@ -119,12 +119,21 @@ sections:
             {%- assign map_file = site.static_files | where: "path", map_path | first %}
             {%- if map_file and map_img == nil %}{% assign map_img = map_path %}{% endif %}
           {%- endfor %}
+          {%- comment %} In-game photo: assets/images/ingame/<map name>.webp (credit: ingame_credit, default fandom). {% endcomment %}
+          {%- assign ingame_img = nil %}
+          {%- for ext in map_exts %}
+            {%- assign ingame_path = "/assets/images/ingame/" | append: map.name | append: "." | append: ext %}
+            {%- assign ingame_file = site.static_files | where: "path", ingame_path | first %}
+            {%- if ingame_file and ingame_img == nil %}{% assign ingame_img = ingame_path %}{% endif %}
+          {%- endfor %}
+          {%- assign ingame_credit_key = map.ingame_credit | default: "fandom" %}
+          {%- assign ingame_credit = site.data.credits[ingame_credit_key] %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
           <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
               {%- if map_img or map.objectives or map.weapons or map.map_weapons -%}
-              <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}>
+              <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}" data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, objectives (right). {% endcomment -%}
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
                 {%- if map_img %}{% include image-icon.svg %}{% endif -%}
@@ -174,7 +183,7 @@ sections:
         </tbody>
       </table>
     </div>
-    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer)</p>
+    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a></p>
 
     <dialog class="map-dialog" aria-labelledby="map-dialog-title">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
@@ -192,7 +201,7 @@ sections:
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
           <span class="now-playing map-dialog-now" hidden><span class="now-playing-dot" aria-hidden="true"></span>Now playing</span>
-          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-name"></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
+          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span><span class="map-dialog-faction"></span><button class="btn btn-small map-dialog-view" type="button" hidden>Show In-Game Photo</button></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
           <div class="map-dialog-frame">
             <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
               <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">

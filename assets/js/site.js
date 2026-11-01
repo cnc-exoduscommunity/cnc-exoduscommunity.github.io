@@ -89,6 +89,10 @@
     if (weaponsCard) weaponsCard.style.height = panelEl.offsetHeight + "px";
   }
   function hasImage(l) { return l.getAttribute("data-has-image") !== "0"; }
+  // Map / in-game photo switch (one button next to the name, like "Show Photo" / "Show In-Game Map").
+  var viewBtn = dialog.querySelector(".map-dialog-view");
+  var wantPhoto = false; // stays as picked while stepping through the maps
+  if (viewBtn) viewBtn.addEventListener("click", function () { wantPhoto = !wantPhoto; zoom.reset(); show(current); });
   var navButtons = dialog.querySelectorAll("[data-map-step]");
   var current = 0;
   var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), image, dialog.querySelector(".map-dialog-zoom-level"));
@@ -160,10 +164,30 @@
     name.textContent = mapName;
     comment.textContent = keepWords(mapComment);
     noteEl.textContent = keepWords(link.getAttribute("data-map-note"));
+    // Faction badge after the name (from the map's row in the table).
+    var factionBox = dialog.querySelector(".map-dialog-faction");
+    if (factionBox) {
+      factionBox.textContent = "";
+      var f = link.closest("tr") && link.closest("tr").getAttribute("data-faction");
+      if (f) {
+        var key = /gdi/i.test(f) ? "gdi" : /nod/i.test(f) ? "nod" : "other";
+        var b = document.createElement("span");
+        b.className = "team-badge team-" + key;
+        b.textContent = key === "nod" ? "Nod" : f;
+        factionBox.appendChild(b);
+      }
+    }
     var withImage = hasImage(link);
+    var photo = link.getAttribute("data-ingame");
+    var showPhoto = !!(wantPhoto && photo && withImage);
+    if (viewBtn) {
+      viewBtn.hidden = !(photo && withImage);
+      viewBtn.textContent = showPhoto ? "Show Map" : "Show In-Game Photo";
+      viewBtn.setAttribute("aria-pressed", String(showPhoto));
+    }
     if (withImage) {
-      image.src = link.getAttribute("href");
-      image.alt = "Overhead map of " + mapName;
+      image.src = showPhoto ? photo : link.getAttribute("href");
+      image.alt = (showPhoto ? "In-game view of " : "Overhead map of ") + mapName;
     } else {
       image.removeAttribute("src");
       image.alt = "";
@@ -202,12 +226,12 @@
       sideList.hidden = !steps.length;
       sideNone.hidden = !!steps.length;
     }
-    var url = link.getAttribute("data-credit-url");
+    var url = link.getAttribute(showPhoto ? "data-ingame-credit-url" : "data-credit-url");
     // visibility (not hidden) so the line keeps its space and the box never changes height.
     credit.hidden = false;
     credit.style.visibility = url ? "visible" : "hidden";
     if (url) {
-      creditName.textContent = link.getAttribute("data-credit-name");
+      creditName.textContent = link.getAttribute(showPhoto ? "data-ingame-credit-name" : "data-credit-name");
       creditName.href = url;
     }
     counter.textContent = (current + 1) + " / " + links.length;

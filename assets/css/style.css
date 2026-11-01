@@ -824,10 +824,14 @@ tr.is-current td { vertical-align: middle; }
 .map-dialog-panel { position: relative; }
 .map-dialog-now { position: absolute; top: 0.9rem; right: 1rem; z-index: 1; }
 /* Room for the badge is always kept, so the box doesn't change size between maps. */
-.map-dialog-name { padding-right: 8.5rem; }
+.map-dialog-headline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; padding-right: 8.5rem; }
+.map-dialog-view { font-size: 0.85rem; text-shadow: none; }
+.map-dialog-faction:empty { display: none; }
+.map-dialog-faction .team-badge { display: inline-flex; align-items: center; height: 1.5rem; padding-top: 0; padding-bottom: 0; font-size: 0.8rem; line-height: 1; text-shadow: none; vertical-align: middle; }
+.map-dialog-view[hidden] { display: none; }
 @media (max-width: 600px) {
   .map-dialog-now { top: 0.6rem; right: 0.6rem; }
-  .map-dialog-name { padding-right: 0; }
+  .map-dialog-headline { padding-right: 0; }
   .map-dialog-title { padding-top: 1.6rem; }
 }
 [data-theme="light"] .now-playing { background: #e3f7e7; color: #17803a; border-color: #2fb04e; box-shadow: none; }
