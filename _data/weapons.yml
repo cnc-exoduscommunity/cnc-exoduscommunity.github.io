@@ -1,36 +1,58 @@
 # Weapon pictures for the "Starting weapons" lists in the map previews.
 # name: as written under weapons: in _data/maps.yml (aliases: other names for it).
 # image: file in assets/images/weapons/. A weapon without an entry shows its name only.
-# Everyone also spawns with a Pistol and Timed C4 (shown as a note).
+# hotkey: the number key that selects it in game (Prima's guide: 1 pistol,
+#   2 automatic, 3 sniper, 4 chem, 5 rocket, 6 grenade, 7 energy/repair,
+#   8 Tiberium, 9 C4, 0 beacons).
+# Everyone also spawns with a Pistol (1) and Timed C4 (9) (shown as a note).
 - name: Maintenance Tool
   aliases: [Repair Gun]
   image: repair-gun.webp
+  hotkey: 7
 - name: Automatic Rifle
   image: automatic-rifle.webp
+  hotkey: 2
 - name: Chaingun
   image: chaingun.webp
+  hotkey: 2
 - name: Sniper Rifle
   image: sniper-rifle.webp
+  hotkey: 3
 - name: Tiberium Flechette Gun
   image: tiberium-flechette-gun.webp
+  hotkey: 8
 - name: Tiberium Auto Rifle
   image: tiberium-auto-rifle.webp
+  hotkey: 8
 - name: Laser Rifle
   image: laser-rifle.webp
+  hotkey: 7
 - name: Laser Chaingun
   image: laser-chaingun.webp
+  hotkey: 7
 - name: Volt Auto Rifle
   image: volt-auto-rifle.webp
+  hotkey: 7
 - name: Railgun
   image: railgun.webp
+  hotkey: 7
 - name: Personal Ion Cannon
   image: personal-ion-cannon.webp
+  hotkey: 7
 - name: Grenade Launcher
   image: grenade-launcher.webp
+  hotkey: 6
 - name: Rocket Launcher
   image: rocket-launcher.webp
+  hotkey: 5
 - name: Flamethrower
   image: flamethrower.webp
+  hotkey: 4
 - name: Chemical Sprayer
   aliases: [Chem Sprayer]
   image: chemical-sprayer.webp
+  hotkey: 4
+- name: Shotgun
+  hotkey: 2
+- name: Ramjet Rifle
+  hotkey: 3

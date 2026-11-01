@@ -550,6 +550,17 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .weapon-pic { flex: none; display: flex; align-items: center; justify-content: center; width: 7.5rem; height: 3.2rem; padding: 0.25rem 0.4rem;
   border: 1px solid var(--border-soft); border-radius: 3px; background: rgba(0, 0, 0, 0.35); box-sizing: border-box; }
 .weapon-pic img { max-width: 100%; max-height: 100%; object-fit: contain; }
+/* Hotkey as a small key-cap in the corner of the weapon's box. */
+.weapon-pic { position: relative; }
+.weapon-key, .weapon-key-inline {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  min-width: 1.15rem; height: 1.15rem; padding: 0 0.25rem;
+  border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 3px;
+  background: var(--bg); color: var(--title);
+  font: 600 0.7rem/1 "Oswald", "Arial Narrow", Impact, sans-serif;
+}
+.weapon-key { position: absolute; top: -0.4rem; left: -0.4rem; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6); }
+.weapon-key-inline { vertical-align: 0.05em; margin: 0 0.1rem; }
 .map-dialog-weapons li:not(:has(.weapon-pic))::before { content: ""; flex: none; width: 7.5rem; }
 .map-dialog-weapons-also { margin: 0.6rem 0 0; font-size: 0.85rem; color: var(--muted); }
 .map-dialog-onmap { margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid var(--border-soft); }

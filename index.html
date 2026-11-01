@@ -114,7 +114,7 @@ sections:
   <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
   <div class="panel-body">
     <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution", or <code>[M00_Tutorial]</code> which would be: <span class="team-badge team-badge-inline team-nod">Nod</span> "Tutorial".</p>
-    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (weapons), <span class="map-link-icon-inline">{% include image-icon.svg %}</span> (map) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
+    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (weapons), <span class="map-link-icon-inline">{% include map-icon.svg %}</span> (map), <span class="map-link-icon-inline">{% include photo-icon.svg %}</span> (in-game photo), <span class="map-link-icon-inline">{% include map-photo-icon.svg %}</span> (both) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
     <div class="table-wrap">
       <table class="map-table">
@@ -138,13 +138,14 @@ sections:
           {%- assign ingame_credit = site.data.credits[ingame_credit_key] %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
-              {%- if map_img or map.objectives or map.weapons or map.map_weapons -%}
-              <a class="map-link" href="{% if map_img %}{{ map_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if map_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
+              {%- assign preview_img = map_img | default: ingame_img %}
+              {%- if preview_img or map.objectives or map.weapons or map.map_weapons -%}
+              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, objectives (right). {% endcomment -%}
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
-                {%- if map_img %}{% include image-icon.svg %}{% endif -%}
+                {%- if map_img and ingame_img %}{% include map-photo-icon.svg %}{% elsif map_img %}{% include map-icon.svg %}{% elsif ingame_img %}{% include photo-icon.svg %}{% endif -%}
                 {%- if map.objectives %}{% include objectives-icon.svg %}{% endif -%}
                 <code>{{ map.name }}</code></a>
               {%- else -%}
@@ -162,18 +163,18 @@ sections:
             {%- if map.map_weapons %}
             <ul class="map-onmap-weapons" hidden>
               {%- for weapon in map.map_weapons %}
-              {%- assign weapon_img = nil %}
-              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% endif %}{% endfor %}
-              <li>{% if weapon_img %}<span class="weapon-pic"><img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt="" loading="lazy"></span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
+              {%- assign weapon_img = nil %}{% assign weapon_key = nil %}
+              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% assign weapon_key = w.hotkey %}{% endif %}{% endfor %}
+              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt="" loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
               {%- endfor %}
             </ul>
             {%- endif %}
             {%- if map.weapons %}
             <ul class="map-weapons" hidden>
               {%- for weapon in map.weapons %}
-              {%- assign weapon_img = nil %}
-              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% endif %}{% endfor %}
-              <li>{% if weapon_img %}<span class="weapon-pic"><img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt="" loading="lazy"></span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
+              {%- assign weapon_img = nil %}{% assign weapon_key = nil %}
+              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% assign weapon_key = w.hotkey %}{% endif %}{% endfor %}
+              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt="" loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
               {%- endfor %}
             </ul>
             {%- endif %}</td>
@@ -200,7 +201,7 @@ sections:
           <p class="map-dialog-objectives-title">Starting weapons</p>
           <ul class="map-dialog-weapons"></ul>
           <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
-          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
+          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
           <div class="map-dialog-onmap" hidden>
             <p class="map-dialog-objectives-title">Weapons on the map</p>
             <ul class="map-dialog-weapons map-dialog-onmap-list"></ul>
@@ -231,7 +232,7 @@ sections:
             <div class="map-dialog-below-weapons">
               <p class="map-dialog-objectives-title">Starting weapons</p>
               <ul class="map-dialog-weapons"></ul>
-          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol and Timed&nbsp;C4.</p>
+          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
               <div class="map-dialog-onmap" hidden>
                 <p class="map-dialog-objectives-title">Weapons on the map</p>
                 <ul class="map-dialog-weapons map-dialog-onmap-list"></ul>
