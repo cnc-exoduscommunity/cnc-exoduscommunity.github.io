@@ -670,6 +670,9 @@ html:has(.map-dialog[open]), html:has(.gallery-dialog[open]) { overflow: hidden;
 .live-status[data-state="online"] .live-dot { background: #3ddc5a; box-shadow: 0 0 8px #3ddc5a; animation: live-pulse 2s ease-in-out infinite; }
 .live-status[data-state="online"] .live-state { color: #5fe57a; }
 .live-status[data-state="offline"] .live-dot { background: #e5483a; }
+.live-status[data-state="stale"] .live-dot { background: #e8a02a; }
+.live-status[data-state="stale"] .live-state { color: #ffb15c; }
+[data-theme="light"] .live-status[data-state="stale"] .live-state { color: #9a5a00; }
 .live-status[data-state="offline"] .live-state { color: #ff7a6b; }
 [data-theme="light"] .live-status[data-state="online"] .live-state { color: #17803a; }
 [data-theme="light"] .live-status[data-state="offline"] .live-state { color: #b3261e; }

@@ -736,15 +736,38 @@ function makeZoom(viewport, img, label) {
   }
 
   // 2. Backup: the server itself (status.json from the "Server status" workflow), when recent.
+  function ago(ms) {
+    var m = Math.round(ms / 60000);
+    if (m < 60) return m + " min ago";
+    var h = Math.floor(m / 60);
+    return h + " h" + (m % 60 ? " " + (m % 60) + " min" : "") + " ago";
+  }
+  var STALE_MAX_AGE = 24 * 60 * 60 * 1000;  // older than this, don't show it at all
+
+  // The direct check: recent -> shown as live; older -> shown as "last seen", clearly marked;
+  // a recent check where the server didn't answer -> offline.
   function tryDirect() {
     if (!directUrl) return Promise.reject(new Error("no direct status"));
     return fetch(directUrl, { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (data) {
         var checked = new Date(data.checked_at);
-        if (!data.online || isNaN(checked) || Date.now() - checked.getTime() > DIRECT_MAX_AGE) throw new Error("stale");
+        if (isNaN(checked)) throw new Error("no date");
+        var age = Date.now() - checked.getTime();
         stateNote.textContent = "";
+        if (age <= DIRECT_MAX_AGE) {
+          if (data.online) { showServer(data, "direct", checked); return; }
+          showMissing("offline", "Offline", function (n) {
+            n.textContent = "The server didn't answer the last check (" + clock(checked) + ").";
+          });
+          setBadge("direct"); setSource("direct", checked);
+          return;
+        }
+        if (!data.online || age > STALE_MAX_AGE) throw new Error("too old");
         showServer(data, "direct", checked);
+        setState("stale", "Last seen online " + ago(age));
+        timeEl.textContent = "-";   // the time left from back then would be wrong
+        stateNote.textContent = "Live data isn't available right now; this is the last check of the server.";
       });
   }
 
