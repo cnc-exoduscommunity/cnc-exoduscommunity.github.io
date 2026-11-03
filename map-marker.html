@@ -1,0 +1,103 @@
+---
+title: Map marker
+description: "Mark spawn points, secrets, vehicles and other spots on the Exodus Co-Op map images."
+permalink: /tools/map-marker/
+---
+{%- comment %}
+Map marker tool. Lives at /tools/map-marker/ (the source file is at the site root
+because the tools/ folder holds scripts and isn't part of the site).
+Everything happens in the browser: it starts from _data/map_marks.yml and gives
+back the new text for that file. Logic in assets/js/map-marker.js.
+{% endcomment -%}
+{%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
+<section class="panel mm-page">
+  <div class="panel-tab"><h1 class="panel-tab-title">Map marker</h1></div>
+  <div class="panel-body">
+    <p class="mm-back"><a href="{{ '/#tools' | relative_url }}">&larr; Back to the site</a></p>
+    <p>Mark spots on the map images. <strong>Click the map</strong> to add a mark of the chosen kind, <strong>drag</strong> a mark to move it, <strong>click</strong> a mark to edit it (name, note, pictures). Your work is kept in this browser until you're done; then copy the text at the bottom into <code>_data/map_marks.yml</code>.</p>
+
+    <div class="mm-toolbar">
+      <label class="mm-field mm-map-field">
+        <span class="mm-label">Map</span>
+        <select class="mm-map" data-mm-map>
+          {%- for map in site.data.maps %}
+          {%- unless map.images_from %}
+          {%- assign map_img = nil %}
+          {%- for ext in map_exts %}
+            {%- assign map_path = "/assets/images/maps/" | append: map.name | append: "." | append: ext %}
+            {%- assign map_file = site.static_files | where: "path", map_path | first %}
+            {%- if map_file and map_img == nil %}{% assign map_img = map_path %}{% endif %}
+          {%- endfor %}
+          {%- if map_img %}
+          <option value="{{ map.name | escape }}" data-image="{{ map_img | relative_url }}" data-description="{{ map.description | escape }}">{{ map.name }}</option>
+          {%- endif %}
+          {%- endunless %}
+          {%- endfor %}
+        </select>
+      </label>
+      <div class="mm-field">
+        <span class="mm-label">Click the map to add</span>
+        <div class="mm-kinds" role="group" aria-label="Kind of mark to add" data-mm-kinds></div>
+      </div>
+    </div>
+
+    <div class="mm-draft" data-mm-draft hidden>
+      <span data-mm-draft-text></span>
+      <button class="btn btn-small" type="button" data-mm-discard>Discard my changes</button>
+    </div>
+
+    <div class="mm-layout">
+      <div class="mm-stage-wrap">
+        <div class="mm-stage" data-mm-stage>
+          <img class="mm-image" alt="" draggable="false" data-mm-image>
+          <div class="map-marks mm-marks" data-mm-marks></div>
+        </div>
+        <p class="hint mm-stage-hint">Tip: arrow keys nudge the selected mark (hold Shift for bigger steps), Delete removes it, Esc deselects.</p>
+      </div>
+
+      <aside class="mm-side">
+        <div class="mm-editor" data-mm-editor hidden>
+          <div class="mm-editor-head">
+            <h2 class="mm-h">Selected mark</h2>
+            <button class="btn btn-small mm-delete" type="button" data-mm-delete>Delete</button>
+          </div>
+          <label class="mm-field"><span class="mm-label">Kind</span><select data-mm-f="kind"></select></label>
+          <label class="mm-field"><span class="mm-label">Name <span class="mm-opt">(optional, shown on hover)</span></span><input type="text" data-mm-f="label" placeholder="e.g. GDI start" maxlength="80"></label>
+          <label class="mm-field"><span class="mm-label">Note <span class="mm-opt">(optional)</span></span><textarea rows="3" data-mm-f="note" placeholder="e.g. Jump on the crates to reach it"></textarea></label>
+          <div class="mm-field">
+            <span class="mm-label">Position</span>
+            <span class="mm-pos" data-mm-pos></span>
+          </div>
+          <div class="mm-field">
+            <span class="mm-label">Pictures <span class="mm-opt">(optional, shown in this order)</span></span>
+            <ul class="mm-images" data-mm-images></ul>
+            <div class="mm-image-add">
+              <label class="btn btn-small mm-pick">Add pictures&hellip;<input type="file" accept="image/*" multiple data-mm-pick hidden></label>
+              <span class="mm-or">or by file name:</span>
+              <input type="text" class="mm-image-name" placeholder="Islands_crate_1.webp" data-mm-image-name>
+              <button class="btn btn-small" type="button" data-mm-image-add>Add</button>
+            </div>
+            <p class="hint">Pictures go in <code>assets/images/marks/</code> in the repository; copy the files you pick there with the same names (<code>.webp</code> keeps them small).</p>
+          </div>
+        </div>
+        <p class="mm-empty hint" data-mm-noselect>Click the map to add a mark, or click a mark to edit it.</p>
+
+        <h2 class="mm-h">Marks on this map <span class="mm-count" data-mm-count></span></h2>
+        <ol class="mm-list" data-mm-list></ol>
+      </aside>
+    </div>
+
+    <h2 class="mm-h mm-out-title">Text for <code>_data/map_marks.yml</code></h2>
+    <p>Replace everything in <code>_data/map_marks.yml</code> with this (it has the marks of every map, not just this one), then commit it together with any new pictures in <code>assets/images/marks/</code>.</p>
+    <div class="mm-out-actions">
+      <button class="btn btn-small" type="button" data-mm-copy>Copy</button>
+      <button class="btn btn-small" type="button" data-mm-download>Download map_marks.yml</button>
+      <span class="hint" data-mm-copied aria-live="polite"></span>
+    </div>
+    <textarea class="mm-output" rows="14" readonly spellcheck="false" data-mm-output></textarea>
+  </div>
+</section>
+
+<script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
+<script>window.MAP_MARKS_BASE = {{ '/assets/images/marks/' | relative_url | jsonify }};</script>
+<script src="{{ '/assets/js/map-marker.js' | relative_url }}" defer></script>

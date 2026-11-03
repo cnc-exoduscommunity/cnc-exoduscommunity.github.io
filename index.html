@@ -39,7 +39,24 @@ sections:
         <div><dt>Players</dt><dd class="live-players">-</dd></div>
         <div><dt>Time left</dt><dd class="live-time">-</dd></div>
       </dl>
-      <p class="live-warning" hidden></p>
+      <div class="live-warning" hidden></div>
+      {%- assign bb = site.server.brenbot %}
+      {%- if bb.version %}
+      {%- capture bb_repo %}https://github.com/{{ bb.repository }}{% endcapture %}
+      <template class="live-tech-note">
+        <details class="tech-note">
+          <summary>Technical note: why Nod maps show 0 players</summary>
+          <p>The server runs <strong>BRenBot {{ bb.version }}</strong> (as of {{ bb.checked | date: "%-d %B %Y" }}). BRenBot works out the player count from the server's team summary, lines like <code>Nod : 2/36 players 9176 points</code>, and passes it on to every server list (CnCNet, W3D Hub, the in-game list and this site). This version only recognises the Nod team when it's written in capitals, as <code>NOD</code>, but the server writes <code>Nod</code>, so Nod players are never counted. GDI players are counted fine.</p>
+          <ul>
+            <li><strong>1.53</strong> (on the server): only matches <code>NOD</code>, so Nod always shows 0.</li>
+            <li><strong>1.54.3</strong>: the GameSpy reply also lists each player's kills and deaths, their team as a number (<code>0</code> = Nod, <code>1</code> = GDI) and the team scores (<a href="{{ bb_repo }}/commit/0aef3e0f34a6a096e3c3e0908e7719be21b63b96"><code>0aef3e0</code></a>), and fixes the player list in that reply (<a href="{{ bb_repo }}/commit/46ab1b82e0bb66736b1d7d0d10a63a518811012d"><code>46ab1b8</code></a>).</li>
+            <li><strong>1.54.4</strong>: fixes the Nod count: matches <code>Nod</code> (<a href="{{ bb_repo }}/commit/9ed97f7ffc613ff4b68b78288e4ec54ad3269c42"><code>9ed97f7</code></a>), then in any capitals, so <code>Nod</code>, <code>NOD</code> and <code>nod</code> all work (<a href="{{ bb_repo }}/commit/d43ce6f"><code>d43ce6f</code></a>).</li>
+            <li><strong>1.55.1</strong> (latest): reads the team names from its own team settings instead of a fixed list, in any capitals (<a href="{{ bb_repo }}/commit/001699bb3341dcda8ecccc8c8da8f6fd511fc333"><code>001699b</code></a>).</li>
+          </ul>
+          <p>So updating to 1.54.4 or newer fixes the count on Nod maps.</p>
+        </details>
+      </template>
+      {%- endif %}
       <p class="hint live-source"></p>
       <details class="live-objectives" hidden>
         <summary>Objectives</summary>
@@ -102,6 +119,15 @@ sections:
           <span class="toc-text"><span class="toc-title">Gallery</span><span class="toc-desc">Screenshots from the server</span></span>
         </a>
       </li>
+      <li>
+        <a class="toc-item" href="#tools">
+          <span class="toc-num">05</span>
+          <span class="toc-text"><span class="toc-title">Tools</span><span class="toc-desc">For adding to the site: mark spots on the maps</span></span>
+        </a>
+        <div class="toc-sub">
+          <a href="{{ '/tools/map-marker/' | relative_url }}">Map marker</a>
+        </div>
+      </li>
     </ol>
     <p class="toc-actions">
       <button class="btn btn-small" type="button" data-expand-all>Expand all</button>
@@ -114,7 +140,7 @@ sections:
   <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
   <div class="panel-body">
     <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution", or <code>[M00_Tutorial]</code> which would be: <span class="team-badge team-badge-inline team-nod">Nod</span> "Tutorial".</p>
-    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (weapons), <span class="map-link-icon-inline">{% include map-icon.svg %}</span> (map), <span class="map-link-icon-inline">{% include photo-icon.svg %}</span> (in-game photo), <span class="map-link-icon-inline">{% include map-photo-icon.svg %}</span> (both) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
+    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (weapons), <span class="map-link-icon-inline">{% include map-icon.svg %}</span> (map), <span class="map-link-icon-inline">{% include photo-icon.svg %}</span> (in-game photo), <span class="map-link-icon-inline">{% include map-photo-icon.svg %}</span> (both), <span class="map-link-icon-inline">{% include marks-icon.svg %}</span> (spots marked on the map) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
     <div class="table-wrap">
       <table class="map-table">
@@ -137,19 +163,27 @@ sections:
           {%- endfor %}
           {%- assign ingame_credit_key = map.ingame_credit | default: "fandom" %}
           {%- assign ingame_credit = site.data.credits[ingame_credit_key] %}
+          {%- comment %} Marks (spawn points, secrets...) from _data/map_marks.yml, by map name, or by the map whose images it uses. {% endcomment %}
+          {%- assign marks_key = nil %}
+          {%- if site.data.map_marks[map.name].size > 0 %}{% assign marks_key = map.name %}{% elsif site.data.map_marks[img_name].size > 0 %}{% assign marks_key = img_name %}{% endif %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
           <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons -%}
-              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}" data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
-                {%- comment %} Same order as the preview: weapons (left), map, objectives (right). {% endcomment -%}
+              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}"{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
+                {%- comment %} Same order as the preview: weapons (left), map, marks, objectives (right). {% endcomment -%}
+                <span class="map-icons">
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
                 {%- if map_img and ingame_img %}{% include map-photo-icon.svg %}{% elsif map_img %}{% include map-icon.svg %}{% elsif ingame_img %}{% include photo-icon.svg %}{% endif -%}
+                {%- if marks_key and map_img %}{% include marks-icon.svg %}{% endif -%}
                 {%- if map.objectives %}{% include objectives-icon.svg %}{% endif -%}
+                </span>
+                {%- include map-icons-debug.html -%}
                 <code>{{ map.name }}</code></a>
               {%- else -%}
+              {%- include map-icons-debug.html -%}
               <code>{{ map.name }}</code>
               {%- endif -%}
             </span>
@@ -197,7 +231,9 @@ sections:
     </div>
     <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a> (campaign); weapon pictures: in-game renders, and {{ site.data.credits.prima.name }} for the ones without one</p>
 
-    <dialog class="map-dialog" aria-labelledby="map-dialog-title">
+    {%- comment %} The marks for the map preview, read by site.js. {% endcomment %}
+    <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
+    <dialog class="map-dialog" aria-labelledby="map-dialog-title" data-marks-base="{{ '/assets/images/marks/' | relative_url }}">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
       <div class="map-dialog-stage">
         <aside class="map-dialog-spacer map-dialog-weapons-card" aria-label="Starting weapons">
@@ -217,8 +253,12 @@ sections:
           <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span><span class="map-dialog-faction"></span></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
           <div class="map-dialog-frame">
             <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
-              <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
+              <div class="map-dialog-canvas">
+                <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
+                <div class="map-marks"></div>
+              </div>
             </div>
+            <div class="map-mark-pop" role="status" hidden></div>
             <div class="map-dialog-empty" hidden>No Map Data at This Time</div>
           </div>
           <div class="map-dialog-zoom" role="group" aria-label="Zoom">
@@ -228,6 +268,10 @@ sections:
             <button class="btn btn-small" type="button" data-zoom="reset">Reset</button>
             <button class="btn btn-small map-dialog-view" type="button" aria-pressed="false" hidden><span class="view-label view-label-photo">Show In-Game Photo</span><span class="view-label view-label-map">Show Map</span></button>
           </div>
+          {%- assign marks_count = site.data.map_marks | size %}
+          {%- if marks_count > 0 %}
+          <div class="map-dialog-marks" role="group" aria-label="Marks on the map" style="visibility: hidden"></div>
+          {%- endif %}
           <div class="map-dialog-foot">
             <p class="map-dialog-credit" hidden>Credit to <a class="map-dialog-credit-name" href=""></a></p>
             <span class="map-dialog-counter"></span>
@@ -322,3 +366,75 @@ sections:
     </dialog>
   </div>
 </details>
+
+<details class="panel" id="tools">
+  <summary class="panel-tab"><h2 class="panel-tab-title">Tools</h2></summary>
+  <div class="panel-body">
+    <p>Tools for adding information to this site. They run in your browser and save nothing online: they give you text to paste into the site's files on <a href="https://github.com/{{ site.repository }}">GitHub</a>.</p>
+    <ul class="tool-list">
+      <li>
+        <a class="tool-card" href="{{ '/tools/map-marker/' | relative_url }}">
+          <span class="tool-card-icon">{% include marks-icon.svg %}</span>
+          <span class="tool-card-text"><span class="tool-card-title">Map marker</span><span class="tool-card-desc">Mark spawn points, secrets, vehicles and other spots on the map images, with pictures. Gives you the text for <code>_data/map_marks.yml</code>.</span></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</details>
+
+{%- comment %} Debug panel: only shown in debug mode (switch at the bottom of the page, or ?debug=1).
+A checklist of what each map has and what's still missing. {% endcomment %}
+<section class="panel debug-panel" id="debug-panel" aria-label="Debug panel">
+  <div class="panel-tab"><h2 class="panel-tab-title">Debug panel <span class="debug-badge">Debug: on</span></h2></div>
+  <div class="panel-body">
+    <p>What each map in the rotation has (<span class="debug-yes">&#10004;</span>) and what's missing (<span class="debug-no">&#10008;</span>). Hover a cross to see where the missing thing goes.</p>
+    {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
+    {%- assign n_weapons = 0 %}{% assign n_map = 0 %}{% assign n_photo = 0 %}{% assign n_marks = 0 %}{% assign n_obj = 0 %}{% assign n_faction = 0 %}
+    <div class="table-wrap">
+      <table class="debug-table">
+        <thead>
+          <tr>
+            <th title="Weapons (starting or on the map)">{% include weapons-icon.svg %}<span class="debug-th">Weapons</span></th>
+            <th title="Overhead map image">{% include map-icon.svg %}<span class="debug-th">Map</span></th>
+            <th title="In-game photo">{% include photo-icon.svg %}<span class="debug-th">Photo</span></th>
+            <th title="Marks on the map">{% include marks-icon.svg %}<span class="debug-th">Marks</span></th>
+            <th title="Objectives">{% include objectives-icon.svg %}<span class="debug-th">Objectives</span></th>
+            <th>Faction</th>
+            <th class="debug-name">Map</th>
+          </tr>
+        </thead>
+        <tbody>
+          {%- for map in site.data.maps %}
+          {%- assign img_name = map.images_from | default: map.name %}
+          {%- assign map_img = nil %}{% assign ingame_img = nil %}
+          {%- for ext in map_exts %}
+            {%- assign p = "/assets/images/maps/" | append: img_name | append: "." | append: ext %}
+            {%- assign f = site.static_files | where: "path", p | first %}
+            {%- if f and map_img == nil %}{% assign map_img = p %}{% endif %}
+            {%- assign p = "/assets/images/ingame/" | append: img_name | append: "." | append: ext %}
+            {%- assign f = site.static_files | where: "path", p | first %}
+            {%- if f and ingame_img == nil %}{% assign ingame_img = p %}{% endif %}
+          {%- endfor %}
+          {%- assign marks_n = site.data.map_marks[map.name].size | default: site.data.map_marks[img_name].size | default: 0 %}
+          <tr>
+            <td>{% if map.weapons or map.map_weapons %}{% assign n_weapons = n_weapons | plus: 1 %}<span class="debug-yes" title="{{ map.weapons.size | default: 0 }} starting, {{ map.map_weapons.size | default: 0 }} on the map">&#10004;</span>{% else %}<span class="debug-no" title="weapons / map_weapons in _data/maps.yml">&#10008;</span>{% endif %}</td>
+            <td>{% if map_img %}{% assign n_map = n_map | plus: 1 %}<span class="debug-yes" title="{{ map_img }}">&#10004;</span>{% else %}<span class="debug-no" title="assets/images/maps/{{ img_name }}.webp">&#10008;</span>{% endif %}</td>
+            <td>{% if ingame_img %}{% assign n_photo = n_photo | plus: 1 %}<span class="debug-yes" title="{{ ingame_img }}">&#10004;</span>{% else %}<span class="debug-no" title="assets/images/ingame/{{ img_name }}.webp">&#10008;</span>{% endif %}</td>
+            <td>{% if marks_n > 0 and map_img %}{% assign n_marks = n_marks | plus: 1 %}<span class="debug-yes" title="{{ marks_n }} marks">&#10004;</span>{% else %}<span class="debug-no" title="{% if map_img %}Map marker tool / _data/map_marks.yml{% else %}needs a map image first{% endif %}">&#10008;</span>{% endif %}</td>
+            <td>{% if map.objectives %}{% assign n_obj = n_obj | plus: 1 %}<span class="debug-yes" title="{{ map.objectives.size }} steps">&#10004;</span>{% else %}<span class="debug-no" title="objectives in _data/maps.yml">&#10008;</span>{% endif %}</td>
+            <td>{% if map.faction %}{% assign n_faction = n_faction | plus: 1 %}{% assign faction = map.faction | downcase %}<span class="team-badge team-{% if faction == 'gdi' %}gdi{% elsif faction == 'nod' %}nod{% else %}other{% endif %}">{% if faction == 'nod' %}Nod{% else %}{{ map.faction }}{% endif %}</span>{% else %}<span class="debug-no" title="faction in _data/maps.yml">&#10008;</span>{% endif %}</td>
+            <td class="debug-name"><code>{{ map.name }}</code>{% if map.images_from %} <span class="muted">(images from <code>{{ map.images_from }}</code>)</span>{% endif %}</td>
+          </tr>
+          {%- endfor %}
+        </tbody>
+        {%- assign total = site.data.maps | size %}
+        <tfoot>
+          <tr>
+            <td>{{ n_weapons }}/{{ total }}</td><td>{{ n_map }}/{{ total }}</td><td>{{ n_photo }}/{{ total }}</td><td>{{ n_marks }}/{{ total }}</td><td>{{ n_obj }}/{{ total }}</td><td>{{ n_faction }}/{{ total }}</td>
+            <td class="debug-name">Total</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+</section>

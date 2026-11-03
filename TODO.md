@@ -2,16 +2,11 @@
 
 ## Map marking tool
 
-A tool to mark things on the map images, based on how the Gears DB website does
-it (`F:\Gears Website\New`):
+Done (03-11-2026): the Map marker tool (`/tools/map-marker/`) and the marks in the
+map preview; see "Map marks" in the README. Still to do:
 
-- [ ] Mark **starting positions** (GDI / Nod spawns) on a map image
-- [ ] Mark **objectives** (numbered, matching the objectives list) on the map
-- [ ] Save the marks as data (e.g. `_data/map_marks.yml`: map, kind, x/y as a
-      percentage of the image, label) so they scale with the image
-- [ ] Show the marks as an overlay in the map preview, with a way to hide them
-- [ ] A simple editor page (local only) to click on the map and place / move
-      marks, then copy the resulting data into the repo
+- [ ] Mark the maps (spawn points, secrets, vehicles) and add pictures
+- [ ] Maybe: numbered objective marks that match the objectives list
 
 ## Gallery tagging tool
 

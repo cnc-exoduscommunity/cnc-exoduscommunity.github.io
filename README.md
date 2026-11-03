@@ -152,20 +152,25 @@ Then open <http://localhost:4000>.
 | Path | What it is |
 | :--- | :--------- |
 | `_config.yml` | Site settings: title, URL, header logo, Discord and Steam links, server address, live status source and the "Not sure how to connect?" links. |
-| `index.html` | The home page: Message Of The Day, Index, Map rotation and IRC. |
+| `index.html` | The home page: Message Of The Day, Index, Map rotation, IRC, Sounds, Gallery, Tools and the Debug panel. |
 | `_data/maps.yml` | The map rotation table. |
+| `_data/map_marks.yml` | Marks on the map images (spawn points, secrets, vehicles, other), made with the Map marker tool. |
+| `map-marker.html` | The Map marker tool, at `/tools/map-marker/` (the file is at the root because `tools/` isn't part of the site). Its logic is in `assets/js/map-marker.js`. |
 | `_data/credits.yml` | Image credits, used by `image_credit:` in `_data/maps.yml`. |
 | `_includes/irc.md` | The IRC section (Markdown). |
-| `_layouts/default.html` | The page template: header (logo, Join Server, Discord, Steam, theme toggle), footer, theme picker. |
+| `_layouts/default.html` | The page template: header (logo, Join Server, Discord, GitHub, Steam, theme toggle), footer (with the Debug mode switch), theme and debug pickers. |
 | `_plugins/last_commit.rb` | Reads the last git commit (hash, date, branch) for the footer's "Site Revision" line. |
 | `assets/css/style.css` | All styling. The colours of both themes are variables at the top. |
 | `assets/js/site.js` | Theme toggle, collapsible sections, the header that follows the page, the map preview (previous/next, arrow keys, zoom and drag) and the live server status. |
 | `assets/images/maps/` | Map previews, named after the map (`M01.webp`). |
+| `assets/images/marks/` | Pictures for the map marks (`Islands_crate_1.webp`). |
 | `assets/images/rg-logo.png` | Header logo. If it is missing, or `logo:` is removed from `_config.yml`, the header shows the site title as text. |
 | `assets/images/radar.svg`, `circuit.svg` | Background art (radar dial and circuit lines), drawn for this site. |
 | `assets/images/os/` | Windows, macOS and Linux icons from [Bootstrap Icons](https://icons.getbootstrap.com/) (MIT). |
 | `assets/fonts/` | The Oswald font used for titles and buttons ([SIL Open Font License](assets/fonts/OFL.txt)), hosted with the site. |
 | `_includes/discord-icon.svg`, `steam-icon.svg` | The Discord and Steam logos used on the buttons ([Simple Icons](https://simpleicons.org/), CC0). |
+| `_includes/github-icon.svg` | The GitHub logo on the header button that links to this repository. |
+| `_includes/map-icons-debug.html` | The row of icons the map table shows in debug mode (missing ones in red). |
 | `_includes/image-icon.svg` | The small picture icon next to map names that have a preview. |
 | `_includes/os-icon.html` | Shows an OS icon: `{% include os-icon.html os="windows" label="Windows" %}`. |
 | `404.html` | Page shown for missing URLs. |
@@ -229,12 +234,40 @@ Opened by clicking a map's row. ❮ ❯ or the ← → keys step through every m
 the mouse wheel, pinching or + / − zoom, dragging moves the map, double-click zooms in or out, and `0` or Reset goes back to 100%.
 The zoom carries over from map to map. When a map is the one being played, it shows the same **Now playing** badge as the table.
 
+### Map marks
+
+Spots on a map's overhead image: **spawn points**, **secrets**, **vehicles** and **other**. In the map preview, hovering a mark
+shows its name, note and first picture; clicking it keeps the card open and steps through all its pictures. The chips under
+the map show how many of each kind there are and switch a kind on or off. Rows with marks get a pin icon in the table.
+
+To add or change marks, open the **Map marker** tool (Index > Tools, or `/tools/map-marker/`):
+
+1. Pick the map and the kind of mark, then click the map to add it. Drag a mark to move it; click it to give it a name,
+   a note and pictures (pick them from your computer, or type the file name).
+2. Your work is kept in that browser until the site has it, so you can close the page and come back.
+3. Copy the text at the bottom (or download it) over the whole of `_data/map_marks.yml`, put the pictures you added in
+   `assets/images/marks/` with the same names, and commit.
+
+The file format is described at the top of `_data/map_marks.yml`; it can also be edited by hand.
+
+### Debug mode
+
+The **Debug mode** switch at the bottom of every page (or `?debug=1` / `?debug=0` in the address, which is also remembered)
+makes the map table show every icon, with the missing ones in red, and adds a **Debug panel** at the bottom of the home page:
+a checklist of which maps have weapons, a map image, an in-game photo, marks, objectives and a faction. Hover a red cross to
+see which file or field it needs.
+
 ### Live server status
 
 The **Message Of The Day** box shows whether the server is online, the current map (with its mission name and preview),
 players, time left and who's playing, with **Join Server** next to the status. The visitor's browser reads it from CnCNet's
 public server list (`server.status_url` in `_config.yml`) when the page opens and then every minute, and the map being played
 gets a **Now playing** badge in the rotation table.
+
+It asks the server itself first (`status.json`, written every ~5 minutes by the "Server status" workflow) and only uses
+CnCNet when that check is out of date or the server didn't answer it. On Nod maps the box explains why the count can be 0,
+with a folded **Technical note** about the BRenBot version; keep `server.brenbot` in `_config.yml` up to date, and remove it
+once the server runs BRenBot 1.54.4 or newer.
 
 CnCNet's own list only updates every so often, so the page says when it last checked rather than offering a refresh button.
 That address isn't documented by CnCNet, so it could change: if the live box ever shows "Couldn't reach the server list",

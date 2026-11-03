@@ -8,6 +8,62 @@ function longDate(s) {
   return days[d.getDay()] + ", " + (+m[1]) + " " + months[+m[2] - 1] + " " + m[3] + (m[4] ? ", " + m[4] + ":" + m[5] : "");
 }
 
+// Map marks (spawn points, secrets, vehicles...) drawn on the overhead map images.
+// The marks come from _data/map_marks.yml; the Map marker tool (/tools/map-marker/)
+// places them. Shared by the map preview and the tool.
+var MapMarks = (function () {
+  var KINDS = {
+    spawn:   { label: "Spawn point", plural: "Spawn points",
+               glyph: '<path d="M4 1.5h1.6v13H4z"/><path d="M6.2 2.2h7.3l-1.9 2.9 1.9 2.9H6.2z"/>' },
+    secret:  { label: "Secret", plural: "Secrets",
+               glyph: '<path d="M8 1.2l2 4.4 4.8.5-3.6 3.2 1 4.8L8 11.7l-4.2 2.4 1-4.8-3.6-3.2 4.8-.5z"/>' },
+    vehicle: { label: "Vehicle", plural: "Vehicles",
+               glyph: '<path d="M4.2 5.2h5.6l1.2 2.6H3z"/><path d="M8.6 5.8h6v1.2h-6z"/><path d="M1.2 8.4h13.6v2.8c0 .9-.7 1.6-1.6 1.6H2.8c-.9 0-1.6-.7-1.6-1.6z"/>' },
+    other:   { label: "Other", plural: "Other",
+               glyph: '<path d="M6.9 2.5h2.2v6.8H6.9z"/><circle cx="8" cy="12.2" r="1.3"/>' }
+  };
+  var ORDER = ["spawn", "secret", "vehicle", "other"];
+  function kind(k) { return KINDS[k] ? k : "other"; }
+  function icon(k) {
+    return '<svg class="map-mark-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="currentColor">' + KINDS[kind(k)].glyph + "</svg>";
+  }
+  // A mark on the map: a round badge at x/y (percent of the image).
+  function marker(mark) {
+    var k = kind(mark.kind);
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "map-mark map-mark-" + k;
+    b.style.left = mark.x + "%";
+    b.style.top = mark.y + "%";
+    b.innerHTML = icon(k);
+    b.setAttribute("aria-label", KINDS[k].label + (mark.label ? ": " + mark.label : ""));
+    return b;
+  }
+  // Where an image of a mark lives (a full link is used as is).
+  function imageUrl(base, name) { return /^(https?:)?\//.test(name) ? name : base + name; }
+  return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl };
+})();
+
+// Debug mode (switch at the bottom of the page, or ?debug=1 / ?debug=0 in the URL):
+// the map table shows every icon, with the missing ones in red.
+(function () {
+  var root = document.documentElement;
+  var toggle = document.querySelector("[data-debug-toggle]");
+  if (!toggle) return;
+  toggle.checked = root.hasAttribute("data-debug");
+  toggle.addEventListener("change", function () {
+    var on = toggle.checked;
+    if (on) root.setAttribute("data-debug", ""); else root.removeAttribute("data-debug");
+    try { localStorage.setItem("debug", on ? "1" : "0"); } catch (e) {}
+    // Keep the URL in step, so a copied link opens the page the same way.
+    try {
+      var u = new URL(location.href);
+      if (on) u.searchParams.set("debug", "1"); else u.searchParams.delete("debug");
+      history.replaceState(history.state, "", u.pathname + u.search + u.hash);
+    } catch (e) {}
+  });
+})();
+
 // Theme toggle: switches between the dark (default) and light theme and remembers the choice.
 (function () {
   var root = document.documentElement;
@@ -115,7 +171,191 @@ function longDate(s) {
   if (viewBtn) viewBtn.addEventListener("click", function () { wantPhoto = !wantPhoto; zoom.reset(); show(current); });
   var navButtons = dialog.querySelectorAll("[data-map-step]");
   var current = 0;
-  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), image, dialog.querySelector(".map-dialog-zoom-level"));
+  // The image and its marks sit on one "canvas" that zooms and pans as a whole.
+  var canvas = dialog.querySelector(".map-dialog-canvas") || image;
+  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), canvas, dialog.querySelector(".map-dialog-zoom-level"), function () { placePop(); });
+
+  // ---- Map marks (_data/map_marks.yml) on the overhead map ----
+  // Hover a mark to see its card; click it to keep the card open (needed for
+  // touch screens, and to step through its pictures).
+  var marksLayer = dialog.querySelector(".map-marks");
+  var marksBar = dialog.querySelector(".map-dialog-marks");
+  var pop = dialog.querySelector(".map-mark-pop");
+  var marksBase = dialog.getAttribute("data-marks-base") || "";
+  var allMarks = {};
+  try { allMarks = JSON.parse((document.getElementById("map-marks-data") || {}).textContent || "{}") || {}; } catch (e) {}
+  var hiddenKinds = {};      // kinds switched off in the legend (kept while stepping through maps)
+  var pinned = null, hovered = null, popImage = 0;
+  function marksFor(link) {
+    var key = link.getAttribute("data-marks-key");
+    return (key && Array.isArray(allMarks[key])) ? allMarks[key] : [];
+  }
+  // The marks layer covers exactly the drawn image (the image is centred and
+  // scaled to fit, so it doesn't always fill the box).
+  function layoutMarks() {
+    if (!marksLayer) return;
+    var vw = canvas.clientWidth, vh = canvas.clientHeight;
+    var iw = image.naturalWidth, ih = image.naturalHeight;
+    if (!iw || !ih || !vw || !vh) { marksLayer.style.display = "none"; return; }
+    var s = Math.min(vw / iw, vh / ih), w = iw * s, h = ih * s;
+    marksLayer.style.display = "";
+    marksLayer.style.left = (vw - w) / 2 + "px";
+    marksLayer.style.top = (vh - h) / 2 + "px";
+    marksLayer.style.width = w + "px";
+    marksLayer.style.height = h + "px";
+    placePop();
+  }
+  function markActive() {
+    if (!marksLayer) return;
+    Array.prototype.forEach.call(marksLayer.children, function (m) { m.classList.toggle("is-active", m === (pinned || hovered)); });
+  }
+  function hidePop() { pinned = hovered = null; if (pop) pop.hidden = true; markActive(); }
+  // The card: kind, name, note and pictures of a mark.
+  function fillPop(btn) {
+    var mark = btn._mark, k = MapMarks.kind(mark.kind), info = MapMarks.KINDS[k];
+    pop.textContent = "";
+    pop.className = "map-mark-pop" + (btn === pinned ? " is-pinned" : "");
+    var head = document.createElement("p");
+    head.className = "map-mark-pop-head";
+    head.innerHTML = '<span class="map-mark-dot map-mark-' + k + '">' + MapMarks.icon(k) + "</span>";
+    var t = document.createElement("span");
+    t.className = "map-mark-pop-title";
+    t.textContent = mark.label || info.label;
+    head.appendChild(t);
+    if (mark.label) {
+      var kk = document.createElement("span");
+      kk.className = "map-mark-pop-kind";
+      kk.textContent = info.label;
+      head.appendChild(kk);
+    }
+    if (btn === pinned) {
+      var x = document.createElement("button");
+      x.type = "button"; x.className = "map-mark-pop-close"; x.setAttribute("aria-label", "Close"); x.innerHTML = "&#10005;";
+      x.addEventListener("click", hidePop);
+      head.appendChild(x);
+    }
+    pop.appendChild(head);
+    if (mark.note) {
+      var n = document.createElement("p");
+      n.className = "map-mark-pop-note";
+      n.textContent = mark.note;
+      pop.appendChild(n);
+    }
+    var imgs = Array.isArray(mark.images) ? mark.images : [];
+    if (imgs.length) {
+      popImage = Math.min(popImage, imgs.length - 1);
+      var fig = document.createElement("div");
+      fig.className = "map-mark-pop-figure";
+      var a = document.createElement("a");
+      a.href = MapMarks.imageUrl(marksBase, imgs[popImage]);
+      a.target = "_blank"; a.rel = "noopener"; a.title = "Open full size";
+      var im = document.createElement("img");
+      im.src = a.href; im.alt = mark.label || info.label;
+      im.addEventListener("load", placePop);
+      a.appendChild(im);
+      fig.appendChild(a);
+      if (imgs.length > 1) {
+        var nav = document.createElement("div");
+        nav.className = "map-mark-pop-nav";
+        if (btn !== pinned) {
+          nav.appendChild(document.createTextNode("1 / " + imgs.length + " · click the mark to see them all"));
+        } else {
+          [-1, 1].forEach(function (step) {
+            var b = document.createElement("button");
+            b.type = "button"; b.className = "btn btn-small";
+            b.setAttribute("aria-label", step < 0 ? "Previous picture" : "Next picture");
+            b.innerHTML = step < 0 ? "&#10094;" : "&#10095;";
+            b.addEventListener("click", function () {
+              popImage = (popImage + step + imgs.length) % imgs.length;
+              fillPop(btn); placePop();
+            });
+            nav.appendChild(b);
+          });
+          var c = document.createElement("span");
+          c.className = "map-mark-pop-count";
+          c.textContent = (popImage + 1) + " / " + imgs.length;
+          nav.insertBefore(c, nav.lastChild);
+        }
+        fig.appendChild(nav);
+      }
+      pop.appendChild(fig);
+    }
+    pop.hidden = false;
+  }
+  // Above the mark when there's room, otherwise below; always inside the map box.
+  function placePop() {
+    var btn = pinned || hovered;
+    if (!pop || pop.hidden || !btn) return;
+    var box = frame.getBoundingClientRect(), r = btn.getBoundingClientRect();
+    var cx = r.left + r.width / 2 - box.left;
+    var pw = pop.offsetWidth, ph = pop.offsetHeight, gap = 8;
+    var left = Math.max(4, Math.min(box.width - pw - 4, cx - pw / 2));
+    var top = r.top - box.top - ph - gap;
+    if (top < 4) top = r.bottom - box.top + gap;
+    top = Math.max(4, Math.min(box.height - ph - 4, top));
+    pop.style.left = left + "px";
+    pop.style.top = top + "px";
+  }
+  function showMarks(link, noMarks) {
+    if (!marksLayer) return;
+    hidePop();
+    marksLayer.textContent = "";
+    var marks = noMarks ? [] : marksFor(link);
+    var counts = {};
+    marks.forEach(function (mark) {
+      if (typeof mark.x !== "number" || typeof mark.y !== "number") return;
+      var k = MapMarks.kind(mark.kind);
+      counts[k] = (counts[k] || 0) + 1;
+      var btn = MapMarks.marker(mark);
+      btn._mark = mark;
+      btn.hidden = !!hiddenKinds[k];
+      // A mark is not a place to start dragging the map from.
+      btn.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+      btn.addEventListener("dblclick", function (e) { e.stopPropagation(); });
+      btn.addEventListener("mouseenter", function () {
+        if (pinned) return;
+        hovered = btn; popImage = 0; fillPop(btn); placePop(); markActive();
+      });
+      btn.addEventListener("mouseleave", function () {
+        if (pinned || hovered !== btn) return;
+        hovered = null; pop.hidden = true; markActive();
+      });
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        if (pinned === btn) { hidePop(); return; }
+        pinned = btn; hovered = null; popImage = 0; fillPop(btn); placePop(); markActive();
+      });
+      marksLayer.appendChild(btn);
+    });
+    // The legend: one switch per kind on this map, with how many there are.
+    if (marksBar) {
+      marksBar.textContent = "";
+      MapMarks.ORDER.forEach(function (k) {
+        if (!counts[k]) return;
+        var info = MapMarks.KINDS[k];
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "map-mark-chip";
+        b.setAttribute("aria-pressed", String(!hiddenKinds[k]));
+        b.title = (hiddenKinds[k] ? "Show " : "Hide ") + info.plural.toLowerCase() + " on the map";
+        b.innerHTML = '<span class="map-mark-dot map-mark-' + k + '">' + MapMarks.icon(k) + "</span>";
+        b.appendChild(document.createTextNode((counts[k] === 1 ? info.label : info.plural) + " (" + counts[k] + ")"));
+        b.addEventListener("click", function () {
+          hiddenKinds[k] = !hiddenKinds[k];
+          showMarks(link, noMarks);
+        });
+        marksBar.appendChild(b);
+      });
+      // Keeps its space (visibility) so the box doesn't change height between maps.
+      marksBar.style.visibility = marksBar.children.length ? "" : "hidden";
+    }
+    layoutMarks();
+  }
+  if (pop) pop.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+  if (pop) pop.addEventListener("wheel", function (e) { e.stopPropagation(); });
+  // Clicking the map (not a mark) closes a pinned card.
+  canvas.addEventListener("click", function (e) { if (pinned && !e.target.closest(".map-mark")) hidePop(); });
+  image.addEventListener("load", layoutMarks);
   dialog.querySelectorAll("[data-zoom]").forEach(function (b) {
     b.addEventListener("click", function () { zoom[b.getAttribute("data-zoom")](); });
   });
@@ -174,7 +414,7 @@ function longDate(s) {
       probe.src = l.getAttribute("href");
     });
   }
-  window.addEventListener("resize", function () { if (dialog.open) { measureTitles(); zoom.refresh(); matchSideHeight(); } });
+  window.addEventListener("resize", function () { if (dialog.open) { measureTitles(); zoom.refresh(); matchSideHeight(); layoutMarks(); } });
 
   function show(index) {
     current = (index + links.length) % links.length;
@@ -213,6 +453,7 @@ function longDate(s) {
       zoom.reset();
     }
     image.hidden = !withImage;
+    showMarks(link, showPhoto || !withImage);
     emptyMsg.hidden = withImage;
     frame.classList.toggle("is-empty", !withImage);
     // Zoom only makes sense with an image; keep its space so the box doesn't change size.
@@ -271,6 +512,7 @@ function longDate(s) {
     }
     zoom.refresh();
     matchSideHeight();
+    layoutMarks();
   }
 
   links.forEach(function (link, i) {
@@ -289,6 +531,7 @@ function longDate(s) {
   });
 
   dialog.querySelector(".map-dialog-close").addEventListener("click", function () { dialog.close(); });
+  dialog.addEventListener("close", hidePop);
   navButtons.forEach(function (b) {
     b.addEventListener("click", function () { show(current + Number(b.getAttribute("data-map-step"))); });
   });
@@ -314,7 +557,7 @@ function longDate(s) {
 
 // Zoom and pan for the map preview: mouse wheel or pinch to zoom (towards the
 // cursor / fingers), drag to move, double-click / double-tap to zoom in or out.
-function makeZoom(viewport, img, label) {
+function makeZoom(viewport, img, label, onChange) {
   var MIN = 1, MAX = 4; // the map images are 512px, so more than 4x is just blurry
   var scale = 1, tx = 0, ty = 0;
   var pointers = {};
@@ -329,8 +572,10 @@ function makeZoom(viewport, img, label) {
   function apply() {
     clamp();
     img.style.transform = "translate(" + tx + "px, " + ty + "px) scale(" + scale + ")";
+    img.style.setProperty("--zoom", scale);   // marks stay the same size on screen
     viewport.classList.toggle("is-zoomed", scale > 1);
     if (label) label.textContent = Math.round(scale * 100) + "%";
+    if (onChange) onChange();
   }
   // Zoom so the point (x, y) inside the viewport stays under the cursor.
   function zoomAt(next, x, y) {
@@ -681,6 +926,9 @@ function makeZoom(viewport, img, label) {
       warning.appendChild(document.createTextNode(" button, or the IP and port: "));
       warning.appendChild(el("code", null, address));
       warning.appendChild(document.createTextNode("."));
+      // Why it happens (which BRenBot version, and where it was fixed), folded away.
+      var tech = document.querySelector("template.live-tech-note");
+      if (tech) warning.appendChild(tech.content.cloneNode(true));
     }
     warning.hidden = !warning.textContent;
   }

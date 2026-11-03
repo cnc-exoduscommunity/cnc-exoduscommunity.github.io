@@ -22,15 +22,24 @@ server:
   join_url: "renegade://85.215.107.108:4852"
   location: "Europe"
   # Live status (map, faction, players, time left), checked by the visitor's
-  # browser every minute. First choice: CnCNet's public server list. Backup when
-  # CnCNet doesn't list the server: status.json from the "Server status"
-  # workflow, which asks the server itself every few minutes. Both show 0
+  # browser every minute. First choice: status.json from the "Server status"
+  # workflow, which asks the server itself every ~5 minutes. Fallback when that
+  # check is out of date or the server didn't answer it: CnCNet's public server
+  # list. Both show 0
   # players on Nod maps unless someone is on GDI (ExaBot's !pl is right).
   # Remove status_url to hide the live status.
   status_url: "https://api.cncnet.org/renegade?timeleft=&Time_Remaining=&_players=1&_callback="
   status_source_name: "CnCNet"
   status_source_url: "https://cncnet.org/renegade"
   direct_status_url: "https://raw.githubusercontent.com/cnc-exoduscommunity/cnc-exoduscommunity.github.io/server-status/status.json"
+  # The BRenBot version the server runs, for the "Technical note" under the Nod-map
+  # warning (why Nod maps show 0 players, and which version fixes it). Update
+  # version/checked after asking the server (!version in game); remove the block
+  # once the server runs 1.54.4 or newer, where the Nod count is fixed.
+  brenbot:
+    version: "1.53 (build 11)"
+    checked: 2026-11-03
+    repository: "cnc-exoduscommunity/BRenBot"
 
 # Gallery section: every photo in assets/images/gallery/ (with a small copy of the
 # same name in assets/images/gallery/thumbs/), oldest first. Photo names like

@@ -1,0 +1,9 @@
+{%- comment %} Debug mode only (switch at the bottom of the page): every icon, the missing ones in red.
+Expects map, map_img, ingame_img and marks_key from the map table loop. {% endcomment -%}
+<span class="map-icons-debug">
+  {%- if map.weapons or map.map_weapons %}<span class="debug-icon" title="Weapons: listed">{% else %}<span class="debug-icon is-missing" title="Weapons: missing">{% endif %}{% include weapons-icon.svg %}</span>
+  {%- if map_img %}<span class="debug-icon" title="Map image: found">{% else %}<span class="debug-icon is-missing" title="Map image: missing (assets/images/maps/{{ map.images_from | default: map.name }}.webp)">{% endif %}{% include map-icon.svg %}</span>
+  {%- if ingame_img %}<span class="debug-icon" title="In-game photo: found">{% else %}<span class="debug-icon is-missing" title="In-game photo: missing (assets/images/ingame/{{ map.images_from | default: map.name }}.webp)">{% endif %}{% include photo-icon.svg %}</span>
+  {%- if marks_key and map_img %}<span class="debug-icon" title="Marks: {{ site.data.map_marks[marks_key].size }}">{% else %}<span class="debug-icon is-missing" title="Marks: none (_data/map_marks.yml)">{% endif %}{% include marks-icon.svg %}</span>
+  {%- if map.objectives %}<span class="debug-icon" title="Objectives: listed">{% else %}<span class="debug-icon is-missing" title="Objectives: missing">{% endif %}{% include objectives-icon.svg %}</span>
+</span>

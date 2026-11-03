@@ -18,6 +18,14 @@
         }
       } catch (e) {}
       document.documentElement.setAttribute("data-theme", theme);
+      // Debug mode (switch at the bottom of the page): ?debug=1 or ?debug=0 in the
+      // URL (also saved), then the saved choice, then off.
+      try {
+        var debug = new URLSearchParams(location.search).get("debug");
+        if (debug === "1" || debug === "0") localStorage.setItem("debug", debug);
+        else debug = localStorage.getItem("debug");
+        if (debug === "1") document.documentElement.setAttribute("data-debug", "");
+      } catch (e) {}
     })();
   </script>
   {% seo %}
@@ -64,6 +72,12 @@
           Discord
         </a>
         {%- endif %}
+        {%- if site.repository %}
+        <a class="btn btn-github" href="https://github.com/{{ site.repository }}" title="This site's code on GitHub">
+          {% include github-icon.svg %}
+          GitHub
+        </a>
+        {%- endif %}
         {%- if site.steam_url %}
         <a class="btn btn-steam" href="{{ site.steam_url }}">
           {% include steam-icon.svg %}
@@ -85,6 +99,7 @@
 
   <footer class="site-footer">
     <p>Fan-made community site. Not affiliated with Electronic Arts. Hosted on <a href="https://pages.github.com/">GitHub Pages</a>.</p>
+    <p class="site-debug"><label class="debug-toggle" title="Shows every icon in the map table, with what's missing in red. Also: ?debug=1 or ?debug=0 in the address."><input type="checkbox" data-debug-toggle> Debug mode</label></p>
     {%- comment %} Revision line, from _plugins/last_commit.rb. Falls back to the build time without git. {% endcomment %}
     {%- assign rev = site.last_commit %}
     {%- assign rev_time = rev.time | default: site.time %}
