@@ -75,6 +75,11 @@ def query(host, port):
                 "ping": to_int(p.get("ping_%d" % i)),
             })
             i += 1
+        # Newer BRenBot (1.54.3+) sends each player's team as a number (0 = Nod, 1 = GDI)
+        # and the team names as team_t0/team_t1; turn the number back into the name.
+        for pl in players:
+            if (pl["team"] or "").isdigit() and int(pl["team"]) < len(teams):
+                pl["team"] = teams[int(pl["team"])]["name"]
     except OSError:
         pass  # the player list is a bonus; the status above is what matters
 
