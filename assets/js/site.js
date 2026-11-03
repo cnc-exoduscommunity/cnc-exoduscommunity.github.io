@@ -633,8 +633,8 @@ function makeZoom(viewport, img, label) {
     badge.setAttribute("data-source", kind);
     badge.textContent = kind === "direct" ? "Direct" : "CnCNet";
     var tip = kind === "direct"
-      ? "Backup: read from the server itself, used when CnCNet doesn't list the server. New check every ~5 minutes."
-      : "From CnCNet's server list, refreshed every minute. On Nod maps it can show 0 players.";
+      ? "Read from the server itself, every ~5 minutes. On Nod maps the server can report 0 players."
+      : "Fallback: the direct check is out of date or the server didn't answer it, so this comes from CnCNet's server list. On Nod maps it can show 0 players.";
     var tipEl = el("span", "source-tip");
     tipEl.setAttribute("role", "tooltip");
     addText(tipEl, tip);
@@ -646,10 +646,10 @@ function makeZoom(viewport, img, label) {
     source.textContent = "";
     if (kind === "direct") {
       var mins = Math.max(0, Math.round((Date.now() - when.getTime()) / 60000));
-      source.appendChild(document.createTextNode("Backup: from the server itself · checked " + clock(when) +
+      source.appendChild(document.createTextNode("Live from the server itself · checked " + clock(when) +
         (mins ? ", " + mins + " min ago" : ", just now") + " · new check every ~5 minutes"));
     } else {
-      source.appendChild(document.createTextNode("Live data from "));
+      source.appendChild(document.createTextNode("Fallback: live data from "));
       var a = el("a", null, cncnetName); a.href = cncnetUrl;
       source.appendChild(a);
       source.appendChild(document.createTextNode(" · last checked " + clock(when) + " · refreshes every minute"));
@@ -718,24 +718,6 @@ function makeZoom(viewport, img, label) {
     n.appendChild(document.createTextNode(" or that it has no players."));
   }
 
-  // 1. CnCNet's public server list (refreshed every minute).
-  //    Resolves true when the server is listed, false when it isn't.
-  function tryCncnet() {
-    return fetch(url, { cache: "no-store" })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function (text) {
-        // The list is plain JSON; strip a JSONP wrapper just in case.
-        var data = JSON.parse(text.replace(/^[^\[{]*\(/, "").replace(/\)\s*;?\s*$/, ""));
-        var servers = Array.isArray(data) ? data : Object.values(data);
-        var server = servers.find(function (s) { return s.ip + ":" + s.hostport === address; });
-        if (!server) return false;
-        stateNote.textContent = "";
-        showServer(server, "cncnet", new Date());
-        return true;
-      });
-  }
-
-  // 2. Backup: the server itself (status.json from the "Server status" workflow), when recent.
   function ago(ms) {
     var m = Math.round(ms / 60000);
     if (m < 60) return m + " min ago";
@@ -744,48 +726,78 @@ function makeZoom(viewport, img, label) {
   }
   var STALE_MAX_AGE = 24 * 60 * 60 * 1000;  // older than this, don't show it at all
 
-  // The direct check: recent -> shown as live; older -> shown as "last seen", clearly marked;
-  // a recent check where the server didn't answer -> offline.
-  function tryDirect() {
-    if (!directUrl) return Promise.reject(new Error("no direct status"));
+  // The direct check (status.json from the "Server status" workflow, every ~5 minutes).
+  // Resolves to { data, checked, age }, or null when there is none.
+  function getDirect() {
+    if (!directUrl) return Promise.resolve(null);
     return fetch(directUrl, { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(function (data) {
         var checked = new Date(data.checked_at);
-        if (isNaN(checked)) throw new Error("no date");
-        var age = Date.now() - checked.getTime();
-        stateNote.textContent = "";
-        if (age <= DIRECT_MAX_AGE) {
-          if (data.online) { showServer(data, "direct", checked); return; }
-          showMissing("offline", "Offline", function (n) {
-            n.textContent = "The server didn't answer the last check (" + clock(checked) + ").";
-          });
-          setBadge("direct"); setSource("direct", checked);
-          return;
-        }
-        if (!data.online || age > STALE_MAX_AGE) throw new Error("too old");
-        showServer(data, "direct", checked);
-        setState("stale", "Last seen online " + ago(age));
-        timeEl.textContent = "-";   // the time left from back then would be wrong
-        stateNote.textContent = "Live data isn't available right now; this is the last check of the server.";
+        if (isNaN(checked)) return null;
+        return { data: data, checked: checked, age: Date.now() - checked.getTime() };
+      })
+      .catch(function () { return null; });
+  }
+
+  // CnCNet's public server list: resolves to our server's entry, or null when it isn't listed.
+  function getCncnet() {
+    return fetch(url, { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (text) {
+        // The list is plain JSON; strip a JSONP wrapper just in case.
+        var data = JSON.parse(text.replace(/^[^\[{]*\(/, "").replace(/\)\s*;?\s*$/, ""));
+        var servers = Array.isArray(data) ? data : Object.values(data);
+        return servers.find(function (s) { return s.ip + ":" + s.hostport === address; }) || null;
       });
   }
 
+  function showDirect(d) { stateNote.textContent = ""; showServer(d.data, "direct", d.checked); }
+  function showCncnet(server) { stateNote.textContent = ""; showServer(server, "cncnet", new Date()); }
+
+  // Order: the direct check first; CnCNet only when the direct check is out of date or the
+  // server didn't answer it; the last direct check ("last seen") when neither works.
   function refresh() {
     if (busy) return;
     busy = true;
-    tryCncnet()
-      .then(function (listed) {
-        if (listed) return;
-        return tryDirect().catch(function () {
+    getDirect()
+      .then(function (d) {
+        var fresh = d && d.age <= DIRECT_MAX_AGE;
+        if (fresh && d.data.online) { showDirect(d); return; }
+        return getCncnet().then(function (server) {
+          if (server) { showCncnet(server); return; }
+          if (fresh) {
+            // The server didn't answer a recent check, and CnCNet doesn't list it either.
+            showMissing("offline", "Offline", function (n) {
+              n.textContent = "The server didn't answer the last check (" + clock(d.checked) + ").";
+            });
+            setBadge("direct"); setSource("direct", d.checked);
+            return;
+          }
+          if (d && d.data.online && d.age <= STALE_MAX_AGE) { showStale(d); return; }
           showMissing("offline", "Not on CnCNet's list right now", notListedNote);
-        });
-      }, function () {
-        return tryDirect().catch(function () {
-          showMissing("unknown", "Couldn't reach the server list - trying again in a minute");
+        }, function () {
+          // CnCNet can't be reached.
+          if (fresh) {
+            showMissing("offline", "Offline", function (n) {
+              n.textContent = "The server didn't answer the last check (" + clock(d.checked) + ").";
+            });
+            setBadge("direct"); setSource("direct", d.checked);
+            return;
+          }
+          if (d && d.data.online && d.age <= STALE_MAX_AGE) { showStale(d); return; }
+          showMissing("unknown", "Couldn't reach the server - trying again in a minute");
         });
       })
       .then(function () { busy = false; }, function () { busy = false; });
+  }
+
+  // An older direct check, clearly marked as such.
+  function showStale(d) {
+    showDirect(d);
+    setState("stale", "Last seen online " + ago(d.age));
+    timeEl.textContent = "-";   // the time left from back then would be wrong
+    stateNote.textContent = "Live data isn't available right now; this is the last check of the server.";
   }
 
   refresh();
