@@ -58,8 +58,14 @@ def query(host, port):
         return {"online": False}
 
     players = []
+    teams = []
     try:
         p = parse(ask(host, port, "\\players\\"))
+        # GameSpy servers can also send team totals as team_t0/score_t0, team_t1/score_t1.
+        t = 0
+        while "team_t%d" % t in p:
+            teams.append({"name": p.get("team_t%d" % t), "score": to_int(p.get("score_t%d" % t))})
+            t += 1
         i = 0
         while "player_%d" % i in p:
             players.append({
@@ -81,6 +87,7 @@ def query(host, port):
         "maxplayers": to_int(info.get("maxplayers")),
         "timeleft": info.get("timeleft"),
         "players": players,
+        "teams": teams,
     }
 
 
