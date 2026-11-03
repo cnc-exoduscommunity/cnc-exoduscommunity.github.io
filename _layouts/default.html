@@ -72,16 +72,16 @@
           Discord
         </a>
         {%- endif %}
-        {%- if site.repository %}
-        <a class="btn btn-github" href="https://github.com/{{ site.repository }}" title="This site's code on GitHub">
-          {% include github-icon.svg %}
-          GitHub
-        </a>
-        {%- endif %}
         {%- if site.steam_url %}
         <a class="btn btn-steam" href="{{ site.steam_url }}">
           {% include steam-icon.svg %}
           Steam
+        </a>
+        {%- endif %}
+        {%- if site.repository %}
+        <a class="btn btn-github" href="https://github.com/{{ site.repository }}" title="This site's code on GitHub">
+          {% include github-icon.svg %}
+          GitHub
         </a>
         {%- endif %}
         <button class="btn btn-icon theme-toggle" type="button" aria-label="Switch to light theme" title="Switch theme">

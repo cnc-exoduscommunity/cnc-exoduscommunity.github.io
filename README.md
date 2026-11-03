@@ -158,7 +158,7 @@ Then open <http://localhost:4000>.
 | `map-marker.html` | The Map marker tool, at `/tools/map-marker/` (the file is at the root because `tools/` isn't part of the site). Its logic is in `assets/js/map-marker.js`. |
 | `_data/credits.yml` | Image credits, used by `image_credit:` in `_data/maps.yml`. |
 | `_includes/irc.md` | The IRC section (Markdown). |
-| `_layouts/default.html` | The page template: header (logo, Join Server, Discord, GitHub, Steam, theme toggle), footer (with the Debug mode switch), theme and debug pickers. |
+| `_layouts/default.html` | The page template: header (logo, Join Server, Discord, Steam, GitHub, theme toggle), footer (with the Debug mode switch), theme and debug pickers. |
 | `_plugins/last_commit.rb` | Reads the last git commit (hash, date, branch) for the footer's "Site Revision" line. |
 | `assets/css/style.css` | All styling. The colours of both themes are variables at the top. |
 | `assets/js/site.js` | Theme toggle, collapsible sections, the header that follows the page, the map preview (previous/next, arrow keys, zoom and drag) and the live server status. |
