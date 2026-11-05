@@ -506,9 +506,10 @@ html:has(.map-dialog[open]), html:has(.gallery-dialog[open]) { overflow: hidden;
 /* Zoomable map: the image is scaled and moved inside a fixed square. */
 .map-dialog-viewport {
   margin-inline: auto;
-  max-height: calc(100vh - 17rem);
+  /* As big as the window allows (the same size for every map; pictures are fitted inside). */
+  width: 100%;
+  height: max(18rem, calc(100vh - 16rem));
   position: relative;
-  aspect-ratio: 1;
   overflow: hidden;
   border: 1px solid var(--border-soft);
   background: transparent;   /* transparent map pictures show the page behind them */
@@ -603,7 +604,7 @@ html:has(.map-dialog[open]), html:has(.gallery-dialog[open]) { overflow: hidden;
   .map-dialog-nav { position: fixed; top: 50%; transform: translateY(-50%); z-index: 2; }
   .map-dialog-nav[data-map-step="-1"] { left: 1rem; }
   .map-dialog-nav[data-map-step="1"] { right: 1rem; }
-  .map-dialog-panel { flex: 1 1 auto; width: auto; min-width: 0; max-width: 1100px; }
+  .map-dialog-panel { flex: 1 1 auto; width: auto; min-width: 0; }
   .map-dialog-below { display: none !important; }
   .map-dialog-weapons-card .weapon-pic { width: 6rem; height: 2.7rem; }
   .map-dialog-weapons-card li:not(:has(.weapon-pic))::before { width: 6rem; }
@@ -616,7 +617,7 @@ html:has(.map-dialog[open]), html:has(.gallery-dialog[open]) { overflow: hidden;
 
 .map-dialog-zoom { display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: 0.6rem; }
 .map-dialog-zoom .btn { min-width: 2.2rem; justify-content: center; }
-.map-dialog-zoom-level { min-width: 3.5rem; text-align: center; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.map-dialog-zoom-level { min-width: 4.2rem; text-align: center; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 .map-dialog-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin-top: 0.55rem; font-size: 0.85rem; color: var(--muted); }
 .map-dialog-credit { margin: 0; overflow-wrap: anywhere; }
 /* When a player's photo was taken: under the "Taken by" / "Credit to" line, in brackets. */
@@ -1139,3 +1140,14 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .map-dialog-progress.is-unknown .map-dialog-progress-bar span { animation: progress-slide 1.2s ease-in-out infinite; }
 @keyframes progress-slide { from { transform: translateX(-100%); } to { transform: translateX(600%); } }
 .map-dialog-progress-text { margin: 0.35rem 0 0; color: #fff; font-size: 0.8rem; text-align: center; }
+/* Fixed widths, so the buttons under the map don't move when their text changes. */
+.map-dialog-zoom .map-dialog-quality { min-width: 9.4em; justify-content: center; }
+.map-dialog-views .btn:disabled, .map-dialog-quality:disabled { opacity: 0.4; cursor: not-allowed; }
+.map-dialog-zoom { flex-wrap: wrap; row-gap: 0.4rem; }
+@media (max-width: 600px) {
+  .map-dialog-viewport { height: min(calc(100vh - 16rem), 115vw); }
+  .map-dialog-zoom .map-dialog-quality, .map-dialog-views { margin-left: 0; }
+}
+/* Centred when the preview fits the window, starting at the top (scrollable) when it's taller. */
+.map-dialog[open] { align-items: flex-start; }
+.map-dialog[open] > .map-dialog-stage { margin-block: auto; }

@@ -580,7 +580,6 @@ var MapMarks = (function () {
         largest.w = Math.max(largest.w, probe.naturalWidth || 0);
         largest.h = Math.max(largest.h, probe.naturalHeight || 0);
         if (--pending === 0 && largest.w && largest.h) {
-          viewport.style.aspectRatio = largest.w + " / " + largest.h;
           zoom.refresh();
         }
       };
@@ -629,20 +628,25 @@ var MapMarks = (function () {
     var view = srcs[wantView] ? wantView : (srcs.map ? "map" : null);
     var available = Object.keys(srcs).filter(function (k) { return srcs[k]; });
     if (viewsBox) {
-      viewsBox.hidden = available.length < 2 && !(available.length === 1 && available[0] !== "map");
+      // Always the same buttons in the same place; the ones this map doesn't have are greyed out.
+      viewsBox.hidden = false;
       Array.prototype.forEach.call(viewButtons, function (b) {
         var v = b.getAttribute("data-view");
-        b.hidden = !srcs[v];
+        b.hidden = false;
+        b.disabled = !srcs[v];
+        b.title = srcs[v] ? "" : (v === "map" ? "No map picture for this map yet" : v === "photo" ? "No in-game photo for this map yet" : "No loading screen for this map");
         b.setAttribute("aria-pressed", String(v === view));
       });
     }
     var showPhoto = view === "photo";
     var hd = view === "map" && link.getAttribute("data-hd");
     if (qualityBtn) {
-      qualityBtn.hidden = !hd;
+      qualityBtn.hidden = false;
+      qualityBtn.disabled = !hd;
       qualityBtn.setAttribute("aria-pressed", String(quality === "high"));
       qualityBtn.textContent = "Quality: " + (quality === "high" ? "High" : "Normal");
-      qualityBtn.title = quality === "high" ? "Showing the high-resolution map (bigger download). Click for the normal one." : "Showing the normal map. Click for the high-resolution one (bigger download).";
+      qualityBtn.title = !hd ? (view === "map" ? "There's no high-quality picture for this map" : "Quality is for the map picture")
+        : quality === "high" ? "Showing the high-resolution map (bigger download). Click for the normal one." : "Showing the normal map. Click for the high-resolution one (bigger download).";
     }
     // The high-resolution picture: fetched in the background, drawn on the canvas once it's
     // ready when Quality is High (see hdRefresh).
