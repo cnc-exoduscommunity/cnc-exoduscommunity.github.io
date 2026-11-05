@@ -266,7 +266,7 @@ sections:
       {%- endfor %}
     </template>
     {%- endfor %}
-    <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}" data-loadscreens-base="{{ '/assets/images/loadscreens/' | relative_url }}">
+    <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}" data-loadscreens-base="{{ '/assets/images/loadscreens/' | relative_url }}" data-banner-gdi="{{ '/assets/images/hud/hud_winscreen_gdi.webp' | relative_url }}" data-banner-nod="{{ '/assets/images/hud/hud_winscreen_nod.webp' | relative_url }}" data-logo-gdi="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" data-logo-nod="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
       <div class="map-dialog-stage">
         <aside class="map-dialog-spacer map-dialog-weapons-card" aria-label="Starting weapons">
@@ -288,7 +288,9 @@ sections:
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
           <span class="now-playing map-dialog-now" hidden><span class="now-playing-dot" aria-hidden="true"></span>Now playing</span>
-          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span><span class="map-dialog-faction"></span></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
+          {%- comment %} The side's end-of-game banner (hud_winscreen, put back together) behind the title. {% endcomment %}
+          <div class="map-dialog-banner" aria-hidden="true"></div>
+          <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span><span class="map-dialog-faction"></span></h3>
           <div class="map-dialog-frame">
             <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
               <canvas class="map-dialog-hd" hidden></canvas>

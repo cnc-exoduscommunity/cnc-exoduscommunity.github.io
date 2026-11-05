@@ -173,3 +173,5 @@ other:
   icons:
     - { file: "hud_cnc_button", name: "Arrow button", note: "Small yellow arrow, most likely the alternate-look arrow on purchase cards; not named in the game's code." }
     - { file: "hud_winscreen", name: "End-of-game banner", note: "The “GDI wins” / “Nod wins” art, drawn on the 3D banner models HUD_GDIWINBAN and HUD_NODWINBAN." }
+    - { file: "hud_winscreen_gdi", name: "GDI wins banner", note: "The two GDI strips of hud_winscreen put back together (800x122, .webp); shown behind the title in the map preview." }
+    - { file: "hud_winscreen_nod", name: "Nod wins banner", note: "The two Nod strips of hud_winscreen put back together (800x123, .webp); shown behind the title in the map preview." }

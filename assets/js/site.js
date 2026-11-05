@@ -605,8 +605,23 @@ var MapMarks = (function () {
         var key = /gdi/i.test(f) ? "gdi" : /nod/i.test(f) ? "nod" : "other";
         var b = document.createElement("span");
         b.className = "team-badge team-" + key;
-        b.textContent = key === "nod" ? "Nod" : f;
+        // The side's logo from the game's HUD in front of the name.
+        var logo = key !== "other" && dialog.getAttribute("data-logo-" + key);
+        if (logo) {
+          var li = document.createElement("img");
+          li.className = "team-badge-logo"; li.src = logo; li.alt = "";
+          b.appendChild(li);
+        }
+        b.appendChild(document.createTextNode(key === "nod" ? "Nod" : f));
         factionBox.appendChild(b);
+      }
+      // The side's banner behind the title.
+      var banner = dialog.querySelector(".map-dialog-banner");
+      if (banner) {
+        var side = f && (/nod/i.test(f) ? "nod" : /gdi/i.test(f) ? "gdi" : null);
+        var url = side && dialog.getAttribute("data-banner-" + side);
+        banner.style.backgroundImage = url ? 'url("' + url + '")' : "none";
+        banner.hidden = !url;
       }
       if (link.closest("tr") && link.closest("tr").hasAttribute("data-scalable")) {
         var sd = document.createElement("span");
