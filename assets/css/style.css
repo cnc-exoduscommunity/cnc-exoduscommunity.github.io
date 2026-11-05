@@ -889,7 +889,7 @@ tr.is-current td { vertical-align: middle; }
 .map-dialog-panel { position: relative; }
 .map-dialog-now { position: absolute; top: 0.9rem; right: 1rem; z-index: 1; }
 /* Room for the badge is always kept, so the box doesn't change size between maps. */
-.map-dialog-headline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; padding-right: 8.5rem; }
+.map-dialog-headline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; }
 .map-dialog-faction:empty { display: none; }
 .map-dialog-faction .team-badge { text-shadow: none; }
 @media (max-width: 600px) {
@@ -1175,3 +1175,26 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 @media (max-width: 600px) {
   .map-dialog-banner { width: 100%; height: 100%; max-height: 9rem; opacity: 0.35; }
 }
+
+/* Nod maps: the row highlight (hover, and the map being played) in Nod red instead of gold. */
+:root { --nod-bar: rgba(200, 16, 46, 0.34); --nod-link: #ff5a5a; }
+[data-theme="light"] { --nod-bar: rgba(200, 16, 46, 0.16); --nod-link: #b3001b; }
+.map-table tr[data-faction="Nod"]:hover, .map-table tr[data-faction="Nod"].is-current { background: var(--nod-bar) !important; }
+.map-table tr[data-faction="Nod"].has-preview:hover .map-link code { border-color: var(--nod-link); }
+.map-table tr[data-faction="Nod"]:hover .map-icons .icon { color: var(--nod-link); }
+/* "Now playing" sits in the tags row; the player count after the map's name. */
+.map-dialog-faction .map-dialog-now { position: static; }
+.map-dialog-players { display: inline-block; margin-left: 0.6em; padding: 0.05em 0.5em; border: 1px solid rgba(52, 199, 89, 0.6); border-radius: 3px; color: #5ee07d; font-size: 0.85em; font-weight: 600; white-space: nowrap; vertical-align: 0.05em; }
+[data-theme="light"] .map-dialog-players { color: #1f7a36; border-color: rgba(31, 122, 54, 0.5); }
+/* The side's big logo (the left end of its banner) faintly behind the title. */
+.map-dialog-emblem {
+  position: absolute; z-index: 0; top: 0; left: 0;
+  width: 8.6rem; height: 7.6rem;
+  background: no-repeat left center / auto 100%;
+  border-top-left-radius: inherit;
+  -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent);
+  mask-image: linear-gradient(90deg, #000 55%, transparent);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.map-dialog-emblem[hidden] { display: none; }

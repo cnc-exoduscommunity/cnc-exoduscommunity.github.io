@@ -538,11 +538,22 @@ var MapMarks = (function () {
   // "Now playing" badge in the preview's top-right corner, when the map shown
   // is the one the live status says is being played.
   var nowBadge = dialog.querySelector(".map-dialog-now");
+  // "Now playing" after the faction badge, and the player count after the map's name,
+  // when the map on screen is the one the server is playing.
+  var playersTag = document.createElement("span");
+  playersTag.className = "map-dialog-players";
   function updateNowPlaying() {
     var row = links[current] && links[current].closest("tr");
     var playing = !!(row && row.classList.contains("is-current"));
     nowBadge.hidden = !playing;
     dialog.classList.toggle("is-now-playing", playing);
+    var tags = dialog.querySelector(".map-dialog-faction");
+    if (tags && nowBadge.parentNode !== tags) tags.appendChild(nowBadge);
+    var players = playing && row.getAttribute("data-players");
+    playersTag.textContent = players ? players + " players" : "";
+    playersTag.title = players && /nod/i.test(row.getAttribute("data-faction") || "") ? "On Nod maps the server can report 0 players while people are playing." : "";
+    if (players && playersTag.parentNode !== comment) comment.appendChild(playersTag);
+    else if (!players && playersTag.parentNode) playersTag.remove();
   }
   document.addEventListener("currentmapchange", updateNowPlaying);
 
@@ -567,6 +578,7 @@ var MapMarks = (function () {
     comment.textContent = keepComment;
     noteEl.innerHTML = keepNote;
     titleEl.style.minHeight = tallest + "px";
+    updateNowPlaying();   // the player count lives in the comment line, which was just rewritten
   }
   function sizeToLargest() {
     measureTitles();
@@ -622,6 +634,11 @@ var MapMarks = (function () {
         var url = side && dialog.getAttribute("data-banner-" + side);
         banner.style.backgroundImage = url ? 'url("' + url + '")' : "none";
         banner.hidden = !url;
+      }
+      var emblem = dialog.querySelector(".map-dialog-emblem");
+      if (emblem) {
+        emblem.style.backgroundImage = url ? 'url("' + url + '")' : "none";
+        emblem.hidden = !url;
       }
       if (link.closest("tr") && link.closest("tr").hasAttribute("data-scalable")) {
         var sd = document.createElement("span");
@@ -997,13 +1014,14 @@ function makeZoom(viewport, img, label, onChange) {
     return norm(a) === norm(b);
   }
 
-  function markCurrentMap(name) {
-    document.querySelectorAll("tr.is-current").forEach(function (tr) { tr.classList.remove("is-current"); });
+  function markCurrentMap(name, players) {
+    document.querySelectorAll("tr.is-current").forEach(function (tr) { tr.classList.remove("is-current"); tr.removeAttribute("data-players"); });
     document.querySelectorAll("tr .now-playing").forEach(function (b) { b.remove(); });
     if (!name) return;
     document.querySelectorAll("tr[data-map]").forEach(function (tr) {
       if (!sameMap(tr.getAttribute("data-map"), name)) return;
       tr.classList.add("is-current");
+      if (players) tr.setAttribute("data-players", players);
       var badge = document.createElement("span");
       badge.className = "now-playing";
       badge.innerHTML = '<span class="now-playing-dot" aria-hidden="true"></span>Now playing';
@@ -1200,7 +1218,7 @@ function makeZoom(viewport, img, label, onChange) {
     playersEl.textContent = (server.numplayers || 0) + " / " + (server.maxplayers || "?");
     timeEl.textContent = formatTime(server.timeleft || server["Time Remaining"]);
     showPlayers(server.players);
-    markCurrentMap(server.mapname);
+    markCurrentMap(server.mapname, playersEl.textContent);
     setBadge(kind);
     setSource(kind, when);
     setWarning(faction, false);
