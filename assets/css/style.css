@@ -1318,3 +1318,9 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .map-dialog-weapons-top { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .map-dialog-weapons-card .map-dialog-terminal { flex: none; margin-top: 0; }
 .terminal-label { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
+
+/* Cards show just the picture, number and price (bottom left); the name is on hover
+   (and still read out by screen readers). */
+.terminal-grid { --tile-h: calc(var(--tile-w) + 2px); }
+.terminal-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.terminal-cost { top: auto; bottom: 3px; }
