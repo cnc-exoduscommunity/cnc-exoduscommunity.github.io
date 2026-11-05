@@ -889,15 +889,8 @@ tr.is-current td { vertical-align: middle; }
 .map-dialog-now { position: absolute; top: 0.9rem; right: 1rem; z-index: 1; }
 /* Room for the badge is always kept, so the box doesn't change size between maps. */
 .map-dialog-headline { display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem 0.8rem; padding-right: 8.5rem; }
-.map-dialog-zoom .map-dialog-view { margin-left: 0.6rem; }
-/* Both labels share one grid cell, so the button keeps the width of the longer one. */
-.map-dialog-view:not([hidden]) { display: inline-grid; justify-items: center; }
-.map-dialog-view .view-label { grid-area: 1 / 1; }
-.map-dialog-view[aria-pressed="false"] .view-label-map,
-.map-dialog-view[aria-pressed="true"] .view-label-photo { visibility: hidden; }
 .map-dialog-faction:empty { display: none; }
 .map-dialog-faction .team-badge { text-shadow: none; }
-.map-dialog-view[hidden] { display: none; }
 @media (max-width: 600px) {
   .map-dialog-now { top: 0.6rem; right: 0.6rem; }
   .map-dialog-headline { padding-right: 0; }
@@ -1121,3 +1114,14 @@ li.objective-missing { color: var(--muted); font-style: italic; }
 html[data-debug] li.objective-missing { color: #ff3b30; }
 /* Small tag after the faction in the map preview's title (e.g. Scalable difficulty). */
 .map-tag { display: inline-block; margin-left: 0.4rem; padding: 0.05rem 0.45rem; border: 1px solid var(--border-soft); border-radius: 3px; color: var(--text); font-family: inherit; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; vertical-align: middle; white-space: nowrap; text-transform: none; }
+
+/* ---------- Map preview views (Map / In-Game Photo / Loading Screen) ---------- */
+.map-dialog-views { display: inline-flex; flex-wrap: wrap; gap: 0.3rem; margin-left: 0.6rem; }
+.map-dialog-views[hidden], .map-dialog-views [hidden] { display: none; }
+.map-dialog-views .btn[aria-pressed="true"] { background: var(--bar); border-color: var(--title); color: var(--title); }
+
+/* The loading screen's text, drawn over its picture like the game does (640x480 grid). */
+.loadscreen-text { position: absolute; pointer-events: none; container-type: inline-size; font-family: Arial, Helvetica, sans-serif; }
+.loadscreen-text[hidden] { display: none; }
+.ls-line { position: absolute; font-size: 1.6cqw; line-height: 1.22; white-space: pre-wrap; text-shadow: 1px 1px 1px #000; }
+.ls-line.is-big { font-size: 2.7cqw; font-weight: 700; }

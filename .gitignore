@@ -22,3 +22,8 @@ __pycache__/
 
 # Reference material kept locally, never published
 Command_Conquer_Renegade_Prima_Official_eGuide.pdf
+/BRenBot-master
+/brenbot
+
+# Loading screens: only the .webp copies are published; the original PNGs and tiles stay local
+assets/images/loadscreens/*.png

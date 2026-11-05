@@ -173,7 +173,7 @@
   terminal: none
   description: "Mission 2: Rescue and Retribution"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: ryanturner   # rendered with the RenegadeViewer tool
   scalable_difficulty: true
 - name: M02
   terminal: no-vehicles

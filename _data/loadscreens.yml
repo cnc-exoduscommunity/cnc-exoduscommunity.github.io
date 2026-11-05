@@ -1,236 +1,300 @@
-# Loading screens, from the game's always.dat (layout from campaign.ini [BackdropN]).
-# The pictures are in assets/images/loadscreens/ with their original names: the whole
-# screen ("loadscreen <name> (<backdrop>).png", 1024x772, without its text) and the four
-# tiles it's made of (_1 top left, _2 top right, _3 bottom left, _4 bottom right), plus
-# loadscreen_beam.png (the loading bar).
+# Loading screens, from the game's always.dat (layout from campaign.ini [BackdropN],
+# put together by the RenegadeViewer tool). Shown in the map preview ("Loading Screen").
 #
-# The text is drawn by the game on top of the picture: title, overview, summary and hint
-# in green #64ff64, the hint boxes (title + text) in orange #ff9664. Campaign string IDs
-# (XX = mission number): title IDS_Enc_Miss_Title_MXX_01, overview
-# IDS_Enc_ObjTitle_Overview_MXX_01, summary IDS_Enc_Obj_Primary_MXX_01, hint
-# IDS_Enc_Obj_Rec_MXX_01, hint box N title IDS_Enc_Obj_Rec_MXX_0N / text
-# IDS_Enc_ObjVerbose_Rec_MXX_0N. The number after each hint box below is N.
-#
-# maps: which maps show this screen (names from _data/maps.yml). Every custom and
-# co-op map shows the C&C multiplayer screen.
+# image:  the whole screen in assets/images/loadscreens/ (original name, as .webp; the
+#         original PNGs and the four tiles each is made of - _1 top left, _2 top right,
+#         _3 bottom left, _4 bottom right - stay on the PC, see .gitignore)
+# maps:   which maps show it (names from _data/maps.yml). Every custom and co-op map
+#         shows the C&C multiplayer screen.
+# lines:  the text the game draws on top, on a 640x480 grid: x, y (top left of the
+#         text), w (wrap width, when it wraps), big (the title), color (title, overview,
+#         summary and hint #64ff64; hint boxes #ff9664; M13's HUD callouts white),
+#         label (what the line is) and code (the game's string ID).
+# note:   optional extra detail.
 
 screens:
   - backdrop: 13
-    image: "loadscreen m13 (13).png"
-    model: if_lvl00load
+    image: "loadscreen m13 (13).webp"
+    model: IF_LVL00LOAD
     tiles: loadscreen_lvl0
     maps: [M13]
-    title: "THE SCORPION HUNTERS"
-    overview: "LOCATE THE SECRET NOD BASE"
-    summary: "Intel is reporting evidence of an uncharted NOD installation. Storms and rough terrain are interfering with our satellite scans, so Eagle Base has dispatched a recon team to investigate. Your squad will lead the extraction effort once Recon One has confirmed the base coordinates."
-    hints:
-      - { n: 1, title: "PRESS F1 FOR HELP", text: "For general help with the controls and on-screen interface, press the help key." }
-      - { n: 2, title: "USE MOUSE TO AIM", text: "Move the mouse to look around from your current position. Click to fire your weapon." }
-      - { n: 3, title: "W-S-A-D TO MOVE", text: "Move forward and backward with the W & S keys. Sidestep left and right with A & D." }
-      - { n: 4, title: "PRESS E FOR VEHICLES", text: "Enter and exit vehicles by pressing the action key when green arrows are present" }
     note: "Level 0; string IDs IDS_LoadScreen_MX0_*. Also shows HUD callouts in gold #f8e387: Primary Objective, Secondary Objective, Radar, Ammo Count, Armor, Clip Count, Health, Security Cards, Weapon. [Backdrop0] uses the same picture (loadscreen m13 (0).png) with no text."
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_LoadScreen_MX0_Title, text: "THE SCORPION HUNTERS" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_LoadScreen_MX0_SubTitle, text: "LOCATE THE SECRET NOD BASE" }
+      - { x: 60, y: 60, w: 450, color: "#64ff64", label: "Mission Summary", code: IDS_LoadScreen_MX0_Description, text: "Intel is reporting evidence of an uncharted NOD installation. Storms and rough terrain are interfering with our satellite scans, so Eagle Base has dispatched a recon team to investigate. Your squad will lead the extraction effort once Recon One has confirmed the base coordinates." }
+      - { x: 72, y: 154, color: "#ff9664", label: "1st Hint Title", code: IDS_LoadScreen_MX0_Hint_01_Title, text: "PRESS F1 FOR HELP" }
+      - { x: 72, y: 166, w: 230, color: "#ff9664", label: "1st Hint Text", code: IDS_LoadScreen_MX0_Hint_01_Verbose, text: "For general help with the controls and on-screen interface, press the help key." }
+      - { x: 82, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_LoadScreen_MX0_Hint_02_Title, text: "USE MOUSE TO AIM" }
+      - { x: 82, y: 212, w: 220, color: "#ff9664", label: "2nd Hint Text", code: IDS_LoadScreen_MX0_Hint_02_Verbose, text: "Move the mouse to look around from your current position. Click to fire your weapon." }
+      - { x: 368, y: 154, color: "#ff9664", label: "3rd Hint Title", code: IDS_LoadScreen_MX0_Hint_03_Title, text: "W-S-A-D TO MOVE" }
+      - { x: 368, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_LoadScreen_MX0_Hint_03_Verbose, text: "Move forward and backward with the W & S keys. Sidestep left and right with A & D." }
+      - { x: 380, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_LoadScreen_MX0_Hint_04_Title, text: "PRESS E FOR VEHICLES" }
+      - { x: 380, y: 212, w: 220, color: "#ff9664", label: "4th Hint Text", code: IDS_LoadScreen_MX0_Hint_04_Verbose, text: "Enter and exit vehicles by pressing the action key when green arrows are present" }
+      - { x: 112, y: 255, w: 500, color: "#f8e387", label: "Primary Objective", code: IDS_Enc_ObjTitle_Primary_M00_00, text: "Primary Objective" }
+      - { x: 118, y: 280, color: "#f8e387", label: "Secondary Objective", code: IDS_Enc_ObjTitle_Secondary_M00_00, text: "Secondary Objective" }
+      - { x: 142, y: 305, color: "#f8e387", label: "Radar", code: IDS_LoadScreen_Generic_Display_07, text: "Radar" }
+      - { x: 456, y: 326, color: "#f8e387", label: "Ammo Count", code: IDS_LoadScreen_Generic_Display_02, text: "Ammo Count" }
+      - { x: 170, y: 330, color: "#f8e387", label: "Health", code: IDS_LoadScreen_Generic_Display_05, text: "Health" }
+      - { x: 454, y: 355, color: "#f8e387", label: "Clip Count", code: IDS_LoadScreen_Generic_Display_04, text: "Clip Count" }
+      - { x: 440, y: 400, color: "#f8e387", label: "Weapon", code: IDS_LoadScreen_Generic_Display_08, text: "Weapon" }
+      - { x: 260, y: 398, color: "#f8e387", label: "Armor", code: IDS_LoadScreen_Generic_Display_03, text: "Armor" }
+      - { x: 134, y: 421, color: "#f8e387", label: "Security Cards", code: IDS_LoadScreen_Generic_Display_06, text: "Security Cards" }
 
   - backdrop: 1
-    image: "loadscreen m01 (1).png"
-    model: if_lvl01load
+    image: "loadscreen m01 (1).webp"
+    model: IF_LVL01LOAD
     tiles: loadscreen_lvl01
     maps: [M01]
-    title: "RESCUE AND RETRIBUTION"
-    overview: "LOCATE DETENTION CENTER"
-    summary: "Satellite imagery indicates the Nod Detention Center is adjacent to the Nod Communications Center. Locate the Nod Detention Center."
-    hint: "Complete your secondary mission objectives."
-    hints:
-      - { n: 3, title: "ELIMINATE NOD OFFICERS", text: "Stop enemy reinforcements by taking out the officers in charge." }
-      - { n: 2, title: "CHECK DATA LINKS OFTEN", text: "Press the ESC key to view updates to your objectives, map and tactical information." }
-      - { n: 5, title: "EXPLORE THOROUGHLY", text: "Important objectives appear as stars on your radar. Seek them out!" }
-      - { n: 4, title: "DEMOLISH FIXED TARGETS", text: "Use C4 Explosives on turrets, SAM Sites and MCTs to disable entire buildings." }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M01_01, text: "RESCUE AND RETRIBUTION" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M01_01, text: "LOCATE DETENTION CENTER" }
+      - { x: 60, y: 60, w: 330, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M01_01, text: "Satellite imagery indicates the Nod Detention Center is adjacent to the Nod Communications Center. Locate the Nod Detention Center." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M01_01, text: "Hint: Complete your secondary mission objectives." }
+      - { x: 72, y: 155, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M01_03, text: "ELIMINATE NOD OFFICERS" }
+      - { x: 72, y: 166, w: 230, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M01_03, text: "Stop enemy reinforcements by taking out the officers in charge." }
+      - { x: 74, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M01_02, text: "CHECK DATA LINKS OFTEN" }
+      - { x: 74, y: 212, w: 230, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M01_02, text: "Press the ESC key to view updates to your objectives, map and tactical information." }
+      - { x: 364, y: 155, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M01_05, text: "EXPLORE THOROUGHLY" }
+      - { x: 364, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M01_05, text: "Important objectives appear as stars on your radar. Seek them out!" }
+      - { x: 380, y: 201, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M01_04, text: "DEMOLISH FIXED TARGETS" }
+      - { x: 380, y: 213, w: 220, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M01_04, text: "Use C4 Explosives on turrets, SAM Sites and MCTs to disable entire buildings." }
 
   - backdrop: 2
-    image: "loadscreen m02 (2).png"
-    model: if_lvl02load
+    image: "loadscreen m02 (2).webp"
+    model: IF_LVL02LOAD
     tiles: loadscreen_lvl02
     maps: [M02]
-    title: "ARMORED ASSAULT"
-    overview: "LOCATE MISSING SCIENTISTS"
-    summary: "The civilian scientists are most likely being held in the nearby Nod base. Locate the missing scientists."
-    hint: "Vehicles, Vehicles, Vehicles..."
-    hints:
-      - { n: 2, title: "LOOK FOR EMPTY VEHICLES", text: "Press the ACTION key (default is E) to enter/exit vehicles displaying green arrows." }
-      - { n: 3, title: "CHECK DATA LINKS OFTEN", text: "Press the ESC key to view updates to your objectives, map and tactical information." }
-      - { n: 4, title: "SAVE OFTEN, THIS IS A LONG MISSION", text: "Stop enemy reinforcements by taking out the officers in charge.", note: "This mismatched text is in the game's own strings." }
-      - { n: 5, title: "LOOK FOR INTERACTIVE OBJECTS", text: "Press the ACTION Key (default is E) to access the objects." }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M02_01, text: "ARMORED ASSAULT" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M02_01, text: "LOCATE MISSING SCIENTISTS" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M02_01, text: "The civilian scientists are most likely being held in the nearby Nod base. Locate the missing scientists." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M02_01, text: "Hint: Vehicles, Vehicles, Vehicles..." }
+      - { x: 102, y: 154, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M02_02, text: "LOOK FOR EMPTY VEHICLES" }
+      - { x: 102, y: 166, w: 200, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M02_02, text: "Press the ACTION key (default is E) to enter/exit vehicles displaying green arrows." }
+      - { x: 78, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M02_03, text: "CHECK DATA LINKS OFTEN" }
+      - { x: 78, y: 212, w: 240, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M02_03, text: "Press the ESC key to view updates to your objectives, map and tactical information." }
+      - { x: 362, y: 155, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M02_04, text: "SAVE OFTEN, THIS IS A LONG MISSION" }
+      - { x: 362, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M02_04, text: "Stop enemy reinforcements by taking out the officers in charge." }
+      - { x: 358, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M02_05, text: "LOOK FOR INTERACTIVE OBJECTS" }
+      - { x: 358, y: 212, w: 250, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M02_05, text: "Press the ACTION Key (default is E) to access the objects." }
 
   - backdrop: 3
-    image: "loadscreen m03 (3).png"
-    model: if_lvl03load
+    image: "loadscreen m03 (3).webp"
+    model: IF_LVL03LOAD
     tiles: loadscreen_lvl03
     maps: [M03]
-    title: "THE PLOT ERUPTS"
-    overview: "LOCATE COMMUNICATIONS CENTER"
-    summary: "Satellite imagery indicates the Nod Communications Center is located centrally on the island. Make your way to the Nod base and acquire information about the scientists’ whereabouts."
-    hint: "There is no cure for Tiberium poisoning."
-    hints:
-      - { n: 2, title: "CHECK DATA LINKS OFTEN", text: "Press the ESC key to view updates to your objectives, map and tactical information." }
-      - { n: 3, title: "ELIMINATE NOD OFFICERS", text: "Stop enemy reinforcements by taking out the officers in charge." }
-      - { n: 4, title: "DEMOLISH FIXED TARGETS", text: "Use C4 Explosives on turrets, SAM Sites and MCTs to disable entire buildings." }
-      - { n: 5, title: "LOOK FOR INTERACTIVE OBJECTS", text: "Press the ACTION Key (default is E) to access the objects." }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M03_01, text: "THE PLOT ERUPTS" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M03_01, text: "LOCATE COMMUNICATIONS CENTER" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M03_01, text: "Satellite imagery indicates the Nod Communications Center is located centrally on the island. Make your way to the Nod base and acquire information about the scientists' whereabouts." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M03_01, text: "Hint: There is no cure for Tiberium poisoning." }
+      - { x: 74, y: 156, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M03_02, text: "CHECK DATA LINKS OFTEN" }
+      - { x: 74, y: 166, w: 240, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M03_02, text: "Press the ESC key to view updates to your objectives, map and tactical information." }
+      - { x: 72, y: 201, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M03_03, text: "ELIMINATE NOD OFFICERS" }
+      - { x: 72, y: 212, w: 230, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M03_03, text: "Stop enemy reinforcements by taking out the officers in charge." }
+      - { x: 380, y: 156, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M03_04, text: "DEMOLISH FIXED TARGETS" }
+      - { x: 380, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M03_04, text: "Use C4 Explosives on turrets, SAM Sites and MCTs to disable entire buildings." }
+      - { x: 362, y: 201, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M03_05, text: "LOOK FOR INTERACTIVE OBJECTS" }
+      - { x: 362, y: 212, w: 220, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M03_05, text: "Press the ACTION Key (default is E) to access the objects." }
 
   - backdrop: 4
-    image: "loadscreen m04 (4).png"
-    model: if_lvl04load
+    image: "loadscreen m04 (4).webp"
+    model: IF_LVL04LOAD
     tiles: loadscreen_lvl04
     maps: [M04]
-    title: "STOWAWAY"
-    overview: "RESCUE PRISONERS"
-    summary: "The GDI prisoners are held captive somewhere on the ship, probably on the lower decks. Find them and bring them to safety."
-    hint: "Walk softly and carry a big gun..."
-    hints:
-      - { n: 2, title: "CHECK DATA LINKS OFTEN", text: "Press the ESC key to view updates to your objectives, map and tactical information." }
-      - { n: 3, title: "USE CLOSE COMBAT WEAPONS", text: "The flamethrower is excellent in tight corridors." }
-      - { n: 4, title: "CREATE DISTRACTIONS", text: "Placed properly, Remote C4 will draw the enemy into the open." }
-      - { n: 5, title: "EXPLORE THOROUGHLY", text: "Important objectives appear as stars on your radar. Seek them out!" }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M04_01, text: "STOWAWAY" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M04_01, text: "RESCUE PRISONERS" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M04_01, text: "The GDI prisoners are held captive somewhere on the ship, probably on the lower decks. Find them and bring them to safety." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M04_01, text: "Hint: Walk softly and carry a big gun..." }
+      - { x: 76, y: 155, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M04_02, text: "CHECK DATA LINKS OFTEN" }
+      - { x: 76, y: 166, w: 240, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M04_02, text: "Press the ESC key to view updates to your objectives, map and tactical information." }
+      - { x: 100, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M04_03, text: "USE CLOSE COMBAT WEAPONS" }
+      - { x: 100, y: 212, w: 200, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M04_03, text: "The flamethrower is excellent in tight corridors." }
+      - { x: 366, y: 155, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M04_04, text: "CREATE DISTRACTIONS" }
+      - { x: 366, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M04_04, text: "Placed properly, Remote C4 will draw the enemy into the open." }
+      - { x: 364, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M04_05, text: "EXPLORE THOROUGHLY" }
+      - { x: 364, y: 212, w: 230, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M04_05, text: "Important objectives appear as stars on your radar. Seek them out!" }
 
   - backdrop: 5
-    image: "loadscreen m05 (5).png"
-    model: if_lvl05load
+    image: "loadscreen m05 (5).webp"
+    model: IF_LVL05LOAD
     tiles: loadscreen_lvl05
     maps: [M05]
-    title: "DEADLY REUNION"
-    overview: "RECOVER YOUR TEAM"
-    summary: "Hotwire is pinned down behind some debris in the southwestern sector, near the Triangle Garden. Clear the debris and enter the building to assist her."
-    hint: "In case of fire, remember to stop, drop and roll!"
-    hints:
-      - { n: 2, title: "CONSERVE YOUR AMMO", text: "This is a big village with Nod units everywhere." }
-      - { n: 3, title: "LOOK FOR SNIPER NESTS", text: "Nod Snipers prefer heights and dark windows." }
-      - { n: 4, title: "AVOID THE OPEN", text: "Nod vehicles will run you down if they catch you without cover." }
-      - { n: 5, title: "FIND THE RESISTANCE", text: "The village resistance may be able to assist you, seek them out." }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M05_01, text: "DEADLY REUNION" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M05_01, text: "RECOVER YOUR TEAM" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M05_01, text: "Hotwire is pinned down behind some debris in the southwestern sector, near the Triangle Garden. Clear the debris and enter the building to assist her." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M05_01, text: "Hint: In case of fire, remember to stop, drop and roll!" }
+      - { x: 80, y: 155, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M05_02, text: "CONSERVE YOUR AMMO" }
+      - { x: 80, y: 166, w: 220, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M05_02, text: "This is a big village with Nod units everywhere." }
+      - { x: 90, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M05_03, text: "LOOK FOR SNIPER NESTS" }
+      - { x: 90, y: 212, w: 210, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M05_03, text: "Nod Snipers prefer heights and dark windows." }
+      - { x: 390, y: 155, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M05_04, text: "AVOID THE OPEN" }
+      - { x: 390, y: 166, w: 210, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M05_04, text: "Nod vehicles will run you down if they catch you without cover." }
+      - { x: 360, y: 201, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M05_05, text: "FIND THE RESISTANCE" }
+      - { x: 360, y: 212, w: 230, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M05_05, text: "The village resistance may be able to assist you, seek them out." }
 
   - backdrop: 6
-    image: "loadscreen m06 (6).png"
-    model: if_lvl06load
+    image: "loadscreen m06 (6).webp"
+    model: IF_LVL06LOAD
     tiles: loadscreen_lvl06
     maps: [M06]
-    title: "THE GRIP OF THE BLACK HAND"
-    overview: "EVACUATE SCIENTISTS"
-    summary: "The scientists are currently held deep in the bowels of the Chateau. Extract them from the Nod facility."
-    hint: "The key to knowledge can be found in books."
-    hints:
-      - { n: 2, title: "AVOID SOUNDING THE ALARM", text: "Keep Nod soldiers off the alarms." }
-      - { n: 3, title: "AVOID AUTOMATED DEFENSES", text: "Watch for cameras and ceiling mounted turrets." }
-      - { n: 4, title: "USE CLOSE COMBAT WEAPONS", text: "Tiberium weapons are excellent in tight corridors." }
-      - { n: 5, title: "STEALTH CAN BE YOUR FRIEND", text: "Walk (default is holding down the SHIFT key) and use the pistol to minimize noise." }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M06_01, text: "THE GRIP OF THE BLACK HAND" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M06_01, text: "EVACUATE SCIENTISTS" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M06_01, text: "The scientists are currently held deep in the bowels of the Chateau. Extract them from the Nod facility." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M06_01, text: "Hint: The key to knowledge can be found in books." }
+      - { x: 92, y: 156, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M06_02, text: "AVOID SOUNDING THE ALARM" }
+      - { x: 92, y: 167, w: 210, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M06_02, text: "Keep Nod soldiers off the alarms." }
+      - { x: 88, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M06_03, text: "AVOID AUTOMATED DEFENSES" }
+      - { x: 88, y: 212, w: 210, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M06_03, text: "Watch for cameras and ceiling mounted turrets." }
+      - { x: 394, y: 156, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M06_04, text: "USE CLOSE COMBAT WEAPONS" }
+      - { x: 394, y: 167, w: 200, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M06_04, text: "Tiberium weapons are excellent in tight corridors." }
+      - { x: 376, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M06_05, text: "STEALTH CAN BE YOUR FRIEND" }
+      - { x: 376, y: 212, w: 220, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M06_05, text: "Walk (default is holding down the SHIFT key) and use the pistol to minimize noise." }
 
   - backdrop: 7
-    image: "loadscreen m07 (7).png"
-    model: if_lvl07load
+    image: "loadscreen m07 (7).webp"
+    model: IF_LVL07LOAD
     tiles: loadscreen_lvl07
     maps: [M07]
-    title: "OBELISK OF OPPRESSION"
-    overview: "ESCORT SYDNEY"
-    summary: "Sydney Mobius must be evacuated from the area. A GDI Transport Helicopter is en route to your location. Make sure that she gets on board."
-    hint: "Not seeing is believing."
-    hints:
-      - { n: 2, title: "STAY CLOSE TO SYDNEY", text: "Keep Sydney and the Dead Six alive, they are mission-critical." }
-      - { n: 3, title: "EXPECT THE WORST", text: "Nod has nuclear strike capability and no further use for this town." }
-      - { n: 4, title: "LEARN THE WORKINGS OF THE OBELISK", text: "Stay out of maximum range and learn its charge time." }
-      - { n: 5, title: "MAKE ENEMY UNITS WORK FOR YOU", text: "Some buildings and vehicles can be converted to your side." }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M07_01, text: "OBELISK OF OPPRESSION" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M07_01, text: "ESCORT SYDNEY" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M07_01, text: "Sydney Mobius must be evacuated from the area. A GDI Transport Helicopter is en route to your location. Make sure that she gets on board." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M07_01, text: "Hint: Not seeing is believing." }
+      - { x: 80, y: 154, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M07_02, text: "STAY CLOSE TO SYDNEY" }
+      - { x: 80, y: 166, w: 230, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M07_02, text: "Keep Sydney and the Dead Six alive, they are mission-critical." }
+      - { x: 82, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M07_03, text: "EXPECT THE WORST" }
+      - { x: 82, y: 212, w: 230, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M07_03, text: "Nod has nuclear strike capability and no further use for this town." }
+      - { x: 366, y: 154, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M07_04, text: "LEARN THE WORKINGS OF THE OBELISK" }
+      - { x: 366, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M07_04, text: "Stay out of maximum range and learn its charge time." }
+      - { x: 390, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M07_05, text: "MAKE ENEMY UNITS WORK FOR YOU" }
+      - { x: 390, y: 212, w: 210, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M07_05, text: "Some buildings and vehicles can be converted to your side." }
 
   - backdrop: 8
-    image: "loadscreen m08 (8).png"
-    model: if_lvl08load
+    image: "loadscreen m08 (8).webp"
+    model: IF_LVL08LOAD
     tiles: loadscreen_lvl08
     maps: [M08]
-    title: "EVOLUTION OF EVIL"
-    overview: "ESCAPE PRISON"
-    summary: "You have been placed in solitary confinement inside a Nod Prison Facility. Sakura has been generous enough to free you as a distraction for her invasion attempt. Escape the prison facility."
-    hint: "War doesn’t bring out the worst in people, Tiberium does."
-    hints:
-      - { n: 2, title: "LOOK FOR EMPTY VEHICLES", text: "Use vehicles to your advantage wherever possible." }
-      - { n: 3, title: "CUT ENEMY REINFORCEMENTS", text: "Eliminating helipads will decrease Nod Apache encounters." }
-      - { n: 4, title: "CREATE DISTRACTIONS", text: "Placed properly, Remote C4 will draw the enemy into the open." }
-      - { n: 5, title: "USE TERRAIN TO YOUR ADVANTAGE", text: "Take the high ground." }
+    lines:
+      - { x: 48, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M08_01, text: "EVOLUTION OF EVIL" }
+      - { x: 58, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M08_01, text: "ESCAPE PRISON" }
+      - { x: 58, y: 54, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M08_01, text: "You have been placed in solitary confinement inside a Nod Prison Facility. Sakura has been generous enough to free you as a distraction for her invasion attempt. Escape the prison facility." }
+      - { x: 58, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M08_01, text: "Hint: War doesn't bring out the worst in people, Tiberium does." }
+      - { x: 110, y: 154, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M08_02, text: "LOOK FOR EMPTY VEHICLES" }
+      - { x: 110, y: 166, w: 190, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M08_02, text: "Use vehicles to your advantage wherever possible." }
+      - { x: 110, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M08_03, text: "CUT ENEMY REINFORCEMENTS" }
+      - { x: 110, y: 212, w: 200, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M08_03, text: "Eliminating helipads will decrease Nod Apache encounters." }
+      - { x: 370, y: 154, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M08_04, text: "CREATE DISTRACTIONS" }
+      - { x: 370, y: 166, w: 220, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M08_04, text: "Placed properly, Remote C4 will draw the enemy into the open." }
+      - { x: 370, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M08_05, text: "USE TERRAIN TO YOUR ADVANTAGE" }
+      - { x: 370, y: 212, w: 230, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M08_05, text: "Take the high ground." }
 
   - backdrop: 9
-    image: "loadscreen m09 (9).png"
-    model: if_lvl09load
+    image: "loadscreen m09 (9).webp"
+    model: IF_LVL09LOAD
     tiles: loadscreen_lvl09
     maps: [M09]
-    title: "ALL BRAINS, NO BRAWN"
-    overview: "PROTECT MOBIUS"
-    summary: "In order to make contact with GDI forces, Dr. Mobius must retrieve the Mobile Power Suit taken earlier. Find its location and recover it."
-    hint: "Clarity comes from looking ahead."
-    hints:
-      - { n: 2, title: "STAY NEAR THE GOOD DOCTOR", text: "Doctor Mobius is mission-critical, keep him alive." }
-      - { n: 3, title: "CREATE DISTRACTIONS", text: "Placed properly, Remote C4 will draw the enemy into the open." }
-      - { n: 4, title: "TIBERIUM-BASED MUTATIONS", text: "Avoid the use of Tiberium-based weapons." }
-      - { n: 5, title: "CONSERVE YOUR AMMO", text: "New clips may be few and far between." }
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M09_01, text: "ALL BRAINS, NO BRAWN" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M09_01, text: "PROTECT MOBIUS" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M09_01, text: "In order to make contact with GDI forces, Dr. Mobius must retrieve the Mobile Power Suit taken earlier. Find its location and recover it." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M09_01, text: "Hint: Clarity comes from looking ahead." }
+      - { x: 78, y: 154, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M09_02, text: "STAY NEAR THE GOOD DOCTOR" }
+      - { x: 78, y: 166, w: 220, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M09_02, text: "Doctor Mobius is mission-critical, keep him alive." }
+      - { x: 92, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M09_03, text: "CREATE DISTRACTIONS" }
+      - { x: 92, y: 212, w: 210, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M09_03, text: "Placed properly, Remote C4 will draw the enemy into the open." }
+      - { x: 366, y: 154, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M09_04, text: "TIBERIUM-BASED MUTATIONS" }
+      - { x: 366, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M09_04, text: "Avoid the use of Tiberium-based weapons." }
+      - { x: 360, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M09_05, text: "CONSERVE YOUR AMMO" }
+      - { x: 360, y: 212, w: 230, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M09_05, text: "New clips may be few and far between." }
 
   - backdrop: 10
-    image: "loadscreen m10 (10).png"
-    model: if_lvl10load
+    image: "loadscreen m10 (10).webp"
+    model: IF_LVL10LOAD
     tiles: loadscreen_lvl10
     maps: [M10]
-    title: "TOMORROW’S TECHNOLOGY TODAY"
-    overview: "SABOTAGE TEMPLE OF NOD"
-    summary: "The Ion Cannon Satellite must be targeted by a local beacon. Place the Ion Cannon Beacon directly in front of the Temple of Nod. This should be the last stand for Nod resistance in this area."
-    hint: "A friend in need..."
-    hints:
-      - { n: 2, title: "THE SOURCE OF NOD GROUND TROOPS", text: "Disable the Hand of Nod to reduce Nod’s infantry reinforcement." }
-      - { n: 3, title: "THE SOURCE OF NOD BUILDING POWER", text: "Eliminate the Power Plant to shut off power to other buildings." }
-      - { n: 4, title: "THE SOURCE OF NOD VEHICLES", text: "Destroy the Airstrip to prevent vehicle reinforcement." }
-      - { n: 5, title: "THE KEY TO THE NOD BASE", text: "Destroy the Construction Yard to prevent Nod base repairs." }
     note: "The summary is IDS_Enc_Obj_Primary_M10_07, not _01."
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M10_01, text: "TOMORROW'S TECHNOLOGY TODAY" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M10_01, text: "SABOTAGE TEMPLE OF NOD" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M10_07, text: "The Ion Cannon Satellite must be targeted by a local beacon. Place the Ion Cannon Beacon directly in front of the Temple of Nod. This should be the last stand for Nod resistance in this area." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M10_01, text: "Hint: A friend in need..." }
+      - { x: 82, y: 155, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M10_02, text: "THE SOURCE OF NOD GROUND TROOPS" }
+      - { x: 82, y: 167, w: 224, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M10_02, text: "Disable the Hand of Nod to reduce Nod's infantry reinforcement." }
+      - { x: 84, y: 201, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M10_03, text: "THE SOURCE OF NOD BUILDING POWER" }
+      - { x: 84, y: 213, w: 230, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M10_03, text: "Eliminate the Power Plant to shut off power to other buildings." }
+      - { x: 370, y: 155, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M10_04, text: "THE SOURCE OF NOD VEHICLES" }
+      - { x: 370, y: 167, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M10_04, text: "Destroy the Airstrip to prevent vehicle reinforcement." }
+      - { x: 382, y: 201, color: "#ff9664", label: "4th Hint Title", code: IDS_Enc_Obj_Rec_M10_05, text: "THE KEY TO THE NOD BASE" }
+      - { x: 382, y: 213, w: 230, color: "#ff9664", label: "4th Hint Text", code: IDS_Enc_ObjVerbose_Rec_M10_05, text: "Destroy the Construction Yard to prevent Nod base repairs." }
 
   - backdrop: 11
-    image: "loadscreen m11 (11).png"
-    model: if_lvl11load
+    image: "loadscreen m11 (11).webp"
+    model: IF_LVL11LOAD
     tiles: loadscreen_lvl11
     maps: [M11]
-    title: "STOMPING ON HOLY GROUND"
-    overview: "RESCUE SYDNEY"
-    summary: "Dr. Sydney Mobius is held captive deep within the Temple of Nod. Proceed to her location and rescue her."
-    hint: "Run."
-    hints:
-      - { n: 2, title: "WATCH FOR THE TELL-TALE STEALTH SIGNATURE", text: "Stealth Soldiers can be spotted by the distortions they cause." }
-      - { n: 4, title: "SAVE OFTEN, THIS IS A TOUGH MISSION", text: "Find places with little activity for a safe save spot." }
-      - { n: 3, title: "EXPECT AUTOMATED DEFENSES", text: "The Temple is littered with cameras and sentry weapons." }
     note: "Only 3 hint boxes."
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_Enc_Miss_Title_M11_01, text: "STOMPING ON HOLY GROUND" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_Enc_ObjTitle_Overview_M11_01, text: "RESCUE SYDNEY" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_Enc_Obj_Primary_M11_01, text: "Dr. Sydney Mobius is held captive deep within the Temple of Nod. Proceed to her location and rescue her." }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M11_01, text: "Hint: Run." }
+      - { x: 72, y: 154, color: "#ff9664", label: "1st Hint Title", code: IDS_Enc_Obj_Rec_M11_02, text: "WATCH FOR THE TELL-TALE STEALTH SIGNATURE" }
+      - { x: 72, y: 166, w: 230, color: "#ff9664", label: "1st Hint Text", code: IDS_Enc_ObjVerbose_Rec_M11_02, text: "Stealth Soldiers can be spotted by the distortions they cause." }
+      - { x: 220, y: 199, color: "#ff9664", label: "2nd Hint Title", code: IDS_Enc_Obj_Rec_M11_04, text: "SAVE OFTEN, THIS IS A TOUGH MISSION" }
+      - { x: 220, y: 211, w: 230, color: "#ff9664", label: "2nd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M11_04, text: "Find places with little activity for a safe save spot." }
+      - { x: 366, y: 154, color: "#ff9664", label: "3rd Hint Title", code: IDS_Enc_Obj_Rec_M11_03, text: "EXPECT AUTOMATED DEFENSES" }
+      - { x: 366, y: 166, w: 230, color: "#ff9664", label: "3rd Hint Text", code: IDS_Enc_ObjVerbose_Rec_M11_03, text: "The Temple is littered with cameras and sentry weapons." }
 
   - backdrop: 90
-    image: "loadscreen multiplayer (90).png"
-    model: if_lvl90load
+    image: "loadscreen multiplayer (90).webp"
+    model: IF_LVL90LOAD
     tiles: loadscreen_lvl00
     maps: [M00_Tutorial]
-    title: "COMMANDO TRAINING"
-    overview: "BASIC OPERATIONS TRAINING FOR GDI COMMANDOS"
-    summary: "This operational training session will instruct you in the fundamentals of maneuvering, field equipment, and battlefield awareness. If you follow your instructors carefully, you should then be prepared for almost any combat situation. Good luck!"
-    hint: "Use the ACTION key (Defaults to E) to enter vehicles."
-    hints:
-      - { n: 1, title: "PRESS F1 FOR HELP", text: "Press F1 at any time for HELP with the basic controls and on-screen information." }
-      - { n: 2, title: "PRESS ESC FOR OPTIONS AND DATA LINKS", text: "SAVE, LOAD and game OPTIONS are accessed from the bottom of this screen." }
-      - { n: 4, title: "PRESS M TO VIEW THE MAP", text: "Press M to view an overhead map of the areas you have already explored." }
-      - { n: 3, title: "PRESS O TO VIEW OBJECTIVES", text: "Updated descriptions of your Objectives can be viewed by pressing the O key." }
     note: "Listed as multiplayer in campaign.ini; string IDs IDS_LoadScreen_Tutorial_Item_*. Assumed to be the tutorial's screen."
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_LoadScreen_Tutorial_Item_00_Title, text: "COMMANDO TRAINING" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_LoadScreen_Tutorial_Item_00_Note, text: "BASIC OPERATIONS TRAINING FOR GDI COMMANDOS" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_LoadScreen_Tutorial_Item_00_Description, text: "This operational training session will instruct you in the fundamentals of maneuvering, field equipment, and battlefield awareness. If you follow your instructors carefully, you should then be prepared for almost any combat situation. Good luck!" }
+      - { x: 60, y: 118, color: "#64ff64", label: "Mission Hint", code: IDS_Enc_Obj_Rec_M00_01, text: "Hint: Use the ACTION key (Defaults to E) to enter vehicles." }
+      - { x: 78, y: 155, color: "#ff9664", label: "1st Hint Title", code: IDS_LoadScreen_Tutorial_Item_01_Title, text: "PRESS F1 FOR HELP" }
+      - { x: 78, y: 166, w: 220, color: "#ff9664", label: "1st Hint Text", code: IDS_LoadScreen_Tutorial_Item_01_Text, text: "Press F1 at any time for HELP with the basic controls and on-screen information." }
+      - { x: 100, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_LoadScreen_Tutorial_Item_02_Title, text: "PRESS ESC FOR OPTIONS AND DATA LINKS" }
+      - { x: 100, y: 211, w: 200, color: "#ff9664", label: "2nd Hint Text", code: IDS_LoadScreen_Tutorial_Item_02_Text, text: "SAVE, LOAD and game OPTIONS are accessed from the bottom of this screen." }
+      - { x: 380, y: 155, color: "#ff9664", label: "3rd Hint Title", code: IDS_LoadScreen_Tutorial_Item_04_Title, text: "PRESS M TO VIEW THE MAP" }
+      - { x: 380, y: 166, w: 220, color: "#ff9664", label: "3rd Hint Text", code: IDS_LoadScreen_Tutorial_Item_04_Text, text: "Press M to view an overhead map of the areas you have already explored." }
+      - { x: 380, y: 200, color: "#ff9664", label: "4th Hint Title", code: IDS_LoadScreen_Tutorial_Item_03_Title, text: "PRESS O TO VIEW OBJECTIVES" }
+      - { x: 380, y: 211, w: 220, color: "#ff9664", label: "4th Hint Text", code: IDS_LoadScreen_Tutorial_Item_03_Text, text: "Updated descriptions of your Objectives can be viewed by pressing the O key." }
 
   - backdrop: 94
-    image: "loadscreen c&c multiplayer (94).png"
-    model: if_lvl94load
+    image: "loadscreen c&c multiplayer (94).webp"
+    model: IF_LVL94LOAD
     tiles: loadscreen_cnc
     maps: [ttm1, City, Complex, Walls, Mesa, Canyon, Under, Coop_B01_B6, Coop_B02_B10, Coop_Tropics_B1, Volcano, Islands, Hourglass, Skirmish00]
-    title: "TO COMMAND AND CONQUER"
-    overview: "MULTIPLAYER C&C MODE"
-    summary: "Our main objective is to destroy the enemy base while still protecting our base from enemy attacks. Earn credits by destroying enemy units and structures. Use money to upgrade your character at Purchase Terminals inside friendly structures."
-    hints:
-      - { n: 1, title: "PURCHASE TERMINALS (PTs)", text: "Upgrade your character or purchase items at PTs inside friendly structures." }
-      - { n: 2, title: "ENGINEERS", text: "Engineers are the only units that can repair other units or structures." }
-      - { n: 5, title: "C4 AND THE MASTER CONTROL TERMINAL", text: "Plant C4 Explosives on MCTs to quickly destroy entire structures." }
-      - { n: 3, title: "ESC KEY", text: "Press the ESC key to view the Multiplayer Reference screen." }
-      - { n: 4, title: "REFINERY AND HARVESTERS", text: "Protect your Refinery and Harvester to maintain a steady cash flow." }
-      - { n: 6, title: "BEACON PEDESTAL", text: "Place the Beacon (Ion Cannon or Nuclear Strike) on the pedestal to win the game." }
     note: "[Backdrop94] and [Backdrop95] are picked at random; [Backdrop96] has the same content (loadscreen c&c multiplayer (96).png is the same picture). String IDs IDS_LoadScreen_Item_*."
+    lines:
+      - { x: 50, y: 17, big: true, color: "#64ff64", label: "Mission Title", code: IDS_LoadScreen_Item_00_Title, text: "TO COMMAND AND CONQUER" }
+      - { x: 60, y: 40, color: "#64ff64", label: "Mission Overview", code: IDS_LoadScreen_Item_00_Note, text: "MULTIPLAYER C&C MODE" }
+      - { x: 60, y: 60, w: 350, color: "#64ff64", label: "Mission Summary", code: IDS_LoadScreen_Item_00_Description, text: "Our main objective is to destroy the enemy base while still protecting our base from enemy attacks. Earn credits by destroying enemy units and structures. Use money to upgrade your character at Purchase Terminals inside friendly structures." }
+      - { x: 90, y: 155, color: "#ff9664", label: "1st Hint Title", code: IDS_LoadScreen_Item_01_Title, text: "PURCHASE TERMINALS (PTs)" }
+      - { x: 90, y: 166, w: 210, color: "#ff9664", label: "1st Hint Text", code: IDS_LoadScreen_Item_01_Text, text: "Upgrade your character or purchase items at PTs inside friendly structures." }
+      - { x: 82, y: 200, color: "#ff9664", label: "2nd Hint Title", code: IDS_LoadScreen_Item_02_Title, text: "ENGINEERS" }
+      - { x: 82, y: 211, w: 220, color: "#ff9664", label: "2nd Hint Text", code: IDS_LoadScreen_Item_02_Text, text: "Engineers are the only units that can repair other units or structures." }
+      - { x: 106, y: 245, color: "#ff9664", label: "3rd Hint Title", code: IDS_LoadScreen_Item_05_Title, text: "C4 AND THE MASTER CONTROL TERMINAL" }
+      - { x: 106, y: 256, w: 190, color: "#ff9664", label: "3rd Hint Text", code: IDS_LoadScreen_Item_05_Text, text: "Plant C4 Explosives on MCTs to quickly destroy entire structures." }
+      - { x: 364, y: 155, color: "#ff9664", label: "4th Hint Title", code: IDS_LoadScreen_Item_03_Title, text: "ESC KEY" }
+      - { x: 364, y: 166, w: 230, color: "#ff9664", label: "4th Hint Text", code: IDS_LoadScreen_Item_03_Text, text: "Press the ESC key to view the Multiplayer Reference screen." }
+      - { x: 380, y: 200, color: "#ff9664", label: "5th Hint Title", code: IDS_LoadScreen_Item_04_Title, text: "REFINERY AND HARVESTERS" }
+      - { x: 380, y: 209, w: 220, color: "#ff9664", label: "5th Hint Text", code: IDS_LoadScreen_Item_04_Text, text: "Protect your Refinery and Harvester to maintain a steady cash flow." }
+      - { x: 380, y: 245, color: "#ff9664", label: "6th Hint Title", code: IDS_LoadScreen_Item_06_Title, text: "BEACON PEDESTAL" }
+      - { x: 380, y: 256, w: 220, color: "#ff9664", label: "6th Hint Text", code: IDS_LoadScreen_Item_06_Text, text: "Place the Beacon (Ion Cannon or Nuclear Strike) on the pedestal to win the game." }
 
 # In the files but not used by campaign.ini (no text):
 unused:
-  - { image: "loadscreen if_helpload.png", tiles: loadscreen_help, note: "1024x768, with loading bar" }
-  - { image: "loadscreen if_lvl80load.png", tiles: loadscreen_cncr, note: "no loading bar" }
-  - { image: "loadscreen loadscrn1.png", note: "a single texture, Loadmenu.tga, 1024x1024" }
+  - { image: "loadscreen if_helpload.webp", tiles: "loadscreen_help", note: "1024x768, with loading bar" }
+  - { image: "loadscreen if_lvl80load.webp", tiles: "loadscreen_cncr", note: "no loading bar" }
+  - { image: "loadscreen loadscrn1.webp", note: "a single texture, Loadmenu.tga, 1024x1024" }

@@ -166,6 +166,7 @@ Then open <http://localhost:4000>.
 | `assets/images/hud/` | The game's HUD icons (weapons, pickups, buildings, purchase cards), with their original file names. Their in-game names are in `_data/hud_icons.yml`; show one with `{% include hud-icon.html file="hud_timec4" %}`, which also writes an `&` in a file name as `%26` so the link works. |
 | `assets/images/pickups/` | The textures on the pickups' 3D models (`p_*.png`, from the RenegadeViewer tool); which pickup uses which is in `_data/pickups.yml`. |
 | `_data/pickups.yml` | Every pickup (health, armor, keycards, data disc, ammo, weapon pickups) with its HUD icon, model textures and the game's preset names. |
+| `assets/images/loadscreens/` | The game's loading screens (`.webp`, original names); their text and which map shows which are in `_data/loadscreens.yml`. The original PNGs and tiles stay local (`.gitignore`). |
 | `assets/images/marks/` | Pictures for the map marks (`Islands_crate_1.webp`). |
 | `assets/images/rg-logo.png` | Header logo. If it is missing, or `logo:` is removed from `_config.yml`, the header shows the site title as text. |
 | `assets/images/radar.svg`, `circuit.svg` | Background art (radar dial and circuit lines), drawn for this site. |
@@ -236,6 +237,12 @@ and the tutorial is `M00_Tutorial`.
 Opened by clicking a map's row. ❮ ❯ or the ← → keys step through every map that has an image;
 the mouse wheel, pinching or + / − zoom, dragging moves the map, double-click zooms in or out, and `0` or Reset goes back to 100%.
 The zoom carries over from map to map. When a map is the one being played, it shows the same **Now playing** badge as the table.
+
+### Map preview views
+
+The buttons under the map switch between the map image, the in-game photo and the game's loading screen (only the ones
+the map has). The loading screen is the picture from `assets/images/loadscreens/` with the game's own text drawn on
+top, from `_data/loadscreens.yml` (positions on the game's 640x480 grid).
 
 ### Purchase terminal
 

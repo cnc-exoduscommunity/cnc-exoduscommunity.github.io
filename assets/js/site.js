@@ -206,9 +206,39 @@ var MapMarks = (function () {
     return !!kind;
   }
   // Map / in-game photo switch (one button next to the name, like "Show Photo" / "Show In-Game Map").
-  var viewBtn = dialog.querySelector(".map-dialog-view");
-  var wantPhoto = false; // stays as picked while stepping through the maps
-  if (viewBtn) viewBtn.addEventListener("click", function () { wantPhoto = !wantPhoto; zoom.reset(); show(current); });
+  // Views of a map: its map image, the in-game photo, and the game's loading screen.
+  // The one picked stays picked while stepping through the maps (when the map has it).
+  var viewsBox = dialog.querySelector(".map-dialog-views");
+  var viewButtons = viewsBox ? viewsBox.querySelectorAll("[data-view]") : [];
+  var wantView = "map";
+  Array.prototype.forEach.call(viewButtons, function (b) {
+    b.addEventListener("click", function () { wantView = b.getAttribute("data-view"); zoom.reset(); show(current); });
+  });
+  // Loading screens (_data/loadscreens.yml): picture + the text the game draws on it (640x480 grid).
+  var screens = [];
+  try { screens = JSON.parse((document.getElementById("loadscreens-data") || {}).textContent || "[]") || []; } catch (e) {}
+  var screensBase = dialog.getAttribute("data-loadscreens-base") || "";
+  var lsText = dialog.querySelector(".loadscreen-text");
+  function screenFor(name) {
+    return screens.find(function (sc) { return (sc.maps || []).indexOf(name) >= 0; }) || null;
+  }
+  function fileUrl(base, name) { return base + encodeURI(name).replace(/&/g, "%26"); }
+  function fillLoadscreen(sc) {
+    if (!lsText) return;
+    lsText.textContent = "";
+    lsText.hidden = !sc;
+    if (!sc) return;
+    (sc.lines || []).forEach(function (l) {
+      var d = document.createElement("div");
+      d.className = "ls-line" + (l.big ? " is-big" : "");
+      d.style.left = (l.x / 640 * 100) + "%";
+      d.style.top = (l.y / 480 * 100) + "%";
+      d.style.color = l.color || "#fff";
+      if (l.w) { d.style.width = (l.w / 640 * 100) + "%"; d.style.whiteSpace = "normal"; }
+      d.textContent = l.text;
+      lsText.appendChild(d);
+    });
+  }
   var navButtons = dialog.querySelectorAll("[data-map-step]");
   var current = 0;
   // The image and its marks sit on one "canvas" that zooms and pans as a whole.
@@ -243,6 +273,10 @@ var MapMarks = (function () {
     marksLayer.style.top = (vh - h) / 2 + "px";
     marksLayer.style.width = w + "px";
     marksLayer.style.height = h + "px";
+    if (lsText) {
+      lsText.style.left = marksLayer.style.left; lsText.style.top = marksLayer.style.top;
+      lsText.style.width = marksLayer.style.width; lsText.style.height = marksLayer.style.height;
+    }
     placePop();
   }
   function markActive() {
@@ -483,23 +517,40 @@ var MapMarks = (function () {
         factionBox.appendChild(sd);
       }
     }
-    var withImage = hasImage(link);
+    // Which views this map has, and which one to show.
     var photo = link.getAttribute("data-ingame");
-    var showPhoto = !!(wantPhoto && photo && withImage);
-    if (viewBtn) {
-      viewBtn.hidden = !(photo && withImage);
-      viewBtn.setAttribute("aria-pressed", String(showPhoto));   // CSS shows the matching label
+    var sc = screenFor(mapName);
+    var srcs = {
+      map: hasImage(link) ? link.getAttribute("href") : null,
+      photo: hasImage(link) && photo ? photo : null,
+      loading: sc && sc.image ? fileUrl(screensBase, sc.image) : null
+    };
+    // The picked view when this map has it, else the map (a map without a map image shows
+    // "No map data" until another view is picked).
+    var view = srcs[wantView] ? wantView : (srcs.map ? "map" : null);
+    var available = Object.keys(srcs).filter(function (k) { return srcs[k]; });
+    if (viewsBox) {
+      viewsBox.hidden = available.length < 2 && !(available.length === 1 && available[0] !== "map");
+      Array.prototype.forEach.call(viewButtons, function (b) {
+        var v = b.getAttribute("data-view");
+        b.hidden = !srcs[v];
+        b.setAttribute("aria-pressed", String(v === view));
+      });
     }
+    var showPhoto = view === "photo";
+    var withImage = !!view;
+    fillLoadscreen(view === "loading" ? sc : null);
+    dialog.classList.toggle("is-loadscreen", view === "loading");
     if (withImage) {
-      image.src = showPhoto ? photo : link.getAttribute("href");
-      image.alt = (showPhoto ? "In-game view of " : "Overhead map of ") + mapName;
+      image.src = srcs[view];
+      image.alt = (view === "photo" ? "In-game view of " : view === "loading" ? "Loading screen of " : "Overhead map of ") + mapName;
     } else {
       image.removeAttribute("src");
       image.alt = "";
       zoom.reset();
     }
     image.hidden = !withImage;
-    showMarks(link, showPhoto || !withImage);
+    showMarks(link, view !== "map");
     emptyMsg.hidden = withImage;
     frame.classList.toggle("is-empty", !withImage);
     // Zoom only makes sense with an image; keep its space so the box doesn't change size.
@@ -533,8 +584,8 @@ var MapMarks = (function () {
       sideList.hidden = !steps.length;
       sideNone.hidden = !!steps.length;
     }
-    var url = link.getAttribute(showPhoto ? "data-ingame-credit-url" : "data-credit-url");
-    var who = link.getAttribute(showPhoto ? "data-ingame-credit-name" : "data-credit-name");
+    var url = view === "loading" ? null : link.getAttribute(showPhoto ? "data-ingame-credit-url" : "data-credit-url");
+    var who = view === "loading" ? "the game's own files" : link.getAttribute(showPhoto ? "data-ingame-credit-name" : "data-credit-name");
     // visibility (not hidden) so the line keeps its space and the box never changes height.
     credit.hidden = false;
     credit.style.visibility = who ? "visible" : "hidden";
