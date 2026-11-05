@@ -229,6 +229,13 @@ function setUrlParam(key, value, fallback) {
     "vehicles-destroyed": "The vehicle building starts destroyed, so no vehicles.",
     "none": "This map has no purchase terminal."
   };
+  var purchase = { maps: {}, flying: [] };
+  try { purchase = JSON.parse((document.getElementById("purchase-data") || {}).textContent || "{}") || purchase; } catch (e) {}
+  function pageTemplate(side, page, mapName) {
+    var doc = dialog.ownerDocument;
+    return doc.querySelector('template.terminal-template[data-side="' + side + '"][data-page="' + page + '"][data-map="' + mapName + '"]') ||
+      doc.querySelector('template.terminal-template[data-side="' + side + '"][data-page="' + page + '"]:not([data-map])');
+  }
   function showTerminal(row) {
     var kind = row && row.getAttribute("data-terminal");
     var f = row && row.getAttribute("data-faction");
@@ -252,13 +259,17 @@ function setUrlParam(key, value, fallback) {
         else if (slot === "vehicles" && kind === "vehicles-destroyed") off = "Destroyed";
         else if (slot === "vehicles" && kind === "no-vehicles") off = "Not on this map";
         else if (slot === "beacon" && noBeacons) off = "Not sold here";
+        // The map's own changes (_data/purchase.yml maps:), e.g. the co-op maps' "Not for sale".
+        var mapName = row.getAttribute("data-map");
+        var own = (purchase.maps && purchase.maps[mapName] && purchase.maps[mapName][side]) || {};
+        var num = Array.prototype.indexOf.call(grid.children, tile) + 1;
+        if (off === null && (own.main_off || []).indexOf(num) >= 0) off = "Not for sale";
         if (off !== null) {
           tile.classList.add("is-off");
           tile.querySelector(".terminal-state").textContent = off;
         }
         // Characters and Vehicles open their page in the same box, like the game.
-        var pageTpl = (slot === "characters" || slot === "vehicles") && off === null &&
-          dialog.ownerDocument.querySelector('template.terminal-template[data-side="' + side + '"][data-page="' + slot + '"]');
+        var pageTpl = (slot === "characters" || slot === "vehicles") && off === null && pageTemplate(side, slot, mapName);
         if (pageTpl) {
           tile.classList.add("is-link");
           tile.tabIndex = 0;
@@ -280,8 +291,16 @@ function setUrlParam(key, value, fallback) {
     var head = box.querySelector(".terminal-page-head");
     grid.textContent = "";
     grid.appendChild(pageTpl.content.cloneNode(true));
-    Array.prototype.forEach.call(grid.querySelectorAll(".terminal-label"), function (l) { l.parentNode.title = l.textContent; });
+    // Helicopters only on maps that allow flying units.
+    var flying = (purchase.flying || []).indexOf(row.getAttribute("data-map")) >= 0;
+    Array.prototype.forEach.call(grid.querySelectorAll(".is-flying"), function (t) { if (!flying) t.remove(); });
+    Array.prototype.forEach.call(grid.querySelectorAll(".terminal-label"), function (l) {
+      var t = l.parentNode, looks = t.getAttribute("data-looks"), art = t.getAttribute("data-art");
+      t.title = l.textContent + " - " + t.querySelector(".terminal-cost").textContent + " credits" + (looks ? " (" + looks + " looks)" : "") + (art ? ". Card art: " + art : "");
+    });
     box.classList.add("is-page");
+    var note = box.querySelector(".map-dialog-terminal-note");
+    if (note) note.textContent = "Prices double while your Power Plant is down." + (title === "Vehicles" && !flying ? " No helicopters: this map doesn't allow flying units." : "");
     if (head) {
       head.hidden = false;
       head.querySelector(".terminal-page-title").textContent = title;

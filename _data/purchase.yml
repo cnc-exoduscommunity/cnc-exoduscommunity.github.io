@@ -1,49 +1,104 @@
-# The purchase terminal's Characters and Vehicles pages, per side, in the game's order.
+# The purchase terminal's Characters and Vehicles pages, per side, as in the stock game.
 # Shown in the map preview when you click Characters or Vehicles on the terminal.
-# hud:  the card picture in assets/images/hud/ (see _data/hud_icons.yml)
-# cost: credits
-# note: optional; "flying" = only on maps with flying vehicles (shown greyed out:
-#       none of this server's maps are flying maps)
+#
+# Layout (like the game): 3 cards in row 1, 3 in row 2, the rest in row 3 (up to 4).
+# The number on a card is the key that buys it (1-9, then 0). The two building icons
+# (buildings:) sit on the right of rows 1 and 2.
+#
+# hud:   the card picture in assets/images/hud/ (see _data/hud_icons.yml)
+# cost:  normal price in credits (it doubles while your Power Plant is down)
+# looks: optional, how many looks the character has
+# note:  optional; "flying" = only on maps that allow flying units (flying_maps below);
+#        hidden everywhere else
+#
+# stock: the stock game, used by every map unless maps: below changes it.
+# maps:  a map's own changes (from its map files), for the side the map is played on:
+#        main_off: main-page card numbers that are "Not for sale"
+#        characters / vehicles: a page that replaces the stock one
+# These come from the map files only; the server's own scripts can still change what's
+# for sale. The campaign missions have no purchase terminal (terminal: in maps.yml).
 
-gdi:
-  characters:
-    - { hud: hud_cnc_goffshot, name: "Officer", cost: 175 }
-    - { hud: hud_cnc_goffrock, name: "Rocket Soldier Officer", cost: 225 }
-    - { hud: hud_cnc_gsydneych, name: "Sydney", cost: 150 }
-    - { hud: hud_cnc_gdeadeye, name: "Deadeye", cost: 500 }
-    - { hud: hud_cnc_ggunner, name: "Gunner", cost: 400 }
-    - { hud: hud_cnc_gpatchrail, name: "Patch", cost: 450 }
-    - { hud: hud_cnc_ghavoc, name: "Havoc", cost: 1000 }
-    - { hud: hud_cnc_gsydneys, name: "Sydney (Ion Cannon)", cost: 1000 }
-    - { hud: hud_cnc_gmobiusion, name: "Mobius", cost: 1000 }
-    - { hud: hud_cnc_ghotwire, name: "Hotwire", cost: 350 }
-  vehicles:
-    - { hud: hud_cnc_g_hummer, name: "Humm-Vee", cost: 350 }
-    - { hud: hud_cnc_g_apc, name: "APC", cost: 500 }
-    - { hud: hud_cnc_g_mlrs, name: "MRLS", cost: 450 }
-    - { hud: hud_cnc_g_tank, name: "Medium Tank", cost: 800 }
-    - { hud: hud_cnc_g_mammoth, name: "Mammoth Tank", cost: 1500 }
-    - { hud: hud_cnc_g_orca, name: "Orca", cost: 900, note: flying }
-    - { hud: hud_cnc_g_transport, name: "Transport Helicopter", cost: 700, note: flying }
 
-nod:
-  characters:
-    - { hud: hud_cnc_noffshot, name: "Officer", cost: 175 }
-    - { hud: hud_cnc_nblackrok, name: "Rocket Soldier Officer", cost: 225 }
-    - { hud: hud_cnc_nchemall, name: "Chem Warrior", cost: 150 }
-    - { hud: hud_cnc_nblacksnip, name: "Black Hand Sniper", cost: 500 }
-    - { hud: hud_cnc_noffrock, name: "Black Hand (Laser Chain Gun)", cost: 450 }
-    - { hud: hud_cnc_nstealthlaz, name: "Stealth Black Hand", cost: 400 }
-    - { hud: hud_cnc_nsakuram, name: "Sakura", cost: 1000 }
-    - { hud: hud_cnc_nravarock, name: "Raveshaw", cost: 1000 }
-    - { hud: hud_cnc_nmendvolt, name: "Mendoza", cost: 1000 }
-    - { hud: hud_cnc_nengineer2, name: "Technician", cost: 350 }
-  vehicles:
-    - { hud: hud_cnc_n_buggy, name: "Buggy", cost: 300 }
-    - { hud: hud_cnc_n_apc, name: "APC", cost: 500 }
-    - { hud: hud_cnc_n_artill, name: "Mobile Artillery", cost: 450 }
-    - { hud: hud_cnc_n_flamet, name: "Flame Tank", cost: 800 }
-    - { hud: hud_cnc_n_ltank, name: "Light Tank", cost: 600 }
-    - { hud: hud_cnc_n_stealth, name: "Stealth Tank", cost: 900 }
-    - { hud: hud_cnc_n_apache, name: "Apache", cost: 900, note: flying }
-    - { hud: hud_cnc_n_transport, name: "Transport Helicopter", cost: 700, note: flying }
+stock:
+  gdi:
+    characters:
+      buildings: [hud_c&c_g_power, hud_c&c_g_barracks]
+      cards:
+        - { hud: hud_cnc_goffshot, name: "GDI Officer", cost: 175 }
+        - { hud: hud_cnc_goffrock, name: "Rocket Soldier Officer", cost: 225 }
+        - { hud: hud_cnc_gsydneych, name: "Sydney", cost: 150 }
+        - { hud: hud_cnc_gdeadeye, name: "Deadeye", cost: 500 }
+        - { hud: hud_cnc_ggunner, name: "Gunner", cost: 400 }
+        - { hud: hud_cnc_gpatchrail, name: "Patch", cost: 450 }
+        - { hud: hud_cnc_ghavoc, name: "Havoc", cost: 1000, looks: 4 }
+        - { hud: hud_cnc_gsydneys, name: "Sydney (Power Suit)", cost: 1000, looks: 2 }
+        - { hud: hud_cnc_gmobiusion, name: "Mobius", cost: 1000, looks: 2 }
+        - { hud: hud_cnc_ghotwire, name: "Hotwire", cost: 350 }
+    vehicles:
+      buildings: [hud_c&c_g_power, hud_c&c_g_warfact]
+      cards:
+        - { hud: hud_cnc_g_hummer, name: "Humm-Vee", cost: 350 }
+        - { hud: hud_cnc_g_apc, name: "APC", cost: 500 }
+        - { hud: hud_cnc_g_mlrs, name: "MRLS", cost: 450 }
+        - { hud: hud_cnc_g_tank, name: "Medium Tank", cost: 800 }
+        - { hud: hud_cnc_g_mammoth, name: "Mammoth Tank", cost: 1500 }
+        - { hud: hud_cnc_g_transport, name: "Transport Helicopter", cost: 700, note: flying }
+        - { hud: hud_cnc_g_orca, name: "Orca", cost: 900, note: flying }
+
+  nod:
+    characters:
+      buildings: [hud_c&c_n_power, hud_c&c_n_handof]
+      cards:
+        - { hud: hud_cnc_noffshot, name: "Nod Officer", cost: 175 }
+        - { hud: hud_cnc_nblackrok, name: "Rocket Soldier Officer", cost: 225 }
+        - { hud: hud_cnc_nchemall, name: "Chem Warrior", cost: 150 }
+        - { hud: hud_cnc_nblacksnip, name: "Black Hand Sniper", cost: 500 }
+        - { hud: hud_cnc_noffrock, name: "Black Hand Laser Chaingunner", cost: 450 }
+        - { hud: hud_cnc_nstealthlaz, name: "Stealth Black Hand", cost: 400 }
+        - { hud: hud_cnc_nsakuram, name: "Sakura", cost: 1000, looks: 2 }
+        - { hud: hud_cnc_nravarock, name: "Raveshaw", cost: 1000, looks: 2 }
+        - { hud: hud_cnc_nmendvolt, name: "Mendoza", cost: 1000, looks: 2 }
+        - { hud: hud_cnc_nengineer2, name: "Technician", cost: 350 }
+    vehicles:
+      buildings: [hud_c&c_n_power, hud_c&c_n_airstrip]
+      cards:
+        - { hud: hud_cnc_n_buggy, name: "Nod Buggy", cost: 300 }
+        - { hud: hud_cnc_n_apc, name: "APC", cost: 500 }
+        - { hud: hud_cnc_n_artill, name: "Mobile Artillery", cost: 450 }
+        - { hud: hud_cnc_n_flamet, name: "Flame Tank", cost: 800 }
+        - { hud: hud_cnc_n_ltank, name: "Light Tank", cost: 600 }
+        - { hud: hud_cnc_n_stealth, name: "Stealth Tank", cost: 900 }
+        - { hud: hud_cnc_n_transport, name: "Transport Helicopter", cost: 700, note: flying }
+        - { hud: hud_cnc_n_apache, name: "Apache", cost: 900, note: flying }
+
+# Maps that allow flying units: the helicopters show on their Vehicles pages.
+flying_maps: [City_Flying, Glacier_Flying, Walls_Flying]
+
+maps:
+  Coop_B01_B6:
+    gdi:
+      main_off: [1, 2, 3, 4, 8]
+      characters:
+        buildings: [hud_c&c_g_power, hud_c&c_g_barracks]
+        cards:
+          - { hud: hud_cnc_goffshot, name: "Ammo Man", cost: 300 }
+          - { hud: hud_cnc_ghavok2, name: "Sniper", cost: 300, art: "a Havoc look" }
+          - { hud: hud_cnc_ghheavy, name: "Heavy", cost: 300, art: "the map's own (B01_GDI_Heavy)" }
+          - { hud: hud_cnc_gpatchrail, name: "Pioneer", cost: 300, art: "the map has its own; not extracted yet, Patch shown" }
+          - { hud: hud_cnc_ghavok3, name: "Saboteur", cost: 300, art: "a Havoc look" }
+          - { hud: hud_cnc_ghotwire, name: "Medic", cost: 300, art: "not checked; Hotwire shown" }
+  Coop_B02_B10:
+    gdi:
+      main_off: [1, 2, 3, 4, 8]
+      characters:
+        buildings: [hud_c&c_g_power, hud_c&c_g_barracks]
+        cards:
+          - { hud: hud_cnc_goffshot, name: "Ammo Man", cost: 300 }
+          - { hud: hud_cnc_gdeadeye, name: "Sniper", cost: 300 }
+          - { hud: hud_cnc_ggunner, name: "Heavy", cost: 300 }
+          - { hud: hud_cnc_gpatchrail, name: "Pioneer", cost: 300 }
+          - { hud: hud_cnc_ghavoc, name: "Saboteur", cost: 300 }
+          - { hud: hud_cnc_ghotwire, name: "Medic", cost: 300 }
+  Coop_Tropics_B1:
+    nod:
+      main_off: [8]

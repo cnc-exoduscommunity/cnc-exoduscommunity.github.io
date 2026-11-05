@@ -93,12 +93,15 @@
     - "Push through the enemy forces and destroy the GDI base."
     - "Pick up the beacon in the center of the GDI base and end this."
 - name: Coop_B01_B6
+  terminal: full
   description: Custom co-op map
   faction: GDI
 - name: Coop_B02_B10
+  terminal: full
   description: Custom co-op map
   faction: GDI
 - name: Coop_Tropics_B1
+  terminal: full
   description: Custom co-op map
   faction: Nod
   objectives:

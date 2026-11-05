@@ -1,0 +1,22 @@
+{%- comment %}
+One page of the purchase terminal (Characters or Vehicles) for the map preview, from
+_data/purchase.yml: 3 cards in rows 1 and 2 with the two building icons on their right,
+the rest in row 3. Card numbers are the keys that buy them (1-9, then 0).
+Takes side, page, data (the page's buildings + cards) and map ("" for the stock page).
+{% endcomment -%}
+<template class="terminal-template" data-side="{{ include.side }}" data-page="{{ include.page }}"{% if include.map != "" %} data-map="{{ include.map }}"{% endif %}>
+  {%- for item in include.data.cards %}
+  {%- assign key = forloop.index | modulo: 10 %}
+  <li class="terminal-tile terminal-{{ include.side }}{% if item.note == 'flying' %} is-flying{% endif %}"{% if item.looks %} data-looks="{{ item.looks }}"{% endif %}{% if item.art %} data-art="{{ item.art | escape }}"{% endif %}>
+    <span class="terminal-num">{{ key }}</span>
+    {% include hud-icon.html file=item.hud decorative="1" %}
+    <span class="terminal-cost">{{ item.cost }}</span>
+    <span class="terminal-label">{{ item.name }}</span>
+    <span class="terminal-state"></span>
+  </li>
+  {%- if forloop.index == 3 or forloop.index == 6 %}
+  {%- assign b = forloop.index | divided_by: 3 | minus: 1 %}
+  <li class="terminal-building terminal-building-{{ b | plus: 1 }}">{% include hud-icon.html file=include.data.buildings[b] %}</li>
+  {%- endif %}
+  {%- endfor %}
+</template>

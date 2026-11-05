@@ -174,10 +174,10 @@ sections:
           {%- if site.data.map_marks[map.name].size > 0 %}{% assign marks_key = map.name %}{% elsif site.data.map_marks[img_name].size > 0 %}{% assign marks_key = img_name %}{% endif %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map.terminal %} data-terminal="{{ map.terminal | escape }}"{% endif %}{% if map.scalable_difficulty %} data-scalable="1"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map.terminal %} data-terminal="{{ map.terminal | escape }}"{% endif %}{% if map.scalable_difficulty %} data-scalable="1"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons or map.terminal %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
-              {%- if preview_img or map.objectives or map.weapons or map.map_weapons -%}
+              {%- if preview_img or map.objectives or map.weapons or map.map_weapons or map.terminal -%}
               <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, marks, objectives (right). {% endcomment -%}
                 <span class="map-icons">
@@ -244,6 +244,7 @@ sections:
     {%- comment %} The marks for the map preview, read by site.js. {% endcomment %}
     <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
     {%- comment %} The loading screens (_data/loadscreens.yml), read by site.js. {% endcomment %}
+    <script type="application/json" id="purchase-data">{"maps": {{ site.data.purchase.maps | jsonify }}, "flying": {{ site.data.purchase.flying_maps | jsonify }}}</script>
     <script type="application/json" id="loadscreens-data">{{ site.data.loadscreens.screens | jsonify }}</script>
     {%- comment %} The purchase terminal's first page for each side (cards from assets/images/hud/), used by the map preview. {% endcomment %}
     {%- assign t_slots = "free,free,free,free,refill,characters,vehicles,beacon" | split: "," %}
@@ -265,20 +266,13 @@ sections:
       </li>
       {%- endfor %}
     </template>
-    {%- comment %} Its Characters and Vehicles pages (_data/purchase.yml). {% endcomment %}
-    {%- for page in site.data.purchase[t_side] %}
-    <template class="terminal-template" data-side="{{ t_side }}" data-page="{{ page[0] }}">
-      {%- for item in page[1] %}
-      <li class="terminal-tile terminal-{{ t_side }}{% if item.note == 'flying' %} is-off{% endif %}">
-        <span class="terminal-num">{{ forloop.index }}</span>
-        {% include hud-icon.html file=item.hud decorative="1" %}
-        <span class="terminal-cost">{{ item.cost }}</span>
-        <span class="terminal-label">{{ item.name }}</span>
-        <span class="terminal-state">{% if item.note == 'flying' %}Flying maps only{% endif %}</span>
-      </li>
-      {%- endfor %}
-    </template>
+    {%- comment %} Its Characters and Vehicles pages (_data/purchase.yml): the stock ones, then any map's own. {% endcomment %}
+    {%- for page in site.data.purchase.stock[t_side] %}
+    {%- include terminal-page.html side=t_side page=page[0] data=page[1] map="" %}
     {%- endfor %}
+    {%- for m in site.data.purchase.maps %}{% for page in m[1][t_side] %}{% if page[0] == "characters" or page[0] == "vehicles" %}
+    {%- include terminal-page.html side=t_side page=page[0] data=page[1] map=m[0] %}
+    {%- endif %}{% endfor %}{% endfor %}
     {%- endfor %}
     <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}" data-loadscreens-base="{{ '/assets/images/loadscreens/' | relative_url }}" data-banner-gdi="{{ '/assets/images/hud/hud_winscreen_gdi.webp' | relative_url }}" data-banner-nod="{{ '/assets/images/hud/hud_winscreen_nod.webp' | relative_url }}" data-logo-gdi="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" data-logo-nod="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
