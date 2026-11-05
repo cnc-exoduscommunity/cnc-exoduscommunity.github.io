@@ -7,11 +7,15 @@
     // Picks the theme before the page draws, so it never flashes the wrong colours.
     // Order: ?theme=light|dark in the URL (also saved), then the saved choice, then dark.
     (function () {
-      var theme = "dark";
+      // ?theme= in the URL (light or dark, and gdi or nod, e.g. ?theme=light,nod) wins
+      // and is saved; otherwise the saved choice; otherwise dark and GDI.
+      var theme = "dark", urlTheme = [], urlSide = null;
       try {
-        var fromUrl = new URLSearchParams(location.search).get("theme");
-        if (fromUrl === "light" || fromUrl === "dark") {
-          theme = fromUrl;
+        var q = new URLSearchParams(location.search);
+        urlTheme = (q.get("theme") || "").toLowerCase().split(/[,+ ]+/);
+        urlSide = urlTheme.indexOf("nod") >= 0 ? "nod" : urlTheme.indexOf("gdi") >= 0 ? "gdi" : q.get("side");
+        if (urlTheme.indexOf("light") >= 0 || urlTheme.indexOf("dark") >= 0) {
+          theme = urlTheme.indexOf("light") >= 0 ? "light" : "dark";
           localStorage.setItem("theme", theme);
         } else if (localStorage.getItem("theme") === "light") {
           theme = "light";
@@ -19,9 +23,9 @@
       } catch (e) {}
       document.documentElement.setAttribute("data-theme", theme);
       // Side colours (button next to the theme toggle): GDI gold (default) or Nod red.
-      // ?side=nod / ?side=gdi in the URL (also saved), then the saved choice.
+      // From ?theme= above (also saved), then the saved choice.
       try {
-        var side = new URLSearchParams(location.search).get("side");
+        var side = urlSide;
         if (side === "nod" || side === "gdi") localStorage.setItem("side", side);
         else side = localStorage.getItem("side");
         if (side === "nod") document.documentElement.setAttribute("data-side", "nod");

@@ -1,0 +1,49 @@
+# The purchase terminal's Characters and Vehicles pages, per side, in the game's order.
+# Shown in the map preview when you click Characters or Vehicles on the terminal.
+# hud:  the card picture in assets/images/hud/ (see _data/hud_icons.yml)
+# cost: credits
+# note: optional; "flying" = only on maps with flying vehicles (shown greyed out:
+#       none of this server's maps are flying maps)
+
+gdi:
+  characters:
+    - { hud: hud_cnc_goffshot, name: "Officer", cost: 175 }
+    - { hud: hud_cnc_goffrock, name: "Rocket Soldier Officer", cost: 225 }
+    - { hud: hud_cnc_gsydneych, name: "Sydney", cost: 150 }
+    - { hud: hud_cnc_gdeadeye, name: "Deadeye", cost: 500 }
+    - { hud: hud_cnc_ggunner, name: "Gunner", cost: 400 }
+    - { hud: hud_cnc_gpatchrail, name: "Patch", cost: 450 }
+    - { hud: hud_cnc_ghavoc, name: "Havoc", cost: 1000 }
+    - { hud: hud_cnc_gsydneys, name: "Sydney (Ion Cannon)", cost: 1000 }
+    - { hud: hud_cnc_gmobiusion, name: "Mobius", cost: 1000 }
+    - { hud: hud_cnc_ghotwire, name: "Hotwire", cost: 350 }
+  vehicles:
+    - { hud: hud_cnc_g_hummer, name: "Humm-Vee", cost: 350 }
+    - { hud: hud_cnc_g_apc, name: "APC", cost: 500 }
+    - { hud: hud_cnc_g_mlrs, name: "MRLS", cost: 450 }
+    - { hud: hud_cnc_g_tank, name: "Medium Tank", cost: 800 }
+    - { hud: hud_cnc_g_mammoth, name: "Mammoth Tank", cost: 1500 }
+    - { hud: hud_cnc_g_orca, name: "Orca", cost: 900, note: flying }
+    - { hud: hud_cnc_g_transport, name: "Transport Helicopter", cost: 700, note: flying }
+
+nod:
+  characters:
+    - { hud: hud_cnc_noffshot, name: "Officer", cost: 175 }
+    - { hud: hud_cnc_nblackrok, name: "Rocket Soldier Officer", cost: 225 }
+    - { hud: hud_cnc_nchemall, name: "Chem Warrior", cost: 150 }
+    - { hud: hud_cnc_nblacksnip, name: "Black Hand Sniper", cost: 500 }
+    - { hud: hud_cnc_noffrock, name: "Black Hand (Laser Chain Gun)", cost: 450 }
+    - { hud: hud_cnc_nstealthlaz, name: "Stealth Black Hand", cost: 400 }
+    - { hud: hud_cnc_nsakuram, name: "Sakura", cost: 1000 }
+    - { hud: hud_cnc_nravarock, name: "Raveshaw", cost: 1000 }
+    - { hud: hud_cnc_nmendvolt, name: "Mendoza", cost: 1000 }
+    - { hud: hud_cnc_nengineer2, name: "Technician", cost: 350 }
+  vehicles:
+    - { hud: hud_cnc_n_buggy, name: "Buggy", cost: 300 }
+    - { hud: hud_cnc_n_apc, name: "APC", cost: 500 }
+    - { hud: hud_cnc_n_artill, name: "Mobile Artillery", cost: 450 }
+    - { hud: hud_cnc_n_flamet, name: "Flame Tank", cost: 800 }
+    - { hud: hud_cnc_n_ltank, name: "Light Tank", cost: 600 }
+    - { hud: hud_cnc_n_stealth, name: "Stealth Tank", cost: 900 }
+    - { hud: hud_cnc_n_apache, name: "Apache", cost: 900, note: flying }
+    - { hud: hud_cnc_n_transport, name: "Transport Helicopter", cost: 700, note: flying }

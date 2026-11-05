@@ -1270,3 +1270,18 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
   --btn-text: #8a1a00;
   --btn-glow: 0 0 10px rgba(196, 85, 26, 0.3);
 }
+
+/* ---------- Purchase terminal: bigger, readable, pinned to the bottom of its card ---------- */
+.map-dialog-weapons-card .map-dialog-terminal { margin-top: auto; padding-top: 0.8rem; }
+.terminal-grid { gap: 0.4rem; }
+.terminal-label { box-sizing: border-box; height: calc(2.2em + 0.3rem); padding: 0.15rem 0.25rem; font-size: 0.74rem; line-height: 1.1; white-space: normal; overflow: hidden; text-overflow: clip; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.terminal-num { font-size: 0.85rem; }
+.terminal-cost { top: auto; bottom: 1.95rem; font-size: 0.8rem; padding: 0 0.3rem; }
+.terminal-tile.is-off .terminal-state:not(:empty) { font-size: 0.75rem; }
+.terminal-tile.is-link { cursor: pointer; }
+.terminal-tile.is-link:hover, .terminal-tile.is-link:focus-visible { outline: 2px solid var(--title); outline-offset: 1px; filter: brightness(1.15); }
+.terminal-tile.is-link .terminal-label::after { content: " \276F"; color: var(--title); }
+.terminal-page-head { display: flex; align-items: center; gap: 0.6rem; margin: 0.3rem 0 0; }
+.terminal-page-head[hidden] { display: none; }
+.terminal-page-title { font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-size: 1.05rem; color: var(--title); }
+.map-dialog-terminal.is-page .map-dialog-terminal-note { display: none; }

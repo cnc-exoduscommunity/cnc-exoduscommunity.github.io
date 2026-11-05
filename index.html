@@ -265,6 +265,20 @@ sections:
       </li>
       {%- endfor %}
     </template>
+    {%- comment %} Its Characters and Vehicles pages (_data/purchase.yml). {% endcomment %}
+    {%- for page in site.data.purchase[t_side] %}
+    <template class="terminal-template" data-side="{{ t_side }}" data-page="{{ page[0] }}">
+      {%- for item in page[1] %}
+      <li class="terminal-tile terminal-{{ t_side }}{% if item.note == 'flying' %} is-off{% endif %}">
+        <span class="terminal-num">{{ forloop.index }}</span>
+        {% include hud-icon.html file=item.hud decorative="1" %}
+        <span class="terminal-cost">{{ item.cost }}</span>
+        <span class="terminal-label">{{ item.name }}</span>
+        <span class="terminal-state">{% if item.note == 'flying' %}Flying maps only{% endif %}</span>
+      </li>
+      {%- endfor %}
+    </template>
+    {%- endfor %}
     {%- endfor %}
     <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}" data-loadscreens-base="{{ '/assets/images/loadscreens/' | relative_url }}" data-banner-gdi="{{ '/assets/images/hud/hud_winscreen_gdi.webp' | relative_url }}" data-banner-nod="{{ '/assets/images/hud/hud_winscreen_nod.webp' | relative_url }}" data-logo-gdi="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" data-logo-nod="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
@@ -281,6 +295,7 @@ sections:
           </div>
           <div class="map-dialog-terminal" hidden>
             <p class="map-dialog-objectives-title">Purchase terminal</p>
+            <p class="terminal-page-head" hidden><button class="btn btn-small terminal-back" type="button">&#10094; Back</button><span class="terminal-page-title"></span></p>
             <ul class="terminal-grid"></ul>
             <p class="map-dialog-terminal-note"></p>
           </div>
@@ -337,6 +352,7 @@ sections:
               </div>
               <div class="map-dialog-terminal" hidden>
                 <p class="map-dialog-objectives-title">Purchase terminal</p>
+            <p class="terminal-page-head" hidden><button class="btn btn-small terminal-back" type="button">&#10094; Back</button><span class="terminal-page-title"></span></p>
                 <ul class="terminal-grid"></ul>
                 <p class="map-dialog-terminal-note"></p>
               </div>

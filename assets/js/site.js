@@ -66,6 +66,15 @@ var MapMarks = (function () {
 
 // Puts a setting in the address (or takes it out when it's the default), so a copied
 // link opens the page the same way.
+// The look in the address: ?theme= with light and/or nod (dark and GDI are the defaults),
+// e.g. ?theme=light,nod.
+function setThemeUrl() {
+  var root = document.documentElement, parts = [];
+  if (root.getAttribute("data-theme") === "light") parts.push("light");
+  if (root.getAttribute("data-side") === "nod") parts.push("nod");
+  setUrlParam("side", null);
+  setUrlParam("theme", parts.join(","), "");
+}
 function setUrlParam(key, value, fallback) {
   try {
     var u = new URL(location.href);
@@ -90,7 +99,7 @@ function setUrlParam(key, value, fallback) {
       var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
       root.setAttribute("data-theme", next);
       try { localStorage.setItem("theme", next); } catch (e) {}
-      setUrlParam("theme", next, "dark");
+      setThemeUrl();
       label();
     });
   }
@@ -111,7 +120,7 @@ function setUrlParam(key, value, fallback) {
     var nod = root.getAttribute("data-side") !== "nod";
     if (nod) root.setAttribute("data-side", "nod"); else root.removeAttribute("data-side");
     try { localStorage.setItem("side", nod ? "nod" : "gdi"); } catch (e) {}
-    setUrlParam("side", nod ? "nod" : "gdi", "gdi");
+    setThemeUrl();
     label();
   });
   label();
@@ -224,15 +233,20 @@ function setUrlParam(key, value, fallback) {
     var kind = row && row.getAttribute("data-terminal");
     var f = row && row.getAttribute("data-faction");
     var side = /nod/i.test(f || "") ? "nod" : "gdi";
-    var tpl = dialog.ownerDocument.querySelector('template.terminal-template[data-side="' + side + '"]');
+    var tpl = dialog.ownerDocument.querySelector('template.terminal-template[data-side="' + side + '"]:not([data-page])');
     Array.prototype.forEach.call(terminalBoxes, function (box) {
       var grid = box.querySelector(".terminal-grid"), note = box.querySelector(".map-dialog-terminal-note");
+      var head = box.querySelector(".terminal-page-head");
       grid.textContent = "";
+      if (head) head.hidden = true;
+      box.classList.remove("is-page");
       box.hidden = !kind || !tpl;
       if (box.hidden) return;
       grid.appendChild(tpl.content.cloneNode(true));
       box.classList.toggle("is-none", kind === "none");
       Array.prototype.forEach.call(grid.children, function (tile) {
+        var lbl = tile.querySelector(".terminal-label");
+        if (lbl) tile.title = lbl.textContent;
         var slot = tile.getAttribute("data-slot"), off = null;
         if (kind === "none") off = "";
         else if (slot === "vehicles" && kind === "vehicles-destroyed") off = "Destroyed";
@@ -242,12 +256,37 @@ function setUrlParam(key, value, fallback) {
           tile.classList.add("is-off");
           tile.querySelector(".terminal-state").textContent = off;
         }
+        // Characters and Vehicles open their page in the same box, like the game.
+        var pageTpl = (slot === "characters" || slot === "vehicles") && off === null &&
+          dialog.ownerDocument.querySelector('template.terminal-template[data-side="' + side + '"][data-page="' + slot + '"]');
+        if (pageTpl) {
+          tile.classList.add("is-link");
+          tile.tabIndex = 0;
+          tile.setAttribute("role", "button");
+          tile.title = "Show the " + slot;
+          var open = function () { openPage(box, pageTpl, slot === "characters" ? "Characters" : "Vehicles", row); };
+          tile.addEventListener("click", open);
+          tile.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
+        }
       });
       var text = TERMINAL_NOTES[kind] || "";
       if (noBeacons && kind !== "none") text = (text ? text + " " : "") + "Beacons aren't sold on this server.";
       note.textContent = text;
     });
     return !!kind;
+  }
+  function openPage(box, pageTpl, title, row) {
+    var grid = box.querySelector(".terminal-grid");
+    var head = box.querySelector(".terminal-page-head");
+    grid.textContent = "";
+    grid.appendChild(pageTpl.content.cloneNode(true));
+    Array.prototype.forEach.call(grid.querySelectorAll(".terminal-label"), function (l) { l.parentNode.title = l.textContent; });
+    box.classList.add("is-page");
+    if (head) {
+      head.hidden = false;
+      head.querySelector(".terminal-page-title").textContent = title;
+      head.querySelector(".terminal-back").onclick = function () { showTerminal(row); };
+    }
   }
   // Map / in-game photo switch (one button next to the name, like "Show Photo" / "Show In-Game Map").
   // Views of a map: its map image, the in-game photo, and the game's loading screen.
