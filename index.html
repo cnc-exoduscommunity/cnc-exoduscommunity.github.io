@@ -162,6 +162,11 @@ sections:
             {%- assign ingame_file = site.static_files | where: "path", ingame_path | first %}
             {%- if ingame_file and ingame_img == nil %}{% capture img_v %}{{ ingame_file.modified_time | date: "%s" }}{% endcapture %}{% assign ingame_img = ingame_path | append: "?v=" | append: img_v %}{% endif %}
           {%- endfor %}
+          {%- comment %} High-resolution copy of the map image, if there is one: assets/images/maps/hd/<name>.webp {% endcomment %}
+          {%- assign hd_img = nil %}
+          {%- assign hd_path = "/assets/images/maps/hd/" | append: img_name | append: ".webp" %}
+          {%- assign hd_file = site.static_files | where: "path", hd_path | first %}
+          {%- if hd_file and map_img %}{% capture img_v %}{{ hd_file.modified_time | date: "%s" }}{% endcapture %}{% assign hd_img = hd_path | append: "?v=" | append: img_v %}{% endif %}
           {%- assign ingame_credit_key = map.ingame_credit | default: "fandom" %}
           {%- assign ingame_credit = site.data.credits[ingame_credit_key] %}
           {%- comment %} Marks (spawn points, secrets...) from _data/map_marks.yml, by map name, or by the map whose images it uses. {% endcomment %}
@@ -173,7 +178,7 @@ sections:
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons -%}
-              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}" data-map-name="{{ map.name | escape }}"{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
+              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, marks, objectives (right). {% endcomment -%}
                 <span class="map-icons">
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
@@ -300,6 +305,7 @@ sections:
             <span class="map-dialog-zoom-level" aria-live="polite">100%</span>
             <button class="btn btn-small" type="button" data-zoom="in" aria-label="Zoom in">+</button>
             <button class="btn btn-small" type="button" data-zoom="reset">Reset</button>
+            <button class="btn btn-small map-dialog-quality" type="button" aria-pressed="true" hidden>Quality: High</button>
             <span class="map-dialog-views" role="group" aria-label="View" hidden>
               <button class="btn btn-small" type="button" data-view="map" aria-pressed="true">Map</button>
               <button class="btn btn-small" type="button" data-view="photo" aria-pressed="false">In-Game Photo</button>

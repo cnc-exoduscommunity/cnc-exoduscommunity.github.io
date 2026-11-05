@@ -163,6 +163,7 @@ Then open <http://localhost:4000>.
 | `assets/css/style.css` | All styling. The colours of both themes are variables at the top. |
 | `assets/js/site.js` | Theme toggle, collapsible sections, the header that follows the page, the map preview (previous/next, arrow keys, zoom and drag) and the live server status. |
 | `assets/images/maps/` | Map previews, named after the map (`M01.webp`). |
+| `assets/images/maps/hd/` | Optional high-resolution copies (same name, `.webp`). When one exists the preview shows it, with a **Quality** button to switch to the normal picture (remembered per browser). Transparent areas show the page behind them. |
 | `assets/images/hud/` | The game's HUD icons (weapons, pickups, buildings, purchase cards), with their original file names. Their in-game names are in `_data/hud_icons.yml`; show one with `{% include hud-icon.html file="hud_timec4" %}`, which also writes an `&` in a file name as `%26` so the link works. |
 | `assets/images/pickups/` | The textures on the pickups' 3D models (`p_*.png`, from the RenegadeViewer tool); which pickup uses which is in `_data/pickups.yml`. |
 | `_data/pickups.yml` | Every pickup (health, armor, keycards, data disc, ammo, weapon pickups) with its HUD icon, model textures and the game's preset names. |

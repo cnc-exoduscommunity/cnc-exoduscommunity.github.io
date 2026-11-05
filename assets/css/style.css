@@ -511,7 +511,7 @@ html:has(.map-dialog[open]), html:has(.gallery-dialog[open]) { overflow: hidden;
   aspect-ratio: 1;
   overflow: hidden;
   border: 1px solid var(--border-soft);
-  background: #000;
+  background: transparent;   /* transparent map pictures show the page behind them */
   cursor: zoom-in;
   touch-action: none;
   user-select: none;
@@ -1125,3 +1125,6 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .loadscreen-text[hidden] { display: none; }
 .ls-line { position: absolute; font-size: 1.6cqw; line-height: 1.22; white-space: pre-wrap; text-shadow: 1px 1px 1px #000; }
 .ls-line.is-big { font-size: 2.7cqw; font-weight: 700; }
+.map-dialog-quality { margin-left: 0.6rem; }
+.map-dialog-quality[hidden] { display: none; }
+.map-dialog-quality[aria-pressed="true"] { border-color: var(--title); color: var(--title); }

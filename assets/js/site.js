@@ -211,6 +211,16 @@ var MapMarks = (function () {
   var viewsBox = dialog.querySelector(".map-dialog-views");
   var viewButtons = viewsBox ? viewsBox.querySelectorAll("[data-view]") : [];
   var wantView = "map";
+  // Quality: maps with a high-resolution copy (assets/images/maps/hd/) show it by default;
+  // "Normal" loads the smaller picture. The choice is remembered in this browser.
+  var qualityBtn = dialog.querySelector(".map-dialog-quality");
+  var quality = "high";
+  try { if (localStorage.getItem("mapQuality") === "normal") quality = "normal"; } catch (e) {}
+  if (qualityBtn) qualityBtn.addEventListener("click", function () {
+    quality = quality === "high" ? "normal" : "high";
+    try { localStorage.setItem("mapQuality", quality); } catch (e) {}
+    show(current);
+  });
   Array.prototype.forEach.call(viewButtons, function (b) {
     b.addEventListener("click", function () { wantView = b.getAttribute("data-view"); zoom.reset(); show(current); });
   });
@@ -521,7 +531,7 @@ var MapMarks = (function () {
     var photo = link.getAttribute("data-ingame");
     var sc = screenFor(mapName);
     var srcs = {
-      map: hasImage(link) ? link.getAttribute("href") : null,
+      map: hasImage(link) ? (quality === "high" && link.getAttribute("data-hd") || link.getAttribute("href")) : null,
       photo: hasImage(link) && photo ? photo : null,
       loading: sc && sc.image ? fileUrl(screensBase, sc.image) : null
     };
@@ -538,6 +548,15 @@ var MapMarks = (function () {
       });
     }
     var showPhoto = view === "photo";
+    var hd = view === "map" && link.getAttribute("data-hd");
+    if (qualityBtn) {
+      qualityBtn.hidden = !hd;
+      qualityBtn.setAttribute("aria-pressed", String(quality === "high"));
+      qualityBtn.textContent = "Quality: " + (quality === "high" ? "High" : "Normal");
+      qualityBtn.title = quality === "high" ? "Showing the high-resolution map (bigger download). Click for the normal one." : "Showing the normal map. Click for the high-resolution one (bigger download).";
+    }
+    // The high-resolution picture can be zoomed further before it gets blurry.
+    zoom.setMax(hd && quality === "high" ? 10 : 4);
     var withImage = !!view;
     fillLoadscreen(view === "loading" ? sc : null);
     dialog.classList.toggle("is-loadscreen", view === "loading");
@@ -686,7 +705,7 @@ var MapMarks = (function () {
 // Zoom and pan for the map preview: mouse wheel or pinch to zoom (towards the
 // cursor / fingers), drag to move, double-click / double-tap to zoom in or out.
 function makeZoom(viewport, img, label, onChange) {
-  var MIN = 1, MAX = 4; // the map images are 512px, so more than 4x is just blurry
+  var MIN = 1, MAX = 4; // the map images are 512px, so more than 4x is just blurry (setMax for bigger ones)
   var scale = 1, tx = 0, ty = 0;
   var pointers = {};
   var start = null;
@@ -770,7 +789,8 @@ function makeZoom(viewport, img, label, onChange) {
     in: function () { var c = center(); zoomAt(scale * 1.5, c.x, c.y); },
     out: function () { var c = center(); zoomAt(scale / 1.5, c.x, c.y); },
     reset: function () { scale = 1; tx = 0; ty = 0; apply(); },
-    refresh: apply
+    refresh: apply,
+    setMax: function (m) { MAX = m; if (scale > MAX) { var c = center(); zoomAt(MAX, c.x, c.y); } }
   };
 }
 
