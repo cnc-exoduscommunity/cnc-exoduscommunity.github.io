@@ -168,7 +168,7 @@ sections:
           {%- if site.data.map_marks[map.name].size > 0 %}{% assign marks_key = map.name %}{% elsif site.data.map_marks[img_name].size > 0 %}{% assign marks_key = img_name %}{% endif %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map.terminal %} data-terminal="{{ map.terminal | escape }}"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map.terminal %} data-terminal="{{ map.terminal | escape }}"{% endif %}{% if map.scalable_difficulty %} data-scalable="1"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons -%}
@@ -191,7 +191,11 @@ sections:
             <ol class="map-objectives" hidden>
               {%- for step in map.objectives %}
               {%- assign optional = step | slice: 0, 9 %}
+              {%- if step == "?" %}
+              <li class="objective-missing">Not written down yet</li>
+              {%- else %}
               <li{% if optional == "Optional:" %} class="objective-optional"{% endif %}>{{ step | escape | replace: "Optional:", '<strong>Optional:</strong>' | replace: "GDI", '<span class="team-badge team-badge-inline team-gdi">GDI</span>' | replace: "Nod", '<span class="team-badge team-badge-inline team-nod">Nod</span>' }}</li>
+              {%- endif %}
               {%- endfor %}
             </ol>
             {%- endif %}

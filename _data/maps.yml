@@ -6,6 +6,8 @@
 # objectives: what the map tells you to do (top left in game), one line per step.
 #   Leave it out to show "-". The words GDI and Nod are shown as faction badges.
 #   A step starting with "Optional:" is shown without a number.
+#   A step that is just "?" is one not written down yet (keeps the numbers right).
+# scalable_difficulty: true when the map has scalable difficulty (shown as a tag).
 # weapons: the starting weapons on that map, one per line (shown in the map preview).
 # map_weapons: weapons lying around on the map to pick up, one per line.
 # image_credit: key from _data/credits.yml, shown under the map's preview.
@@ -42,6 +44,12 @@
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: GDI
+  objectives:
+    - "The enemy has taken the field. Liberate it by destroying the Nod vehicles occupying it."
+    - "This will also free our troops trapped inside the hill."
+    - "Good. Now get rid of that Nod base!"
+    - "Now find the beacon on the metal pedestal at the rear of the Nod base and finish this."
+    - "Destroy all Nod vehicles to unlock the pedestal."
 - name: Mesa
   terminal: full
   description: Original multiplayer map, changed to allow co-op
@@ -67,6 +75,14 @@
   weapons:
     - Maintenance Tool
     - Laser Rifle
+  objectives:
+    - "Our base has been overrun. Eliminate GDI (non-rocket) officers and Dead 6 to regain control."
+    - "Find the 6 mini consoles and the GDI Gun Emplacement inside the tunnels and destroy them."
+    - "Head back to base for some vehicles. They will aid you in taking the field/GDI base."
+    - "Destroy all enemy vehicles in the field to access the GDI base."
+    - "Destroy all enemy buildings. There is no required order. Buildings have to be killed by MCT."
+    - "Although destroying the GDI barracks does unlock GDI tunnel access."
+    - "Destroy all enemy vehicles & Guard Towers to unlock access to the GDI WF."
 - name: Under
   terminal: full
   description: Original multiplayer map, changed to allow co-op
@@ -143,11 +159,18 @@
   note: The first mission's file is numbered 13
   faction: GDI
   image_credit: vgmaps
+  objectives:
+    - "Fight your way through Nod occupied territory to reach the Nod base."
+    - "Two Medium Tanks spawn on map load and will be destroyed by Nod if you do not act swiftly."
+    - "Once at the Nod base destroy all enemy forces and the Nod obelisk."
+    - "Move out to the pedestal to trigger the boss fight."
+    - "Boss defeated! Pedestal has been unlocked."
 - name: M01
   terminal: none
   description: "Mission 2: Rescue and Retribution"
   faction: GDI
   image_credit: vgmaps
+  scalable_difficulty: true
 - name: M02
   terminal: no-vehicles
   description: "Mission 3: Armored Assault"
@@ -177,6 +200,19 @@
   note: "The night version"
   faction: GDI
   image_credit: vgmaps
+  objectives:
+    - "Free the nearby civillians and destroy the Nod vehicles to clear the area."
+    - "To free civillians kill their guards (stationary Nod troops near civillians) and then poke them."
+    - "Move down the road and head for the square. Destroy the Nod vehicles here and free the civillians."
+    - "Free civillians by killing their guards and any nearby vehicles. Then poke them."
+    - "Move through the house and across the bridge and then find and destroy the Nod MCT."
+    - "Destroy the Nod defenses on the way."
+    - "?"
+    - "?"
+    - "Continue towards the inn. Destroy any Nod vehicles and MCT's along the way."
+    - "Keep following the road."
+    - "Free all the civillians in the inn. To free them kill their guards."
+    - "Continue down the road. Destroy any Nod vehicles and defences you encounter."
 - name: M06
   terminal: no-vehicles
   description: "Mission 7: The Grip of the Black Hand"

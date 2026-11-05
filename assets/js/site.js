@@ -476,6 +476,12 @@ var MapMarks = (function () {
         b.textContent = key === "nod" ? "Nod" : f;
         factionBox.appendChild(b);
       }
+      if (link.closest("tr") && link.closest("tr").hasAttribute("data-scalable")) {
+        var sd = document.createElement("span");
+        sd.className = "map-tag";
+        sd.textContent = "Scalable difficulty";
+        factionBox.appendChild(sd);
+      }
     }
     var withImage = hasImage(link);
     var photo = link.getAttribute("data-ingame");
