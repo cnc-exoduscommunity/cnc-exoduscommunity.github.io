@@ -18,6 +18,14 @@
         }
       } catch (e) {}
       document.documentElement.setAttribute("data-theme", theme);
+      // Side colours (button next to the theme toggle): GDI gold (default) or Nod red.
+      // ?side=nod / ?side=gdi in the URL (also saved), then the saved choice.
+      try {
+        var side = new URLSearchParams(location.search).get("side");
+        if (side === "nod" || side === "gdi") localStorage.setItem("side", side);
+        else side = localStorage.getItem("side");
+        if (side === "nod") document.documentElement.setAttribute("data-side", "nod");
+      } catch (e) {}
       // Debug mode (switch at the bottom of the page): ?debug=1 or ?debug=0 in the
       // URL (also saved), then the saved choice, then off.
       try {
@@ -84,6 +92,10 @@
           GitHub
         </a>
         {%- endif %}
+        <button class="btn btn-icon side-toggle" type="button" aria-label="Switch to Nod colours" title="Switch between GDI and Nod colours">
+          <img class="side-logo side-logo-gdi" src="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" alt="" width="64" height="64">
+          <img class="side-logo side-logo-nod" src="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}" alt="" width="64" height="64">
+        </button>
         <button class="btn btn-icon theme-toggle" type="button" aria-label="Switch to light theme" title="Switch theme">
           <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
           <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z"/></svg>

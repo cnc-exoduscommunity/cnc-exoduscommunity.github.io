@@ -1182,20 +1182,91 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .map-table tr[data-faction="Nod"]:hover, .map-table tr[data-faction="Nod"].is-current { background: var(--nod-bar) !important; }
 .map-table tr[data-faction="Nod"].has-preview:hover .map-link code { border-color: var(--nod-link); }
 .map-table tr[data-faction="Nod"]:hover .map-icons .icon { color: var(--nod-link); }
-/* "Now playing" sits in the tags row; the player count after the map's name. */
-.map-dialog-faction .map-dialog-now { position: static; }
-.map-dialog-players { display: inline-block; margin-left: 0; padding: 0.1em 0.5em; font-family: inherit; letter-spacing: 0.02em; text-transform: none; text-shadow: none; border: 1px solid rgba(52, 199, 89, 0.6); border-radius: 3px; color: #5ee07d; font-size: 0.85em; font-weight: 600; white-space: nowrap; vertical-align: 0.05em; }
-[data-theme="light"] .map-dialog-players { color: #1f7a36; border-color: rgba(31, 122, 54, 0.5); }
-/* The side's big logo (the left end of its banner) faintly behind the title. */
-.map-dialog-emblem {
-  position: absolute; z-index: 0; top: 0; left: 0;
-  width: 8.6rem; height: 7.6rem;
-  background: no-repeat left center / auto 100%;
-  border-top-left-radius: inherit;
-  -webkit-mask-image: linear-gradient(90deg, #000 55%, transparent);
-  mask-image: linear-gradient(90deg, #000 55%, transparent);
-  opacity: 0.45;
-  pointer-events: none;
+/* After the map's name: "5 / 36 players" then "Now playing", same look and size (rem, not the title's size). */
+/* Both the same width (enough for "36 / 36 players"), so neither changes size. */
+.map-dialog-headline .now-playing { position: static; align-self: center; justify-content: center; box-sizing: border-box; width: 7.6rem; }
+.map-dialog-players { font-variant-numeric: tabular-nums; }
+
+/* A dark see-through backing behind the title text, so it reads over the banner and logo. */
+.map-dialog-headline, .map-dialog-comment, .map-dialog-note:not(:empty), .map-dialog-faction:not(:empty) {
+  width: fit-content; max-width: 100%; box-sizing: border-box;
+  padding: 0.1rem 0.5rem; margin-left: -0.5rem; border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
 }
-.map-dialog-emblem[hidden] { display: none; }
-.map-dialog-headline .map-dialog-players { font-size: 0.5em; align-self: center; }
+[data-theme="light"] :is(.map-dialog-headline, .map-dialog-comment, .map-dialog-note, .map-dialog-faction) { background: rgba(255, 250, 242, 0.5); }
+
+/* The preview in its side's colours: GDI gold (the site's own), Nod red. */
+.map-dialog.faction-nod {
+  --border: #e8382e;
+  --border-soft: rgba(232, 56, 46, 0.4);
+  --title: #ff4f3f;
+  --link: #ff6b5b;
+  --btn-text: #ffb3a6;
+  --bar: rgba(200, 16, 46, 0.42);
+  --bar-hover: rgba(220, 30, 50, 0.6);
+  --btn-glow: 0 0 12px rgba(255, 40, 30, 0.55);
+}
+[data-theme="light"] .map-dialog.faction-nod {
+  --border: #b3001b;
+  --border-soft: rgba(179, 0, 27, 0.35);
+  --title: #a00012;
+  --link: #b3001b;
+  --btn-text: #8a0012;
+  --bar: rgba(200, 16, 46, 0.18);
+  --bar-hover: rgba(200, 16, 46, 0.3);
+  --btn-glow: 0 0 10px rgba(179, 0, 27, 0.3);
+}
+
+/* ---------- Side colours: Nod (red) instead of the default GDI gold ---------- */
+.side-toggle { padding: 0; width: var(--hdr-btn, 2.4rem); justify-content: center; }
+.side-logo { width: 1.5rem; height: 1.5rem; object-fit: contain; }
+/* The button shows the side that's on. */
+.side-logo-nod, [data-side="nod"] .side-logo-gdi { display: none; }
+[data-side="nod"] .side-logo-nod { display: block; }
+:root[data-side="nod"] {
+  --row-alt: rgba(255, 40, 40, 0.05);
+  --row-hover: rgba(255, 40, 40, 0.12);
+  --bar: rgba(200, 16, 46, 0.42);
+  --bar-hover: rgba(220, 30, 50, 0.6);
+  --border: #e8382e;
+  --border-soft: rgba(232, 56, 46, 0.38);
+  --title: #ff4f3f;
+  --link: #ff6b5b;
+  --btn-text: #ffb3a6;
+  --btn-glow: 0 0 12px rgba(255, 40, 30, 0.55);
+}
+:root[data-theme="light"][data-side="nod"] {
+  --row-alt: rgba(179, 0, 27, 0.05);
+  --row-hover: rgba(179, 0, 27, 0.12);
+  --bar: rgba(200, 16, 46, 0.18);
+  --bar-hover: rgba(200, 16, 46, 0.3);
+  --border: #b3001b;
+  --border-soft: rgba(179, 0, 27, 0.35);
+  --title: #a00012;
+  --link: #b3001b;
+  --btn-text: #8a0012;
+  --btn-glow: 0 0 10px rgba(179, 0, 27, 0.3);
+}
+/* With Nod colours on, GDI maps (preview, row highlight) stay GDI gold. */
+[data-side="nod"] .map-dialog.faction-gdi, [data-side="nod"] .map-table tr[data-faction="GDI"] {
+  --row-hover: rgba(255, 140, 40, 0.12);
+  --bar: rgba(160, 120, 30, 0.42);
+  --bar-hover: rgba(190, 140, 30, 0.6);
+  --border: #e88a2e;
+  --border-soft: rgba(232, 138, 46, 0.35);
+  --title: #ffd21a;
+  --link: #ffc93a;
+  --btn-text: #ffd27a;
+  --btn-glow: 0 0 12px rgba(255, 110, 20, 0.55);
+}
+[data-theme="light"][data-side="nod"] .map-dialog.faction-gdi, [data-theme="light"][data-side="nod"] .map-table tr[data-faction="GDI"] {
+  --row-hover: rgba(196, 85, 26, 0.13);
+  --bar: rgba(196, 120, 26, 0.22);
+  --bar-hover: rgba(196, 120, 26, 0.36);
+  --border: #c4551a;
+  --border-soft: rgba(196, 85, 26, 0.35);
+  --title: #9a1c00;
+  --link: #a52a00;
+  --btn-text: #8a1a00;
+  --btn-glow: 0 0 10px rgba(196, 85, 26, 0.3);
+}

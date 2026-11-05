@@ -86,6 +86,25 @@ var MapMarks = (function () {
   label();
 })();
 
+// Side colours: GDI gold (the default) or Nod red, remembered like the theme.
+(function () {
+  var root = document.documentElement;
+  var button = document.querySelector(".side-toggle");
+  if (!button) return;
+  function label() {
+    var nod = root.getAttribute("data-side") === "nod";
+    button.setAttribute("aria-label", nod ? "Switch to GDI colours" : "Switch to Nod colours");
+    button.setAttribute("aria-pressed", String(nod));
+  }
+  button.addEventListener("click", function () {
+    var nod = root.getAttribute("data-side") !== "nod";
+    if (nod) root.setAttribute("data-side", "nod"); else root.removeAttribute("data-side");
+    try { localStorage.setItem("side", nod ? "nod" : "gdi"); } catch (e) {}
+    label();
+  });
+  label();
+})();
+
 // Collapsible sections: following a link to something inside a closed section opens it.
 (function () {
   function openTarget() {
@@ -160,6 +179,19 @@ var MapMarks = (function () {
   var weaponsNone = dialog.querySelector(".map-dialog-weapons-none");
   var belowWeapons = dialog.querySelector(".map-dialog-below-weapons");
   var belowObjTitle = dialog.querySelector(".map-dialog-below-obj-title");
+  // Wide screens: the map box takes whatever height the window has left after the title,
+  // the buttons and the margins, so the whole preview always fits (no cut-off top).
+  function fitViewport() {
+    var vp = dialog.querySelector(".map-dialog-viewport");
+    if (!vp) return;
+    vp.style.height = "";
+    if (window.innerWidth < 1100) return;            // narrow screens scroll instead (CSS height)
+    var stage = dialog.querySelector(".map-dialog-stage");
+    var cs = stage ? getComputedStyle(stage) : null;
+    var pad = cs ? parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) : 112;
+    var other = panelEl.offsetHeight - vp.offsetHeight;
+    vp.style.height = Math.max(288, window.innerHeight - pad - other) + "px";
+  }
   function matchSideHeight() {
     if (side) side.style.height = panelEl.offsetHeight + "px";
     if (weaponsCard) weaponsCard.style.height = panelEl.offsetHeight + "px";
@@ -541,20 +573,21 @@ var MapMarks = (function () {
   // "Now playing" in the tags row, and the player count right after the map's name,
   // when the map on screen is the one the server is playing.
   var playersTag = document.createElement("span");
-  playersTag.className = "map-dialog-players";
+  playersTag.className = "now-playing map-dialog-players";
   function updateNowPlaying() {
     var row = links[current] && links[current].closest("tr");
     var playing = !!(row && row.classList.contains("is-current"));
     nowBadge.hidden = !playing;
     dialog.classList.toggle("is-now-playing", playing);
-    var tags = dialog.querySelector(".map-dialog-faction");
-    if (tags && nowBadge.parentNode !== tags) tags.appendChild(nowBadge);
+    // Map name, then "5 / 36 players", then "Now playing".
+    var headline = dialog.querySelector(".map-dialog-headline");
     var players = playing && row.getAttribute("data-players");
     playersTag.textContent = players ? players + " players" : "";
     playersTag.title = players && /nod/i.test(row.getAttribute("data-faction") || "") ? "On Nod maps the server can report 0 players while people are playing." : "";
-    var headline = dialog.querySelector(".map-dialog-headline");
-    if (players && headline && playersTag.parentNode !== headline) headline.appendChild(playersTag);
-    else if (!players && playersTag.parentNode) playersTag.remove();
+    if (headline) {
+      if (players) headline.appendChild(playersTag); else if (playersTag.parentNode) playersTag.remove();
+      headline.appendChild(nowBadge);
+    }
   }
   document.addEventListener("currentmapchange", updateNowPlaying);
 
@@ -599,7 +632,7 @@ var MapMarks = (function () {
       probe.src = l.getAttribute("href");
     });
   }
-  window.addEventListener("resize", function () { if (dialog.open) { measureTitles(); zoom.refresh(); matchSideHeight(); layoutMarks(); } });
+  window.addEventListener("resize", function () { if (dialog.open) { measureTitles(); fitViewport(); zoom.refresh(); matchSideHeight(); layoutMarks(); } });
 
   function show(index) {
     current = (index + links.length) % links.length;
@@ -624,10 +657,12 @@ var MapMarks = (function () {
           factionBox.appendChild(b);
         }
       }
-      // The side's banner behind the title.
+      // The side's banner behind the title, and the preview in the side's colours.
       var banner = dialog.querySelector(".map-dialog-banner");
+      var side = f && (/nod/i.test(f) ? "nod" : /gdi/i.test(f) ? "gdi" : null);
+      dialog.classList.toggle("faction-nod", side === "nod");
+      dialog.classList.toggle("faction-gdi", side === "gdi");
       if (banner) {
-        var side = f && (/nod/i.test(f) ? "nod" : /gdi/i.test(f) ? "gdi" : null);
         var url = side && dialog.getAttribute("data-banner-" + side);
         banner.style.backgroundImage = url ? 'url("' + url + '")' : "none";
         banner.hidden = !url;
@@ -753,6 +788,7 @@ var MapMarks = (function () {
       dialog.showModal();
       sizeToLargest();
     }
+    fitViewport();
     zoom.refresh();
     matchSideHeight();
     layoutMarks();
@@ -768,7 +804,8 @@ var MapMarks = (function () {
     // Clicking anywhere on the map's row opens the preview too.
     var row = link.closest("tr");
     if (row) row.addEventListener("click", function (e) {
-      if (e.target.closest("a, button, details")) return;    // links and the objectives toggle handle their own clicks
+      var own = e.target.closest("a, button, details");     // links and the objectives toggle in the row handle their own clicks
+      if (own && row.contains(own)) return;                  // (the table itself sits in a <details> panel)
       if (window.getSelection && String(window.getSelection())) return; // don't fight text selection
       show(i);
     });
