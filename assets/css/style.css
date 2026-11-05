@@ -1340,3 +1340,55 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .terminal-tip-extra { color: var(--muted); font-size: 0.78rem; }
 [data-theme="light"] .terminal-tip { background: rgba(255, 250, 242, 0.97); }
 [data-theme="light"] .terminal-tip-cost { color: var(--text); }
+
+/* ---------- Left card of the map preview: Weapons (tabs) / Purchase terminal / Buildings ---------- */
+.map-dialog-weapons-card { display: flex; flex-direction: column; gap: 0.6rem; overflow: hidden; }
+.mdw { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.mdw .map-dialog-objectives-title { margin-bottom: 0.4rem; }
+.mdw-tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border-soft); }
+.mdw-tab { padding: 0.25rem 0.6rem; border: 1px solid transparent; border-bottom: 0; border-radius: 4px 4px 0 0; background: none; color: var(--muted); font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-size: 0.9rem; letter-spacing: 0.02em; cursor: pointer; margin-bottom: -1px; }
+.mdw-tab:hover { color: var(--title); }
+.mdw-tab[aria-selected="true"] { border-color: var(--border-soft); background: var(--panel); color: var(--title); }
+.mdw-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-top: 0.5rem; }
+.mdw-panel[hidden] { display: none; }
+/* Purchase terminal: folds away; its heading sits at the bottom when folded. */
+.mdw-terminal { flex: none; }
+.mdw-terminal[hidden] { display: none; }
+.mdw-terminal > summary { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; list-style: none; margin: 0; user-select: none; }
+.mdw-terminal > summary::-webkit-details-marker { display: none; }
+.mdw-terminal > summary::after { content: "\25BE"; margin-left: auto; color: var(--muted); transition: transform 0.15s; }
+.mdw-terminal:not([open]) > summary::after { transform: rotate(-90deg); }
+.mdw-terminal > summary:hover { color: var(--link); }
+.mdw-terminal .map-dialog-terminal { margin-top: 0.3rem; padding-top: 0; }
+/* Buildings: one row per side, fixed height. */
+.mdw-buildings { flex: none; }
+.mdw-buildings .map-dialog-objectives-title { margin-bottom: 0.35rem; }
+.mdw-buildings-rows { position: relative; display: flex; flex-direction: column; gap: 0.3rem; }
+.mdw-brow { display: flex; align-items: center; gap: 0.25rem; height: 2.1rem; overflow: hidden; }
+.mdw-bside { flex: none; width: 2.6rem; font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-size: 0.85rem; color: var(--muted); cursor: default; }
+.mdw-brow-gdi .mdw-bside { color: #ffd21a; }
+.mdw-brow-nod .mdw-bside { color: #ff5a4a; }
+[data-theme="light"] .mdw-brow-gdi .mdw-bside { color: #9a6a00; }
+[data-theme="light"] .mdw-brow-nod .mdw-bside { color: #b3001b; }
+.mdw-bside.is-players::after { content: " \2605"; font-size: 0.75em; }
+.mdw-building { position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem; box-sizing: border-box; border: 1px solid var(--border-soft); border-radius: 3px; background: #000; overflow: hidden; }
+.mdw-building img { width: 100%; height: 100%; object-fit: cover; }
+.mdw-building.is-text { color: var(--muted); font-size: 0.6rem; font-weight: 700; letter-spacing: 0.02em; }
+.mdw-bcount { position: absolute; right: 1px; bottom: 0; padding: 0 2px; border-radius: 2px; background: rgba(0, 0, 0, 0.8); color: #fff; font-size: 0.6rem; font-weight: 700; line-height: 1.2; }
+.mdw-bnone { color: var(--muted); font-size: 0.8rem; }
+.mdw-buildings { position: relative; }
+/* In the left card the main page only takes its 2 rows; a Characters / Vehicles page opens
+   as a layer over the weapons (growing upwards from the same bottom line), so the weapons
+   get the room and nothing underneath moves. */
+.mdw-terminal { position: relative; }
+.mdw-terminal .terminal-grid { height: calc(2 * var(--tile-h) + 0.4rem); }
+.mdw-terminal .terminal-page-head[hidden] { display: none !important; }
+.mdw-terminal .map-dialog-terminal.is-page {
+  position: absolute; left: -0.4rem; right: -0.4rem; bottom: 0; z-index: 4;
+  margin: 0; padding: 0.4rem 0.4rem 0;
+  background: var(--bg); background-image: linear-gradient(var(--panel), var(--panel));
+  border-top: 1px solid var(--border-soft);
+  box-shadow: 0 -10px 20px rgba(0, 0, 0, 0.55);
+}
+.mdw-terminal .map-dialog-terminal.is-page .terminal-page-head { margin: 0 0 0.4rem; }
+.mdw-terminal .map-dialog-terminal.is-page .terminal-grid { height: calc(3 * var(--tile-h) + 2 * 0.4rem); }

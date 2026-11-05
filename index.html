@@ -245,6 +245,8 @@ sections:
     <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
     {%- comment %} The loading screens (_data/loadscreens.yml), read by site.js. {% endcomment %}
     <script type="application/json" id="purchase-data">{"maps": {{ site.data.purchase.maps | jsonify }}, "flying": {{ site.data.purchase.flying_maps | jsonify }}}</script>
+    {%- comment %} The buildings on each map (_data/buildings.yml), read by site.js. {% endcomment %}
+    <script type="application/json" id="buildings-data">{{ site.data.buildings | jsonify }}</script>
     <script type="application/json" id="loadscreens-data">{{ site.data.loadscreens.screens | jsonify }}</script>
     {%- comment %} The purchase terminal's first page for each side (cards from assets/images/hud/), used by the map preview. {% endcomment %}
     {%- assign t_slots = "free,free,free,free,refill,characters,vehicles,beacon" | split: "," %}
@@ -277,28 +279,46 @@ sections:
     {%- include terminal-page.html side=t_side page=tp_name data=tp_data map=tp_map %}
     {%- endif %}{% endfor %}{% endfor %}
     {%- endfor %}
-    <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}" data-loadscreens-base="{{ '/assets/images/loadscreens/' | relative_url }}" data-banner-gdi="{{ '/assets/images/hud/hud_winscreen_gdi.webp' | relative_url }}" data-banner-nod="{{ '/assets/images/hud/hud_winscreen_nod.webp' | relative_url }}" data-logo-gdi="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" data-logo-nod="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}">
+    <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}" data-loadscreens-base="{{ '/assets/images/loadscreens/' | relative_url }}" data-banner-gdi="{{ '/assets/images/hud/hud_winscreen_gdi.webp' | relative_url }}" data-banner-nod="{{ '/assets/images/hud/hud_winscreen_nod.webp' | relative_url }}" data-hud-base="{{ '/assets/images/hud/' | relative_url }}" data-logo-gdi="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" data-logo-nod="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
       <div class="map-dialog-stage">
-        <aside class="map-dialog-spacer map-dialog-weapons-card" aria-label="Starting weapons">
-          {%- comment %} The weapons scroll on their own when there are many, so the terminal below never moves. {% endcomment %}
-          <div class="map-dialog-weapons-top">
-          <p class="map-dialog-objectives-title">Starting weapons</p>
-          <ul class="map-dialog-weapons"></ul>
-          <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
-          <p class="map-dialog-weapons-also">Everyone also spawns with a {% include hud-icon.html file="hud_autoguns_hud_autoguns_lower" class="weapon-inline-pic" decorative="1" %}Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and {% include hud-icon.html file="hud_timec4" class="weapon-inline-pic" decorative="1" %}Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
-          <p class="map-dialog-weapons-keys">The numbers on the weapons are their hotkeys: the number keys <kbd class="weapon-key-inline">1</kbd> to <kbd class="weapon-key-inline">0</kbd> on your keyboard.</p>
-          <div class="map-dialog-onmap" hidden>
-            <p class="map-dialog-objectives-title">Weapons on the map</p>
-            <ul class="map-dialog-weapons map-dialog-onmap-list"></ul>
-          </div>
-          </div>
-          <div class="map-dialog-terminal" hidden>
-            <p class="map-dialog-objectives-title">Purchase terminal</p>
-            <p class="terminal-page-head" hidden><button class="btn btn-small terminal-back" type="button">&#10094; Back</button><span class="terminal-page-title"></span></p>
-            <ul class="terminal-grid"></ul>
-            <p class="map-dialog-terminal-note"></p>
-          </div>
+        <aside class="map-dialog-spacer map-dialog-weapons-card" aria-label="Weapons, purchase terminal and buildings">
+          {%- comment %} Weapons (tabs) on top and scrolling on their own; the purchase terminal (folds away) and
+          the map's buildings below. Their sizes are fixed, so nothing moves between maps. {% endcomment %}
+          <section class="mdw">
+            <p class="map-dialog-objectives-title">Weapons</p>
+            <div class="mdw-tabs" role="tablist" aria-label="Weapons">
+              <button class="mdw-tab" type="button" role="tab" data-wtab="start" aria-selected="true">Starting weapons</button>
+              <button class="mdw-tab" type="button" role="tab" data-wtab="map" aria-selected="false">Map</button>
+              <button class="mdw-tab" type="button" role="tab" data-wtab="secrets" aria-selected="false">Secrets</button>
+            </div>
+            <div class="mdw-body">
+              <div class="mdw-panel" data-wpanel="start" role="tabpanel">
+                <ul class="map-dialog-weapons"></ul>
+                <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
+                <p class="map-dialog-weapons-also">Everyone also spawns with a {% include hud-icon.html file="hud_autoguns_hud_autoguns_lower" class="weapon-inline-pic" decorative="1" %}Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and {% include hud-icon.html file="hud_timec4" class="weapon-inline-pic" decorative="1" %}Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
+                <p class="map-dialog-weapons-keys">The numbers on the weapons are their hotkeys: the number keys <kbd class="weapon-key-inline">1</kbd> to <kbd class="weapon-key-inline">0</kbd> on your keyboard.</p>
+              </div>
+              <div class="mdw-panel" data-wpanel="map" role="tabpanel" hidden>
+                <ul class="map-dialog-weapons mdw-onmap-list"></ul>
+                <p class="map-dialog-side-none mdw-onmap-none">No weapons lying around on this map listed yet.</p>
+              </div>
+              <div class="mdw-panel" data-wpanel="secrets" role="tabpanel" hidden>
+                <p class="map-dialog-side-none">No secret weapons listed for this map yet.</p>
+              </div>
+            </div>
+          </section>
+          <details class="mdw-terminal" open>
+            <summary class="map-dialog-objectives-title">Purchase terminal</summary>
+            <div class="map-dialog-terminal" hidden>
+              <p class="terminal-page-head" hidden><button class="btn btn-small terminal-back" type="button">&#10094; Back</button><span class="terminal-page-title"></span></p>
+              <ul class="terminal-grid"></ul>
+            </div>
+          </details>
+          <section class="mdw-buildings" hidden>
+            <p class="map-dialog-objectives-title">Buildings</p>
+            <div class="mdw-buildings-rows"></div>
+          </section>
         </aside>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
         <div class="map-dialog-panel">
@@ -354,7 +374,6 @@ sections:
                 <p class="map-dialog-objectives-title">Purchase terminal</p>
             <p class="terminal-page-head" hidden><button class="btn btn-small terminal-back" type="button">&#10094; Back</button><span class="terminal-page-title"></span></p>
                 <ul class="terminal-grid"></ul>
-                <p class="map-dialog-terminal-note"></p>
               </div>
             </div>
             <p class="map-dialog-objectives-title map-dialog-below-obj-title">Objectives</p>

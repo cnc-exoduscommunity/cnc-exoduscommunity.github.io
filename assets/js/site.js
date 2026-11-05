@@ -229,6 +229,71 @@ function setUrlParam(key, value, fallback) {
     "vehicles-destroyed": "The vehicle building starts destroyed, so no vehicles.",
     "none": "This map has no purchase terminal."
   };
+  // Weapons tabs (Starting weapons / Map / Secrets): the one picked stays picked between maps.
+  var wantWTab = "start";
+  var wTabs = dialog.querySelectorAll(".mdw-tab");
+  function showWTab() {
+    Array.prototype.forEach.call(wTabs, function (t) { t.setAttribute("aria-selected", String(t.getAttribute("data-wtab") === wantWTab)); });
+    Array.prototype.forEach.call(dialog.querySelectorAll(".mdw-panel"), function (p) { p.hidden = p.getAttribute("data-wpanel") !== wantWTab; });
+  }
+  Array.prototype.forEach.call(wTabs, function (t) {
+    t.addEventListener("click", function () { wantWTab = t.getAttribute("data-wtab"); showWTab(); });
+  });
+  // The purchase terminal folds away; open or closed is remembered.
+  var termFold = dialog.querySelector(".mdw-terminal");
+  if (termFold) {
+    try { if (localStorage.getItem("terminalOpen") === "0") termFold.open = false; } catch (e) {}
+    termFold.addEventListener("toggle", function () { try { localStorage.setItem("terminalOpen", termFold.open ? "1" : "0"); } catch (e) {} });
+  }
+  // Buildings on the map (_data/buildings.yml).
+  var buildings = {};
+  try { buildings = JSON.parse((document.getElementById("buildings-data") || {}).textContent || "{}") || {}; } catch (e) {}
+  var hudBase = dialog.getAttribute("data-hud-base") || "";
+  var bBox = dialog.querySelector(".mdw-buildings");
+  function showBuildings(mapName) {
+    if (!bBox) return;
+    var rows = bBox.querySelector(".mdw-buildings-rows");
+    rows.textContent = "";
+    var b = buildings.maps && buildings.maps[mapName];
+    bBox.hidden = !b;
+    if (!b) return;
+    var sides = b.players === "nod" ? ["nod", "gdi"] : ["gdi", "nod"];
+    sides.forEach(function (sd) {
+      var row = document.createElement("div");
+      row.className = "mdw-brow mdw-brow-" + sd;
+      var lab = document.createElement("span");
+      lab.className = "mdw-bside";
+      lab.textContent = sd === "nod" ? "Nod" : "GDI";
+      lab.setAttribute("data-tip-name", (sd === "nod" ? "Nod" : "GDI") + (b.players ? (sd === b.players ? ": the players' side" : ": the enemy side") : " buildings"));
+      if (b.players && sd === b.players) lab.classList.add("is-players");
+      if (b.note) lab.setAttribute("data-tip-extra", b.note);
+      row.appendChild(lab);
+      (b[sd] || []).forEach(function (entry) {
+        var m = String(entry).split("*"), type = (buildings.types || {})[m[0]] || { name: m[0] }, count = +m[1] || 1;
+        var it = document.createElement("span");
+        it.className = "mdw-building";
+        it.setAttribute("data-tip-name", type.name + (count > 1 ? " ×" + count : ""));
+        if (type.hud) {
+          var im = document.createElement("img");
+          im.src = hudBase + encodeURI(type.hud + ".png").replace(/&/g, "%26");
+          im.alt = type.name;
+          it.appendChild(im);
+        } else {
+          it.classList.add("is-text");
+          it.textContent = type.short || type.name.slice(0, 4);
+        }
+        if (count > 1) {
+          var c = document.createElement("span"); c.className = "mdw-bcount"; c.textContent = count; it.appendChild(c);
+        }
+        row.appendChild(it);
+      });
+      if (!(b[sd] || []).length) {
+        var none = document.createElement("span"); none.className = "mdw-bnone"; none.textContent = "None"; row.appendChild(none);
+      }
+      rows.appendChild(row);
+    });
+    terminalTip(bBox).hidden = true;
+  }
   var purchase = { maps: {}, flying: [] };
   try { purchase = JSON.parse((document.getElementById("purchase-data") || {}).textContent || "{}") || purchase; } catch (e) {}
   function pageTemplate(side, page, mapName) {
@@ -241,8 +306,9 @@ function setUrlParam(key, value, fallback) {
     var f = row && row.getAttribute("data-faction");
     var side = /nod/i.test(f || "") ? "nod" : "gdi";
     var tpl = dialog.ownerDocument.querySelector('template.terminal-template[data-side="' + side + '"]:not([data-page])');
+    var flyingMap = (purchase.flying || []).indexOf(row && row.getAttribute("data-map")) >= 0;
     Array.prototype.forEach.call(terminalBoxes, function (box) {
-      var grid = box.querySelector(".terminal-grid"), note = box.querySelector(".map-dialog-terminal-note");
+      var grid = box.querySelector(".terminal-grid");
       var head = box.querySelector(".terminal-page-head");
       grid.textContent = "";
       if (head) head.hidden = true;
@@ -271,21 +337,26 @@ function setUrlParam(key, value, fallback) {
           tile.classList.add("is-off");
           tile.querySelector(".terminal-state").textContent = off;
         }
+        // What used to be the note under the cards is now in each card's hover card.
+        var why = kind === "none" ? TERMINAL_NOTES.none
+          : slot === "vehicles" && off !== null ? TERMINAL_NOTES[kind]
+          : slot === "beacon" && noBeacons ? "Beacons aren't sold on this server."
+          : off === "Not for sale" ? "This map takes it off the terminal."
+          : "";
+        if (why) tile.setAttribute("data-tip-extra", why);
         // Characters and Vehicles open their page in the same box, like the game.
         var pageTpl = (slot === "characters" || slot === "vehicles") && off === null && pageTemplate(side, slot, mapName);
         if (pageTpl) {
           tile.classList.add("is-link");
           tile.tabIndex = 0;
           tile.setAttribute("role", "button");
-          tile.setAttribute("data-tip-extra", "Click to see the " + slot);
+          tile.setAttribute("data-tip-extra", "Click to see the " + slot +
+            (slot === "vehicles" && !flyingMap ? ". No helicopters: this map doesn't allow flying units." : "."));
           var open = function () { openPage(box, pageTpl, slot === "characters" ? "Characters" : "Vehicles", row); };
           tile.addEventListener("click", open);
           tile.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
         }
       });
-      var text = TERMINAL_NOTES[kind] || "";
-      if (noBeacons && kind !== "none") text = (text ? text + " " : "") + "Beacons aren't sold on this server.";
-      note.textContent = text;
     });
     return !!kind;
   }
@@ -296,10 +367,12 @@ function setUrlParam(key, value, fallback) {
     tip.className = "terminal-tip";
     tip.hidden = true;
     box.appendChild(tip);
-    var grid = box.querySelector(".terminal-grid");
+    var grid = box;
+    var ITEMS = ".terminal-tile, [data-tip-name]";
     function show(tile) {
-      var name = tile.querySelector(".terminal-label");
-      if (!name) { tip.hidden = true; return; }
+      var label = tile.querySelector(".terminal-label");
+      var name = { textContent: tile.getAttribute("data-tip-name") || (label ? label.textContent : "") };
+      if (!name.textContent) { tip.hidden = true; return; }
       var cost = (tile.querySelector(".terminal-cost") || {}).textContent || "";
       var state = (tile.querySelector(".terminal-state") || {}).textContent || "";
       var extra = tile.getAttribute("data-tip-extra");
@@ -316,9 +389,9 @@ function setUrlParam(key, value, fallback) {
       if (top < 0) top = r.bottom - b.top + 6;
       tip.style.left = left + "px"; tip.style.top = top + "px";
     }
-    grid.addEventListener("mouseover", function (e) { var t = e.target.closest(".terminal-tile"); if (t) show(t); });
+    grid.addEventListener("mouseover", function (e) { var t = e.target.closest(ITEMS); if (t && box.contains(t)) show(t); else tip.hidden = true; });
     grid.addEventListener("mouseleave", function () { tip.hidden = true; });
-    grid.addEventListener("focusin", function (e) { var t = e.target.closest(".terminal-tile"); if (t) show(t); });
+    grid.addEventListener("focusin", function (e) { var t = e.target.closest(ITEMS); if (t) show(t); });
     grid.addEventListener("focusout", function () { tip.hidden = true; });
     return tip;
   }
@@ -339,8 +412,19 @@ function setUrlParam(key, value, fallback) {
     });
     box.classList.add("is-page");
     terminalTip(box).hidden = true;
-    var note = box.querySelector(".map-dialog-terminal-note");
-    if (note) note.textContent = "Prices double while your Power Plant is down." + (title === "Vehicles" && !flying ? " No helicopters: this map doesn't allow flying units." : "");
+    // The building icons: their name in the hover card; the Power Plant also says what losing it does.
+    Array.prototype.forEach.call(grid.querySelectorAll(".terminal-building"), function (b, i) {
+      var img = b.querySelector("img");
+      b.setAttribute("data-tip-name", img ? img.alt : "");
+      if (img) img.removeAttribute("title");
+      b.setAttribute("data-tip-extra", i === 0 ? "Prices double while your Power Plant is down." : "Needed to buy from this page.");
+    });
+    if (title === "Vehicles" && !flying) {
+      var firstCard = grid.querySelector(".terminal-tile");
+      if (firstCard) Array.prototype.forEach.call(grid.querySelectorAll(".terminal-tile"), function (t) {
+        if (!t.getAttribute("data-tip-extra")) t.setAttribute("data-tip-extra", "No helicopters on this map: it doesn't allow flying units.");
+      });
+    }
     if (head) {
       head.hidden = false;
       head.querySelector(".terminal-page-title").textContent = title;
@@ -863,7 +947,16 @@ function setUrlParam(key, value, fallback) {
       box.hidden = !onmap.length;
     });
     if (weaponsNone) weaponsNone.hidden = !!weapons.length;
+    var cardOnmap = dialog.querySelector(".mdw-onmap-list");
+    if (cardOnmap) {
+      cardOnmap.textContent = "";
+      Array.prototype.forEach.call(onmap, function (li) { cardOnmap.appendChild(li.cloneNode(true)); });
+      dialog.querySelector(".mdw-onmap-none").hidden = !!onmap.length;
+    }
+    showWTab();
     var hasTerminal = showTerminal(link.closest("tr"));
+    if (termFold) termFold.hidden = !hasTerminal;
+    showBuildings(mapName);
     if (belowWeapons) belowWeapons.hidden = !weapons.length && !onmap.length && !hasTerminal;
     if (belowObjTitle) belowObjTitle.hidden = !steps.length;
     below.hidden = !steps.length && !weapons.length && !onmap.length && !hasTerminal;
