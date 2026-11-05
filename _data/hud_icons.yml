@@ -37,7 +37,8 @@ weapons:
     - { file: "hud_tibrvoltr", name: "Volt Auto Rifle + Tiberium Auto Rifle", sheet: true }
     - { file: "hud_tibrvoltr_hud_tibrvoltr_upper", name: "Volt Auto Rifle" }
     - { file: "hud_tibrvoltr_hud_tibrvoltr_lower", name: "Tiberium Auto Rifle" }
-    - { file: "hud_ramsentu", name: "Ramjet Rifle", note: "lower half of the sheet" }
+    - { file: "hud_ramsentu", name: "Ramjet Rifle", sheet: true, note: "the Ramjet Rifle is the lower half of the sheet" }
+    - { file: "hud_ramsentu_hud_ramsentu_lower", name: "Ramjet Rifle", note: "cut from the lower half of hud_ramsentu for this site" }
     - { file: "hud_tibflech", name: "Tiberium Flechette Gun" }
     - { file: "hud_repairgun", name: "Repair Gun" }
     - { file: "hud_timec4", name: "Timed C4" }

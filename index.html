@@ -200,8 +200,8 @@ sections:
               {%- for weapon in map.map_weapons %}
               {%- assign weapon_img = nil %}{% assign weapon_key = nil %}
               {%- assign weapon_credit = nil %}
-              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% assign weapon_key = w.hotkey %}{% if w.credit %}{% assign weapon_credit = site.data.credits[w.credit].name %}{% endif %}{% endif %}{% endfor %}
-              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt=""{% if weapon_credit %} title="Picture: {{ weapon_credit | escape }}"{% endif %} loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
+              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% if w.hud %}{% assign weapon_img = '/assets/images/hud/' | append: w.hud | append: '.png' %}{% elsif w.image %}{% assign weapon_img = '/assets/images/weapons/' | append: w.image %}{% if w.credit %}{% assign weapon_credit = site.data.credits[w.credit].name %}{% endif %}{% endif %}{% assign weapon_key = w.hotkey %}{% endif %}{% endfor %}
+              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ weapon_img | relative_url | replace: '&', '%26' }}" alt=""{% if weapon_credit %} title="Picture: {{ weapon_credit | escape }}"{% endif %} loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
               {%- endfor %}
             </ul>
             {%- endif %}
@@ -210,8 +210,8 @@ sections:
               {%- for weapon in map.weapons %}
               {%- assign weapon_img = nil %}{% assign weapon_key = nil %}
               {%- assign weapon_credit = nil %}
-              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% assign weapon_img = w.image %}{% assign weapon_key = w.hotkey %}{% if w.credit %}{% assign weapon_credit = site.data.credits[w.credit].name %}{% endif %}{% endif %}{% endfor %}
-              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ '/assets/images/weapons/' | append: weapon_img | relative_url }}" alt=""{% if weapon_credit %} title="Picture: {{ weapon_credit | escape }}"{% endif %} loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
+              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% if w.hud %}{% assign weapon_img = '/assets/images/hud/' | append: w.hud | append: '.png' %}{% elsif w.image %}{% assign weapon_img = '/assets/images/weapons/' | append: w.image %}{% if w.credit %}{% assign weapon_credit = site.data.credits[w.credit].name %}{% endif %}{% endif %}{% assign weapon_key = w.hotkey %}{% endif %}{% endfor %}
+              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ weapon_img | relative_url | replace: '&', '%26' }}" alt=""{% if weapon_credit %} title="Picture: {{ weapon_credit | escape }}"{% endif %} loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
               {%- endfor %}
             </ul>
             {%- endif %}</td>
@@ -229,7 +229,7 @@ sections:
         </tbody>
       </table>
     </div>
-    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a> (campaign); weapon pictures: in-game renders, and {{ site.data.credits.prima.name }} for the ones without one</p>
+    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a> (campaign); weapon pictures: the game's own HUD icons, and {{ site.data.credits.prima.name }} for the ones without one</p>
 
     {%- comment %} The marks for the map preview, read by site.js. {% endcomment %}
     <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>

@@ -1,67 +1,88 @@
 # Weapon pictures for the "Starting weapons" lists in the map previews.
 # name: as written under weapons: in _data/maps.yml (aliases: other names for it).
-# image: file in assets/images/weapons/. A weapon without an entry shows its name only.
+# hud: the game's own HUD icon for it, a file name (without .png) in assets/images/hud/
+#   (see _data/hud_icons.yml). Used instead of image: when set.
+# image: file in assets/images/weapons/ (older renders / Prima's guide), used when
+#   there's no hud: icon. A weapon without either shows its name only.
 # hotkey: the number key that selects it in game (Prima's guide: 1 pistol,
 #   2 automatic, 3 sniper, 4 chem, 5 rocket, 6 grenade, 7 energy/repair,
 #   8 Tiberium, 9 C4, 0 beacons).
 # Everyone also spawns with a Pistol (1) and Timed C4 (9) (shown as a note).
 - name: Maintenance Tool
   aliases: [Repair Gun]
+  hud: hud_repairgun
   image: repair-gun.webp
   hotkey: 7
 - name: Automatic Rifle
+  hud: hud_autoguns_hud_autoguns_upper
   image: automatic-rifle.webp
   hotkey: 2
 - name: Chaingun
+  hud: hud_chainguns_hud_chainguns_lower
   image: chaingun.webp
   hotkey: 2
 - name: Sniper Rifle
+  hud: hud_sniperock_hud_sniperock_lower
   image: sniper-rifle.webp
   hotkey: 3
 - name: Tiberium Flechette Gun
+  hud: hud_tibflech
   image: tiberium-flechette-gun.webp
   hotkey: 8
 - name: Tiberium Auto Rifle
+  hud: hud_tibrvoltr_hud_tibrvoltr_lower
   image: tiberium-auto-rifle.webp
   hotkey: 8
 - name: Laser Rifle
+  hud: hud_sg_lr_rg_hud_sg_lr_rg_middle
   image: laser-rifle.webp
   hotkey: 7
 - name: Laser Chaingun
+  hud: hud_chainguns_hud_chainguns_upper
   image: laser-chaingun.webp
   hotkey: 7
 - name: Volt Auto Rifle
+  hud: hud_tibrvoltr_hud_tibrvoltr_upper
   image: volt-auto-rifle.webp
   hotkey: 7
 - name: Railgun
+  hud: hud_sg_lr_rg_hud_sg_lr_rg_lower
   image: railgun.webp
   hotkey: 7
 - name: Personal Ion Cannon
+  hud: hud_grana_ionc_hud_grana_ionc_lower
   image: personal-ion-cannon.webp
   hotkey: 7
 - name: Grenade Launcher
+  hud: hud_grana_ionc_hud_grana_ionc_upper
   image: grenade-launcher.webp
   hotkey: 6
 - name: Rocket Launcher
+  hud: hud_sniperock_hud_sniperock_upper
   image: rocket-launcher.webp
   hotkey: 5
 - name: Flamethrower
+  hud: hud_chem_fire_hud_chem_fire_upper
   image: flamethrower.webp
   hotkey: 4
 - name: Chemical Sprayer
   aliases: [Chem Sprayer]
+  hud: hud_chem_fire_hud_chem_fire_lower
   image: chemical-sprayer.webp
   hotkey: 4
-# Pictures from Prima's Official Strategy Guide (no in-game render yet): credit: prima
+# credit: prima = the image: is from Prima's Official Strategy Guide (only shown when there's no hud: icon)
 - name: Pistol
+  hud: hud_autoguns_hud_autoguns_lower
   image: pistol.webp
   credit: prima
   hotkey: 1
 - name: Shotgun
+  hud: hud_sg_lr_rg_hud_sg_lr_rg_upper
   image: shotgun.webp
   credit: prima
   hotkey: 2
 - name: Ramjet Rifle
+  hud: hud_ramsentu_hud_ramsentu_lower
   image: ramjet-rifle.webp
   credit: prima
   hotkey: 3
@@ -70,24 +91,29 @@
   credit: prima
   hotkey: 7
 - name: Remote C4
+  hud: hud_remotec4
   image: remote-c4.webp
   credit: prima
   hotkey: 9
 - name: Proximity C4
+  hud: hud_proxyc4
   image: proximity-c4.webp
   credit: prima
   hotkey: 9
 - name: Timed C4
+  hud: hud_timec4
   image: timed-c4.webp
   credit: prima
   hotkey: 9
 - name: Ion Cannon Beacon
   aliases: [Ion Beacon]
+  hud: hud_ionbeaken
   image: ion-cannon-beacon.webp
   credit: prima
   hotkey: 0
 - name: Nuclear Strike Beacon
   aliases: [Nuke Beacon, Nuclear Beacon]
+  hud: hud_nukebeak
   image: nuclear-strike-beacon.webp
   credit: prima
   hotkey: 0
