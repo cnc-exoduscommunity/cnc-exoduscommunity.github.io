@@ -1324,3 +1324,19 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .terminal-grid { --tile-h: calc(var(--tile-w) + 2px); }
 .terminal-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .terminal-cost { top: auto; bottom: 3px; }
+
+/* Cards: picture, number, and the price in the black bar under it (the name is in the
+   hover card below). */
+.terminal-grid { --bar-h: 1.25rem; --tile-h: calc(var(--tile-w) + var(--bar-h) + 2px); }
+.terminal-tile .terminal-cost { position: static; display: block; box-sizing: border-box; height: var(--bar-h); padding: 0 0.3rem; background: #000; color: #fff; font-size: 0.8rem; font-weight: 700; line-height: var(--bar-h); text-shadow: none; }
+.terminal-nod .terminal-cost, .terminal-tile .terminal-cost { background: #000; }
+.terminal-tile.is-off .terminal-cost { color: #888; background: #111; }
+/* Hover card with the name. */
+.map-dialog-terminal { position: relative; }
+.terminal-tip { position: absolute; z-index: 5; display: flex; flex-direction: column; gap: 0.1rem; max-width: 14rem; padding: 0.4rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; background: rgba(10, 2, 0, 0.95); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7), var(--btn-glow); pointer-events: none; }
+.terminal-tip strong { font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-size: 1rem; font-weight: 600; color: var(--title); letter-spacing: 0.02em; }
+.terminal-tip-cost { color: #fff; font-size: 0.85rem; font-weight: 600; }
+.terminal-tip-state { color: #ffd21a; font-size: 0.8rem; font-weight: 700; }
+.terminal-tip-extra { color: var(--muted); font-size: 0.78rem; }
+[data-theme="light"] .terminal-tip { background: rgba(255, 250, 242, 0.97); }
+[data-theme="light"] .terminal-tip-cost { color: var(--text); }

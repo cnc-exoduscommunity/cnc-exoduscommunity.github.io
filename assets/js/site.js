@@ -250,10 +250,13 @@ function setUrlParam(key, value, fallback) {
       box.hidden = !kind || !tpl;
       if (box.hidden) return;
       grid.appendChild(tpl.content.cloneNode(true));
+      terminalTip(box).hidden = true;
       box.classList.toggle("is-none", kind === "none");
       Array.prototype.forEach.call(grid.children, function (tile) {
         var lbl = tile.querySelector(".terminal-label");
-        if (lbl) tile.title = lbl.textContent;
+        if (!tile.querySelector(".terminal-cost")) {   // Characters / Vehicles: an empty price bar, so every card looks the same
+          var bar = document.createElement("span"); bar.className = "terminal-cost"; tile.insertBefore(bar, lbl);
+        }
         var slot = tile.getAttribute("data-slot"), off = null;
         if (kind === "none") off = "";
         else if (slot === "vehicles" && kind === "vehicles-destroyed") off = "Destroyed";
@@ -274,7 +277,7 @@ function setUrlParam(key, value, fallback) {
           tile.classList.add("is-link");
           tile.tabIndex = 0;
           tile.setAttribute("role", "button");
-          tile.title = "Show the " + slot;
+          tile.setAttribute("data-tip-extra", "Click to see the " + slot);
           var open = function () { openPage(box, pageTpl, slot === "characters" ? "Characters" : "Vehicles", row); };
           tile.addEventListener("click", open);
           tile.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
@@ -286,6 +289,39 @@ function setUrlParam(key, value, fallback) {
     });
     return !!kind;
   }
+  // A small styled card with the unit's name (and price) above the card you point at.
+  function terminalTip(box) {
+    if (box._tip) return box._tip;
+    var tip = box._tip = document.createElement("div");
+    tip.className = "terminal-tip";
+    tip.hidden = true;
+    box.appendChild(tip);
+    var grid = box.querySelector(".terminal-grid");
+    function show(tile) {
+      var name = tile.querySelector(".terminal-label");
+      if (!name) { tip.hidden = true; return; }
+      var cost = (tile.querySelector(".terminal-cost") || {}).textContent || "";
+      var state = (tile.querySelector(".terminal-state") || {}).textContent || "";
+      var extra = tile.getAttribute("data-tip-extra");
+      tip.textContent = "";
+      var n = document.createElement("strong"); n.textContent = name.textContent; tip.appendChild(n);
+      if (cost) { var c = document.createElement("span"); c.className = "terminal-tip-cost"; c.textContent = cost === "0" ? "Free" : cost + " credits"; tip.appendChild(c); }
+      if (state) { var st = document.createElement("span"); st.className = "terminal-tip-state"; st.textContent = state; tip.appendChild(st); }
+      if (extra) { var e = document.createElement("span"); e.className = "terminal-tip-extra"; e.textContent = extra; tip.appendChild(e); }
+      tip.hidden = false;
+      var b = box.getBoundingClientRect(), r = tile.getBoundingClientRect();
+      var left = r.left - b.left + r.width / 2 - tip.offsetWidth / 2;
+      left = Math.max(0, Math.min(b.width - tip.offsetWidth, left));
+      var top = r.top - b.top - tip.offsetHeight - 6;
+      if (top < 0) top = r.bottom - b.top + 6;
+      tip.style.left = left + "px"; tip.style.top = top + "px";
+    }
+    grid.addEventListener("mouseover", function (e) { var t = e.target.closest(".terminal-tile"); if (t) show(t); });
+    grid.addEventListener("mouseleave", function () { tip.hidden = true; });
+    grid.addEventListener("focusin", function (e) { var t = e.target.closest(".terminal-tile"); if (t) show(t); });
+    grid.addEventListener("focusout", function () { tip.hidden = true; });
+    return tip;
+  }
   function openPage(box, pageTpl, title, row) {
     var grid = box.querySelector(".terminal-grid");
     var head = box.querySelector(".terminal-page-head");
@@ -296,9 +332,13 @@ function setUrlParam(key, value, fallback) {
     Array.prototype.forEach.call(grid.querySelectorAll(".is-flying"), function (t) { if (!flying) t.remove(); });
     Array.prototype.forEach.call(grid.querySelectorAll(".terminal-label"), function (l) {
       var t = l.parentNode, looks = t.getAttribute("data-looks"), art = t.getAttribute("data-art");
-      t.title = l.textContent + " - " + t.querySelector(".terminal-cost").textContent + " credits" + (looks ? " (" + looks + " looks)" : "") + (art ? ". Card art: " + art : "");
+      var extra = [];
+      if (looks) extra.push(looks + " looks");
+      if (art) extra.push("Card art: " + art);
+      if (extra.length) t.setAttribute("data-tip-extra", extra.join(" · "));
     });
     box.classList.add("is-page");
+    terminalTip(box).hidden = true;
     var note = box.querySelector(".map-dialog-terminal-note");
     if (note) note.textContent = "Prices double while your Power Plant is down." + (title === "Vehicles" && !flying ? " No helicopters: this map doesn't allow flying units." : "");
     if (head) {
