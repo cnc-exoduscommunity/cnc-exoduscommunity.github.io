@@ -1291,3 +1291,30 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 /* Buildings always in the 4th column of rows 1 and 2 (even when a page has fewer cards). */
 .terminal-building-1 { grid-column: 4; grid-row: 1; }
 .terminal-building-2 { grid-column: 4; grid-row: 2; }
+
+/* ---------- Purchase terminal: the same size on every map and page ----------
+   Room for 3 rows of cards is always kept (the main page uses the bottom 2, so a
+   Characters / Vehicles page grows upwards into the free row), the Back line keeps
+   its space when hidden, every card is the same height, and the note always takes
+   two lines. Nothing below or around it moves when you switch maps or pages. */
+.map-dialog-terminal { container-type: inline-size; }
+.terminal-page-head[hidden] { display: flex !important; visibility: hidden; }
+.terminal-grid {
+  --tile-w: calc((100cqw - 3 * 0.4rem) / 4);
+  --tile-h: calc(var(--tile-w) + 2.2 * 0.7rem + 0.15rem + 2px);
+  grid-auto-rows: var(--tile-h);
+  height: calc(3 * var(--tile-h) + 2 * 0.4rem);
+  align-content: end;
+}
+.terminal-tile { height: var(--tile-h); box-sizing: border-box; }
+.terminal-tile .hud-icon { flex: none; }
+.terminal-label { font-size: 0.7rem; letter-spacing: -0.01em; }
+/* The "opens a page" arrow sits in the corner, so it never makes the name wrap. */
+.terminal-tile.is-link .terminal-label::after { content: none; }
+.terminal-tile.is-link::after { content: "\276F"; position: absolute; top: 2px; right: 4px; color: #fff; font-size: 0.8rem; font-weight: 700; text-shadow: 0 0 3px #000, 0 0 3px #000; }
+.map-dialog-terminal-note, .map-dialog-terminal.is-page .map-dialog-terminal-note { display: block; min-height: 2.9em; line-height: 1.45; }
+.map-dialog-terminal-note:empty { display: block; }
+.map-dialog-weapons-card { overflow: hidden; }
+.map-dialog-weapons-top { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.map-dialog-weapons-card .map-dialog-terminal { flex: none; margin-top: 0; }
+.terminal-label { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; }
