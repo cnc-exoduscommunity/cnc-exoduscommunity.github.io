@@ -603,6 +603,7 @@ var MapMarks = (function () {
     creditDate.textContent = taken ? "(" + longDate(taken) + ")" : "\u00a0";
     counter.textContent = (current + 1) + " / " + links.length;
     updateNowPlaying();
+    setUrl(mapName, view);
     // The zoom level and position carry over from map to map (Reset or 0 to undo).
     if (!dialog.open) {
       dialog.showModal();
@@ -630,6 +631,35 @@ var MapMarks = (function () {
 
   dialog.querySelector(".map-dialog-close").addEventListener("click", function () { dialog.close(); });
   dialog.addEventListener("close", hidePop);
+  dialog.addEventListener("close", function () { setUrl(null); });
+
+  // The address follows the preview (?map=M01&view=loading), so a copied link opens the
+  // same map and view; closing the preview takes them out again.
+  function setUrl(name, view) {
+    try {
+      var u = new URL(location.href);
+      if (name) {
+        u.searchParams.set("map", name);
+        if (view && view !== "map") u.searchParams.set("view", view); else u.searchParams.delete("view");
+      } else {
+        u.searchParams.delete("map");
+        u.searchParams.delete("view");
+      }
+      var next = u.pathname + u.search + u.hash;
+      if (next !== location.pathname + location.search + location.hash) history.replaceState(history.state, "", next);
+    } catch (e) {}
+  }
+  (function openFromUrl() {
+    var q;
+    try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    var name = (q.get("map") || "").toLowerCase();
+    if (!name) return;
+    var i = links.findIndex(function (l) { return (l.getAttribute("data-map-name") || "").toLowerCase() === name; });
+    if (i < 0) { setUrl(null); return; }
+    var v = q.get("view");
+    if (v === "photo" || v === "loading" || v === "map") wantView = v;
+    show(i);
+  })();
   navButtons.forEach(function (b) {
     b.addEventListener("click", function () { show(current + Number(b.getAttribute("data-map-step"))); });
   });

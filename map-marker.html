@@ -26,7 +26,7 @@ back the new text for that file. Logic in assets/js/map-marker.js.
           {%- for ext in map_exts %}
             {%- assign map_path = "/assets/images/maps/" | append: map.name | append: "." | append: ext %}
             {%- assign map_file = site.static_files | where: "path", map_path | first %}
-            {%- if map_file and map_img == nil %}{% assign map_img = map_path %}{% endif %}
+            {%- if map_file and map_img == nil %}{% capture img_v %}{{ map_file.modified_time | date: "%s" }}{% endcapture %}{% assign map_img = map_path | append: "?v=" | append: img_v %}{% endif %}
           {%- endfor %}
           {%- if map_img %}
           <option value="{{ map.name | escape }}" data-image="{{ map_img | relative_url }}" data-description="{{ map.description | escape }}">{{ map.name }}</option>
