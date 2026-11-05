@@ -538,7 +538,7 @@ var MapMarks = (function () {
   // "Now playing" badge in the preview's top-right corner, when the map shown
   // is the one the live status says is being played.
   var nowBadge = dialog.querySelector(".map-dialog-now");
-  // "Now playing" after the faction badge, and the player count after the map's name,
+  // "Now playing" in the tags row, and the player count right after the map's name,
   // when the map on screen is the one the server is playing.
   var playersTag = document.createElement("span");
   playersTag.className = "map-dialog-players";
@@ -552,7 +552,8 @@ var MapMarks = (function () {
     var players = playing && row.getAttribute("data-players");
     playersTag.textContent = players ? players + " players" : "";
     playersTag.title = players && /nod/i.test(row.getAttribute("data-faction") || "") ? "On Nod maps the server can report 0 players while people are playing." : "";
-    if (players && playersTag.parentNode !== comment) comment.appendChild(playersTag);
+    var headline = dialog.querySelector(".map-dialog-headline");
+    if (players && headline && playersTag.parentNode !== headline) headline.appendChild(playersTag);
     else if (!players && playersTag.parentNode) playersTag.remove();
   }
   document.addEventListener("currentmapchange", updateNowPlaying);
@@ -578,7 +579,7 @@ var MapMarks = (function () {
     comment.textContent = keepComment;
     noteEl.innerHTML = keepNote;
     titleEl.style.minHeight = tallest + "px";
-    updateNowPlaying();   // the player count lives in the comment line, which was just rewritten
+    updateNowPlaying();
   }
   function sizeToLargest() {
     measureTitles();
@@ -615,17 +616,13 @@ var MapMarks = (function () {
       var f = link.closest("tr") && link.closest("tr").getAttribute("data-faction");
       if (f) {
         var key = /gdi/i.test(f) ? "gdi" : /nod/i.test(f) ? "nod" : "other";
-        var b = document.createElement("span");
-        b.className = "team-badge team-" + key;
-        // The side's logo from the game's HUD in front of the name.
-        var logo = key !== "other" && dialog.getAttribute("data-logo-" + key);
-        if (logo) {
-          var li = document.createElement("img");
-          li.className = "team-badge-logo"; li.src = logo; li.alt = "";
-          b.appendChild(li);
+        // GDI / Nod show as the big logo behind the title (below); any other side as a badge.
+        if (key === "other") {
+          var b = document.createElement("span");
+          b.className = "team-badge team-other";
+          b.textContent = f;
+          factionBox.appendChild(b);
         }
-        b.appendChild(document.createTextNode(key === "nod" ? "Nod" : f));
-        factionBox.appendChild(b);
       }
       // The side's banner behind the title.
       var banner = dialog.querySelector(".map-dialog-banner");
@@ -639,6 +636,7 @@ var MapMarks = (function () {
       if (emblem) {
         emblem.style.backgroundImage = url ? 'url("' + url + '")' : "none";
         emblem.hidden = !url;
+        emblem.title = side ? (side === "nod" ? "Nod" : "GDI") + " map" : "";
       }
       if (link.closest("tr") && link.closest("tr").hasAttribute("data-scalable")) {
         var sd = document.createElement("span");
