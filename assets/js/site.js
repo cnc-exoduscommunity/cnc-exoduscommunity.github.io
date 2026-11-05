@@ -211,11 +211,26 @@ var MapMarks = (function () {
   var viewsBox = dialog.querySelector(".map-dialog-views");
   var viewButtons = viewsBox ? viewsBox.querySelectorAll("[data-view]") : [];
   var wantView = "map";
-  // Quality: maps with a high-resolution copy (assets/images/maps/hd/) show it by default;
-  // "Normal" loads the smaller picture. The choice is remembered in this browser.
+  // Quality: maps with a high-resolution copy (assets/images/maps/hd/) show the normal
+  // picture by default, while the high one downloads and decodes in the background, so
+  // "Quality: High" switches straight away. The choice is remembered in this browser.
   var qualityBtn = dialog.querySelector(".map-dialog-quality");
-  var quality = "high";
-  try { if (localStorage.getItem("mapQuality") === "normal") quality = "normal"; } catch (e) {}
+  var quality = "normal";
+  try { if (localStorage.getItem("mapQuality") === "high") quality = "high"; } catch (e) {}
+  var hdReady = {};   // url -> true once downloaded and decoded
+  var hdLoading = {}; // url -> Image being fetched
+  function preloadHd(url, done) {
+    if (hdReady[url]) { if (done) done(); return; }
+    var im = hdLoading[url];
+    if (!im) {
+      im = hdLoading[url] = new Image();
+      im.decoding = "async";
+      im.src = url;
+    }
+    var finish = function () { hdReady[url] = true; if (done) done(); };
+    if (im.decode) im.decode().then(finish, function () { im.addEventListener("load", finish, { once: true }); });
+    else im.addEventListener("load", finish, { once: true });
+  }
   if (qualityBtn) qualityBtn.addEventListener("click", function () {
     quality = quality === "high" ? "normal" : "high";
     try { localStorage.setItem("mapQuality", quality); } catch (e) {}
@@ -531,7 +546,7 @@ var MapMarks = (function () {
     var photo = link.getAttribute("data-ingame");
     var sc = screenFor(mapName);
     var srcs = {
-      map: hasImage(link) ? (quality === "high" && link.getAttribute("data-hd") || link.getAttribute("href")) : null,
+      map: hasImage(link) ? link.getAttribute("href") : null,
       photo: hasImage(link) && photo ? photo : null,
       loading: sc && sc.image ? fileUrl(screensBase, sc.image) : null
     };
@@ -555,8 +570,16 @@ var MapMarks = (function () {
       qualityBtn.textContent = "Quality: " + (quality === "high" ? "High" : "Normal");
       qualityBtn.title = quality === "high" ? "Showing the high-resolution map (bigger download). Click for the normal one." : "Showing the normal map. Click for the high-resolution one (bigger download).";
     }
-    // The high-resolution picture can be zoomed further before it gets blurry.
+    // The high-resolution picture: fetched in the background; shown (once it's ready) when
+    // Quality is High. It can be zoomed further before it gets blurry.
     zoom.setMax(hd && quality === "high" ? 10 : 4);
+    if (hd) {
+      var shownLink = link;
+      preloadHd(hd, function () {
+        if (quality === "high" && links[current] === shownLink && image.getAttribute("src") === srcs.map) image.src = hd;
+      });
+      if (quality === "high" && hdReady[hd]) srcs.map = hd;
+    }
     var withImage = !!view;
     fillLoadscreen(view === "loading" ? sc : null);
     dialog.classList.toggle("is-loadscreen", view === "loading");
