@@ -64,6 +64,16 @@ var MapMarks = (function () {
   });
 })();
 
+// Puts a setting in the address (or takes it out when it's the default), so a copied
+// link opens the page the same way.
+function setUrlParam(key, value, fallback) {
+  try {
+    var u = new URL(location.href);
+    if (value && value !== fallback) u.searchParams.set(key, value); else u.searchParams.delete(key);
+    history.replaceState(history.state, "", u.pathname + u.search + u.hash);
+  } catch (e) {}
+}
+
 // Theme toggle: switches between the dark (default) and light theme and remembers the choice.
 (function () {
   var root = document.documentElement;
@@ -80,6 +90,7 @@ var MapMarks = (function () {
       var next = root.getAttribute("data-theme") === "light" ? "dark" : "light";
       root.setAttribute("data-theme", next);
       try { localStorage.setItem("theme", next); } catch (e) {}
+      setUrlParam("theme", next, "dark");
       label();
     });
   }
@@ -100,6 +111,7 @@ var MapMarks = (function () {
     var nod = root.getAttribute("data-side") !== "nod";
     if (nod) root.setAttribute("data-side", "nod"); else root.removeAttribute("data-side");
     try { localStorage.setItem("side", nod ? "nod" : "gdi"); } catch (e) {}
+    setUrlParam("side", nod ? "nod" : "gdi", "gdi");
     label();
   });
   label();
