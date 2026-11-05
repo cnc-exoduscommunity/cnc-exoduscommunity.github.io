@@ -1,0 +1,171 @@
+# HUD icons from the game, in assets/images/hud/ (file names kept as in the game,
+# e.g. hud_c&c_g_barracks.png). Names from the game's own data (purchase tables,
+# weapon definitions, string table) and the code that draws each icon.
+#
+# file:  the file name without .png
+# name:  the in-game name
+# cost:  credits, for purchase cards (0 = free)
+# note:  optional extra detail
+#
+# On a page, use _includes/hud-icon.html, which looks the name up here and writes
+# the file's address with & turned into %26 (a raw & would break the link):
+#   {% include hud-icon.html file="hud_c&c_g_barracks" %}
+
+weapons:
+  title: "Weapon icons"
+  note: "Weapon bar and current weapon. Tinted in game: green #00FF00 for the selected weapon (the others in the bar at 50%), yellow #FFFF00 when out of ammo; the current-weapon icon in the corner is always green."
+  icons:
+    - { file: "hud_autoguns", name: "Automatic Rifle + Automatic Pistol", sheet: true }
+    - { file: "hud_autoguns_hud_autoguns_upper", name: "Automatic Rifle" }
+    - { file: "hud_autoguns_hud_autoguns_lower", name: "Automatic Pistol" }
+    - { file: "hud_chainguns", name: "Laser Chain Gun + Chain Gun", sheet: true }
+    - { file: "hud_chainguns_hud_chainguns_upper", name: "Laser Chain Gun" }
+    - { file: "hud_chainguns_hud_chainguns_lower", name: "Chain Gun" }
+    - { file: "hud_chem_fire", name: "Flame Thrower + Chem Sprayer", sheet: true }
+    - { file: "hud_chem_fire_hud_chem_fire_upper", name: "Flame Thrower" }
+    - { file: "hud_chem_fire_hud_chem_fire_lower", name: "Chem Sprayer" }
+    - { file: "hud_grana_ionc", name: "Grenade Launcher + Personal Ion Cannon", sheet: true }
+    - { file: "hud_grana_ionc_hud_grana_ionc_upper", name: "Grenade Launcher" }
+    - { file: "hud_grana_ionc_hud_grana_ionc_lower", name: "Personal Ion Cannon" }
+    - { file: "hud_sg_lr_rg", name: "Shotgun + Laser Rifle + Rail Gun", sheet: true }
+    - { file: "hud_sg_lr_rg_hud_sg_lr_rg_upper", name: "Shotgun" }
+    - { file: "hud_sg_lr_rg_hud_sg_lr_rg_middle", name: "Laser Rifle" }
+    - { file: "hud_sg_lr_rg_hud_sg_lr_rg_lower", name: "Rail Gun" }
+    - { file: "hud_sniperock", name: "Rocket Launcher + Sniper Rifle", sheet: true }
+    - { file: "hud_sniperock_hud_sniperock_upper", name: "Rocket Launcher" }
+    - { file: "hud_sniperock_hud_sniperock_lower", name: "Sniper Rifle" }
+    - { file: "hud_tibrvoltr", name: "Volt Auto Rifle + Tiberium Auto Rifle", sheet: true }
+    - { file: "hud_tibrvoltr_hud_tibrvoltr_upper", name: "Volt Auto Rifle" }
+    - { file: "hud_tibrvoltr_hud_tibrvoltr_lower", name: "Tiberium Auto Rifle" }
+    - { file: "hud_ramsentu", name: "Ramjet Rifle", note: "lower half of the sheet" }
+    - { file: "hud_tibflech", name: "Tiberium Flechette Gun" }
+    - { file: "hud_repairgun", name: "Repair Gun" }
+    - { file: "hud_timec4", name: "Timed C4" }
+    - { file: "hud_remotec4", name: "Remote C4" }
+    - { file: "hud_proxyc4", name: "Proximity C4" }
+    - { file: "hud_ionbeaken", name: "Ion Cannon Beacon" }
+    - { file: "hud_nukebeak", name: "Nuclear Strike Beacon" }
+
+pickups:
+  title: "Pickup icons"
+  note: "The list that pops up when you pick something up. Drawn untinted."
+  icons:
+    - { file: "hud_health1", name: "Health", note: "pickups of 30 or less" }
+    - { file: "hud_health2", name: "Health", note: "31 to 75" }
+    - { file: "hud_health3", name: "Health", note: "more than 75" }
+    - { file: "hud_armor3", name: "Armor", note: "30 or less" }
+    - { file: "hud_armor2", name: "Armor", note: "31 to 75" }
+    - { file: "hud_armor1", name: "Armor", note: "more than 75" }
+    - { file: "hud_hemedal", name: "Augmented Health", note: "max health up" }
+    - { file: "hud_armedal", name: "Augmented Armor", note: "max armour up" }
+    - { file: "hud_keycard_green", name: "Security Card, green", note: "level 1" }
+    - { file: "hud_keycard_yellow", name: "Security Card, yellow", note: "level 2" }
+    - { file: "hud_keycard_red", name: "Security Card, red", note: "level 3" }
+    - { file: "hud_cd_rom", name: "Data Disc" }
+    - { file: "hud_mystery_crate", name: "Mystery crate", note: "The original game never uses it; probably for crates on modded servers." }
+
+objectives:
+  title: "Objectives"
+  icons:
+    - { file: "hud_star", name: "Objective star", note: "Flies to the radar when an objective is added. Primary green #22FF44, secondary blue #3366FF, tertiary magenta #FF33FF; dimmed to 60% once done." }
+
+buildings:
+  title: "C&C buildings"
+  note: "Battlefield Information page and purchase screens. Untinted; the health bar under each building is hud_c&c_healthbar tinted green #00FF00 above 50% health, yellow #FFFF00 from 26 to 50%, red #FF0000 at 25% or less."
+  icons:
+    - { file: "hud_c&c_gdilogo", name: "GDI logo" }
+    - { file: "hud_c&c_nodlogo", name: "Nod logo" }
+    - { file: "hud_c&c_g_guardtow", name: "Advanced Guard Tower" }
+    - { file: "hud_c&c_g_refinery", name: "GDI Tiberium Refinery" }
+    - { file: "hud_c&c_g_power", name: "GDI Power Plant" }
+    - { file: "hud_c&c_g_barracks", name: "Infantry Barracks" }
+    - { file: "hud_c&c_g_warfact", name: "Weapons Factory" }
+    - { file: "hud_c&c_g_harvister", name: "GDI Harvester" }
+    - { file: "hud_c&c_g_comm", name: "GDI Communications Center", note: "not used in multiplayer" }
+    - { file: "hud_c&c_g_conyard", name: "GDI Construction Yard", note: "not used in multiplayer" }
+    - { file: "hud_c&c_oblisk", name: "Obelisk of Light" }
+    - { file: "hud_c&c_n_refinery", name: "Nod Tiberium Refinery" }
+    - { file: "hud_c&c_n_power", name: "Nod Power Plant" }
+    - { file: "hud_c&c_n_handof", name: "Hand of Nod" }
+    - { file: "hud_c&c_n_airstrip", name: "Airstrip" }
+    - { file: "hud_c&c_n_harvister", name: "Nod Harvester" }
+    - { file: "hud_c&c_n_comm", name: "Nod Communications Center", note: "not used in multiplayer" }
+    - { file: "hud_c&c_n_conyard", name: "Nod Construction Yard", note: "not used in multiplayer" }
+    - { file: "hud_c&c_healthbar", name: "Building health bar", note: "one segment, tinted as above" }
+
+gdi_purchase:
+  title: "GDI purchase cards"
+  note: "Untinted; the art already has GDI's yellow grid."
+  icons:
+    - { file: "hud_cnc_genlistmin", name: "GDI Soldier", cost: 0 }
+    - { file: "hud_cnc_genlistrock", name: "Shotgun Trooper", cost: 0 }
+    - { file: "hud_cnc_genlistgran", name: "Grenadier", cost: 0 }
+    - { file: "hud_cnc_gengineer", name: "Engineer", cost: 0 }
+    - { file: "hud_cnc_g_equipbuy", name: "Refill" }
+    - { file: "hud_cnc_gcharacter", name: "Characters button" }
+    - { file: "hud_cnc_g_vehiclebuy", name: "Vehicles button" }
+    - { file: "hud_cnc_gdi_ions", name: "Ion Cannon Beacon", cost: 1000 }
+    - { file: "hud_cnc_goffshot", name: "GDI Officer", cost: 175, note: "Also the card art for the secret characters Locke, Logan, Visceroid and a secret Grenadier." }
+    - { file: "hud_cnc_goffrock", name: "Rocket Soldier Officer", cost: 225 }
+    - { file: "hud_cnc_gsydneych", name: "Sydney, Tiberium Auto Rifle", cost: 150 }
+    - { file: "hud_cnc_gdeadeye", name: "Deadeye", cost: 500 }
+    - { file: "hud_cnc_ggunner", name: "Gunner", cost: 400 }
+    - { file: "hud_cnc_gpatchrail", name: "Patch", cost: 450 }
+    - { file: "hud_cnc_ghavoc", name: "Havoc", cost: 1000 }
+    - { file: "hud_cnc_ghavok2", name: "Havoc, alternate look 2" }
+    - { file: "hud_cnc_ghavok3", name: "Havoc, alternate look 3" }
+    - { file: "hud_cnc_ghavok4", name: "Havoc, alternate look 4" }
+    - { file: "hud_cnc_gsydneys", name: "Sydney, Personal Ion Cannon power suit", cost: 1000 }
+    - { file: "hud_cnc_gsydneys2", name: "Sydney power suit, alternate look" }
+    - { file: "hud_cnc_gmobiusion", name: "Mobius", cost: 1000 }
+    - { file: "hud_cnc_gmobiusion2", name: "Mobius, alternate look" }
+    - { file: "hud_cnc_ghotwire", name: "Hotwire", cost: 350 }
+    - { file: "hud_cnc_ghheavy", name: "Heavy gunner", note: "Only used by the co-op map B01 (“B01_GDI_Heavy”); not in the stock game." }
+    - { file: "hud_cnc_gmutants", name: "Mutant characters button", note: "The game has a slot for it (mutant team), but stock C&C never shows it." }
+    - { file: "hud_cnc_g_hummer", name: "Humm-Vee", cost: 350, note: "Also the art for the secret Pickup Truck and Sedan." }
+    - { file: "hud_cnc_g_apc", name: "Armored Personnel Carrier", cost: 500 }
+    - { file: "hud_cnc_g_mlrs", name: "Mobile Rocket Launcher System", cost: 450 }
+    - { file: "hud_cnc_g_tank", name: "Medium Tank", cost: 800 }
+    - { file: "hud_cnc_g_mammoth", name: "Mammoth Tank", cost: 1500 }
+    - { file: "hud_cnc_g_orca", name: "Orca VTOL Assault Craft", note: "flying maps only" }
+    - { file: "hud_cnc_g_transport", name: "Transport Helicopter", note: "flying maps only" }
+
+nod_purchase:
+  title: "Nod purchase cards"
+  note: "Untinted; the art already has Nod's red grid."
+  icons:
+    - { file: "hud_cnc_nenlisauto", name: "Nod Soldier", cost: 0 }
+    - { file: "hud_cnc_nenlisrock", name: "Shotgun Trooper", cost: 0 }
+    - { file: "hud_cnc_nflameall", name: "Flamethrower", cost: 0 }
+    - { file: "hud_cnc_nengineer", name: "Engineer", cost: 0 }
+    - { file: "hud_cnc_n_equipbuy", name: "Refill" }
+    - { file: "hud_cnc_ncharacter", name: "Characters button" }
+    - { file: "hud_cnc_n_vehiclebuy", name: "Vehicles button" }
+    - { file: "hud_cnc_nod_nuke", name: "Nuclear Strike Beacon", cost: 1000 }
+    - { file: "hud_cnc_noffshot", name: "Nod Officer", cost: 175, note: "Also the card art for the secret Acolyte, Initiate, Templar, Visceroid and Civilian." }
+    - { file: "hud_cnc_nblackrok", name: "Rocket Soldier Officer", cost: 225 }
+    - { file: "hud_cnc_nchemall", name: "Chem Warrior", cost: 150 }
+    - { file: "hud_cnc_nblacksnip", name: "Black Hand Sniper", cost: 500 }
+    - { file: "hud_cnc_noffrock", name: "Black Hand, Laser Chain Gun", cost: 450 }
+    - { file: "hud_cnc_nstealthlaz", name: "Stealth Black Hand, Laser Rifle", cost: 400 }
+    - { file: "hud_cnc_nsakuram", name: "Sakura", cost: 1000 }
+    - { file: "hud_cnc_nsakuram2", name: "Sakura, alternate look" }
+    - { file: "hud_cnc_nravarock", name: "Raveshaw", cost: 1000 }
+    - { file: "hud_cnc_nravarock2", name: "Raveshaw, alternate look" }
+    - { file: "hud_cnc_nmendvolt", name: "Mendoza", cost: 1000 }
+    - { file: "hud_cnc_nmendvolt2", name: "Mendoza, alternate look" }
+    - { file: "hud_cnc_nengineer2", name: "Technician", cost: 350 }
+    - { file: "hud_cnc_n_buggy", name: "Nod Buggy", cost: 300, note: "Also the art for the secret Chameleon." }
+    - { file: "hud_cnc_n_apc", name: "Armored Personnel Carrier", cost: 500 }
+    - { file: "hud_cnc_n_artill", name: "Mobile Artillery", cost: 450 }
+    - { file: "hud_cnc_n_flamet", name: "Flame Tank", cost: 800 }
+    - { file: "hud_cnc_n_ltank", name: "Light Tank" }
+    - { file: "hud_cnc_n_stealth", name: "Stealth Tank" }
+    - { file: "hud_cnc_n_apache", name: "Apache Attack Helicopter", note: "flying maps only" }
+    - { file: "hud_cnc_n_transport", name: "Transport Helicopter", note: "flying maps only" }
+
+other:
+  title: "Other"
+  icons:
+    - { file: "hud_cnc_button", name: "Arrow button", note: "Small yellow arrow, most likely the alternate-look arrow on purchase cards; not named in the game's code." }
+    - { file: "hud_winscreen", name: "End-of-game banner", note: "The “GDI wins” / “Nod wins” art, drawn on the 3D banner models HUD_GDIWINBAN and HUD_NODWINBAN." }

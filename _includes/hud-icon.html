@@ -1,0 +1,11 @@
+{%- comment %}
+A HUD icon from assets/images/hud/, by its file name (without .png), with its in-game
+name from _data/hud_icons.yml as the alt text. The file names are kept as in the game;
+an & in a name (hud_c&c_...) is written as %26 in the address so the link works.
+  {% include hud-icon.html file="hud_c&c_g_barracks" %}
+  {% include hud-icon.html file="hud_timec4" size="32" class="weapon-hud" %}
+{% endcomment -%}
+{%- assign hud_icon = nil -%}
+{%- for group in site.data.hud_icons -%}{%- for icon in group[1].icons -%}{%- if icon.file == include.file -%}{%- assign hud_icon = icon -%}{%- endif -%}{%- endfor -%}{%- endfor -%}
+{%- assign hud_src = '/assets/images/hud/' | append: include.file | append: '.png' | relative_url | replace: '&', '%26' -%}
+<img class="hud-icon{% if include.class %} {{ include.class }}{% endif %}" src="{{ hud_src }}" alt="{{ include.alt | default: hud_icon.name | escape }}"{% if hud_icon.name %} title="{{ hud_icon.name | escape }}"{% endif %}{% if include.size %} width="{{ include.size }}" height="{{ include.size }}"{% endif %} loading="lazy">
