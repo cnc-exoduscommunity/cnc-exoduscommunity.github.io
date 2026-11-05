@@ -16,7 +16,8 @@ Takes side, page, data (the page's buildings + cards) and map ("" for the stock 
   </li>
   {%- if forloop.index == 3 or forloop.index == 6 %}
   {%- assign b = forloop.index | divided_by: 3 | minus: 1 %}
-  <li class="terminal-building terminal-building-{{ b | plus: 1 }}">{% include hud-icon.html file=include.data.buildings[b] %}</li>
+  {%- assign building = include.data.buildings[b] %}
+  <li class="terminal-building terminal-building-{{ b | plus: 1 }}">{% include hud-icon.html file=building %}</li>
   {%- endif %}
   {%- endfor %}
 </template>

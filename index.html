@@ -267,11 +267,14 @@ sections:
       {%- endfor %}
     </template>
     {%- comment %} Its Characters and Vehicles pages (_data/purchase.yml): the stock ones, then any map's own. {% endcomment %}
-    {%- for page in site.data.purchase.stock[t_side] %}
-    {%- include terminal-page.html side=t_side page=page[0] data=page[1] map="" %}
+    {%- comment %} (Jekyll's include only takes plain names, so the values are put in variables first.) {% endcomment %}
+    {%- for tp in site.data.purchase.stock[t_side] %}
+    {%- assign tp_name = tp[0] %}{% assign tp_data = tp[1] %}{% assign tp_map = "" %}
+    {%- include terminal-page.html side=t_side page=tp_name data=tp_data map=tp_map %}
     {%- endfor %}
-    {%- for m in site.data.purchase.maps %}{% for page in m[1][t_side] %}{% if page[0] == "characters" or page[0] == "vehicles" %}
-    {%- include terminal-page.html side=t_side page=page[0] data=page[1] map=m[0] %}
+    {%- for m in site.data.purchase.maps %}{% for tp in m[1][t_side] %}{% if tp[0] == "characters" or tp[0] == "vehicles" %}
+    {%- assign tp_name = tp[0] %}{% assign tp_data = tp[1] %}{% assign tp_map = m[0] %}
+    {%- include terminal-page.html side=t_side page=tp_name data=tp_data map=tp_map %}
     {%- endif %}{% endfor %}{% endfor %}
     {%- endfor %}
     <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}" data-loadscreens-base="{{ '/assets/images/loadscreens/' | relative_url }}" data-banner-gdi="{{ '/assets/images/hud/hud_winscreen_gdi.webp' | relative_url }}" data-banner-nod="{{ '/assets/images/hud/hud_winscreen_nod.webp' | relative_url }}" data-logo-gdi="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" data-logo-nod="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}">
