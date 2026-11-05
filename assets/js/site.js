@@ -165,6 +165,46 @@ var MapMarks = (function () {
     if (weaponsCard) weaponsCard.style.height = panelEl.offsetHeight + "px";
   }
   function hasImage(l) { return l.getAttribute("data-has-image") !== "0"; }
+
+  // The purchase terminal's first page for the map's side (terminal: in _data/maps.yml),
+  // with what isn't sold on that map greyed out. Returns whether there's anything to show.
+  var terminalBoxes = dialog.querySelectorAll(".map-dialog-terminal");
+  var noBeacons = dialog.hasAttribute("data-no-beacons");
+  var TERMINAL_NOTES = {
+    "full": "",
+    "no-vehicles": "No vehicles on this map.",
+    "vehicles-destroyed": "The vehicle building starts destroyed, so no vehicles.",
+    "none": "This map has no purchase terminal."
+  };
+  function showTerminal(row) {
+    var kind = row && row.getAttribute("data-terminal");
+    var f = row && row.getAttribute("data-faction");
+    var side = /nod/i.test(f || "") ? "nod" : "gdi";
+    var tpl = dialog.ownerDocument.querySelector('template.terminal-template[data-side="' + side + '"]');
+    Array.prototype.forEach.call(terminalBoxes, function (box) {
+      var grid = box.querySelector(".terminal-grid"), note = box.querySelector(".map-dialog-terminal-note");
+      grid.textContent = "";
+      box.hidden = !kind || !tpl;
+      if (box.hidden) return;
+      grid.appendChild(tpl.content.cloneNode(true));
+      box.classList.toggle("is-none", kind === "none");
+      Array.prototype.forEach.call(grid.children, function (tile) {
+        var slot = tile.getAttribute("data-slot"), off = null;
+        if (kind === "none") off = "";
+        else if (slot === "vehicles" && kind === "vehicles-destroyed") off = "Destroyed";
+        else if (slot === "vehicles" && kind === "no-vehicles") off = "Not on this map";
+        else if (slot === "beacon" && noBeacons) off = "Not sold here";
+        if (off !== null) {
+          tile.classList.add("is-off");
+          tile.querySelector(".terminal-state").textContent = off;
+        }
+      });
+      var text = TERMINAL_NOTES[kind] || "";
+      if (noBeacons && kind !== "none") text = (text ? text + " " : "") + "Beacons aren't sold on this server.";
+      note.textContent = text;
+    });
+    return !!kind;
+  }
   // Map / in-game photo switch (one button next to the name, like "Show Photo" / "Show In-Game Map").
   var viewBtn = dialog.querySelector(".map-dialog-view");
   var wantPhoto = false; // stays as picked while stepping through the maps
@@ -477,9 +517,10 @@ var MapMarks = (function () {
       box.hidden = !onmap.length;
     });
     if (weaponsNone) weaponsNone.hidden = !!weapons.length;
-    if (belowWeapons) belowWeapons.hidden = !weapons.length && !onmap.length;
+    var hasTerminal = showTerminal(link.closest("tr"));
+    if (belowWeapons) belowWeapons.hidden = !weapons.length && !onmap.length && !hasTerminal;
     if (belowObjTitle) belowObjTitle.hidden = !steps.length;
-    below.hidden = !steps.length && !weapons.length && !onmap.length;
+    below.hidden = !steps.length && !weapons.length && !onmap.length && !hasTerminal;
     if (side) {
       sideList.textContent = "";
       Array.prototype.forEach.call(steps, function (li) { sideList.appendChild(li.cloneNode(true)); });

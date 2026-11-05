@@ -168,7 +168,7 @@ sections:
           {%- if site.data.map_marks[map.name].size > 0 %}{% assign marks_key = map.name %}{% elsif site.data.map_marks[img_name].size > 0 %}{% assign marks_key = img_name %}{% endif %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map.terminal %} data-terminal="{{ map.terminal | escape }}"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons -%}
@@ -233,18 +233,44 @@ sections:
 
     {%- comment %} The marks for the map preview, read by site.js. {% endcomment %}
     <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
-    <dialog class="map-dialog" aria-labelledby="map-dialog-title" data-marks-base="{{ '/assets/images/marks/' | relative_url }}">
+    {%- comment %} The purchase terminal's first page for each side (cards from assets/images/hud/), used by the map preview. {% endcomment %}
+    {%- assign t_slots = "free,free,free,free,refill,characters,vehicles,beacon" | split: "," %}
+    {%- assign t_gdi = "hud_cnc_genlistmin,hud_cnc_genlistrock,hud_cnc_genlistgran,hud_cnc_gengineer,hud_cnc_g_equipbuy,hud_cnc_gcharacter,hud_cnc_g_vehiclebuy,hud_cnc_gdi_ions" | split: "," %}
+    {%- assign t_nod = "hud_cnc_nenlisauto,hud_cnc_nenlisrock,hud_cnc_nflameall,hud_cnc_nengineer,hud_cnc_n_equipbuy,hud_cnc_ncharacter,hud_cnc_n_vehiclebuy,hud_cnc_nod_nuke" | split: "," %}
+    {%- assign t_gdi_names = "GDI Soldier|Shotgun Trooper|Grenadier|Engineer|Refill|Characters|Vehicles|Ion Cannon Beacon" | split: "|" %}
+    {%- assign t_nod_names = "Nod Soldier|Shotgun Trooper|Flamethrower|Engineer|Refill|Characters|Vehicles|Nuclear Strike Beacon" | split: "|" %}
+    {%- for side in (1..2) %}
+    {%- if side == 1 %}{% assign t_files = t_gdi %}{% assign t_names = t_gdi_names %}{% assign t_side = "gdi" %}{% else %}{% assign t_files = t_nod %}{% assign t_names = t_nod_names %}{% assign t_side = "nod" %}{% endif %}
+    <template class="terminal-template" data-side="{{ t_side }}">
+      {%- for f in t_files %}
+      {%- assign i = forloop.index0 %}
+      <li class="terminal-tile terminal-{{ t_side }}" data-slot="{{ t_slots[i] }}">
+        <span class="terminal-num">{{ forloop.index }}</span>
+        {% include hud-icon.html file=f decorative="1" %}
+        {%- if t_slots[i] == "free" or t_slots[i] == "refill" %}<span class="terminal-cost">0</span>{% elsif t_slots[i] == "beacon" %}<span class="terminal-cost">1000</span>{% endif %}
+        <span class="terminal-label">{{ t_names[i] }}</span>
+        <span class="terminal-state"></span>
+      </li>
+      {%- endfor %}
+    </template>
+    {%- endfor %}
+    <dialog class="map-dialog" aria-labelledby="map-dialog-title"{% unless site.server.beacons_for_sale %} data-no-beacons{% endunless %} data-marks-base="{{ '/assets/images/marks/' | relative_url }}">
       <button class="map-dialog-btn map-dialog-close" type="button" aria-label="Close">&#10005;</button>
       <div class="map-dialog-stage">
         <aside class="map-dialog-spacer map-dialog-weapons-card" aria-label="Starting weapons">
           <p class="map-dialog-objectives-title">Starting weapons</p>
           <ul class="map-dialog-weapons"></ul>
           <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
-          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
+          <p class="map-dialog-weapons-also">Everyone also spawns with a {% include hud-icon.html file="hud_autoguns_hud_autoguns_lower" class="weapon-inline-pic" decorative="1" %}Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and {% include hud-icon.html file="hud_timec4" class="weapon-inline-pic" decorative="1" %}Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
           <p class="map-dialog-weapons-keys">The numbers on the weapons are their hotkeys: the number keys <kbd class="weapon-key-inline">1</kbd> to <kbd class="weapon-key-inline">0</kbd> on your keyboard.</p>
           <div class="map-dialog-onmap" hidden>
             <p class="map-dialog-objectives-title">Weapons on the map</p>
             <ul class="map-dialog-weapons map-dialog-onmap-list"></ul>
+          </div>
+          <div class="map-dialog-terminal" hidden>
+            <p class="map-dialog-objectives-title">Purchase terminal</p>
+            <ul class="terminal-grid"></ul>
+            <p class="map-dialog-terminal-note"></p>
           </div>
         </aside>
         <button class="map-dialog-btn map-dialog-nav" type="button" data-map-step="-1" aria-label="Previous map">&#10094;</button>
@@ -280,11 +306,16 @@ sections:
             <div class="map-dialog-below-weapons">
               <p class="map-dialog-objectives-title">Starting weapons</p>
               <ul class="map-dialog-weapons"></ul>
-          <p class="map-dialog-weapons-also">Everyone also spawns with a Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
+          <p class="map-dialog-weapons-also">Everyone also spawns with a {% include hud-icon.html file="hud_autoguns_hud_autoguns_lower" class="weapon-inline-pic" decorative="1" %}Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and {% include hud-icon.html file="hud_timec4" class="weapon-inline-pic" decorative="1" %}Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
           <p class="map-dialog-weapons-keys">The numbers on the weapons are their hotkeys: the number keys <kbd class="weapon-key-inline">1</kbd> to <kbd class="weapon-key-inline">0</kbd> on your keyboard.</p>
               <div class="map-dialog-onmap" hidden>
                 <p class="map-dialog-objectives-title">Weapons on the map</p>
                 <ul class="map-dialog-weapons map-dialog-onmap-list"></ul>
+              </div>
+              <div class="map-dialog-terminal" hidden>
+                <p class="map-dialog-objectives-title">Purchase terminal</p>
+                <ul class="terminal-grid"></ul>
+                <p class="map-dialog-terminal-note"></p>
               </div>
             </div>
             <p class="map-dialog-objectives-title map-dialog-below-obj-title">Objectives</p>
@@ -389,7 +420,7 @@ A checklist of what each map has and what's still missing. {% endcomment %}
   <div class="panel-body">
     <p>What each map in the rotation has (<span class="debug-yes">&#10004;</span>) and what's missing (<span class="debug-no">&#10008;</span>). Hover a cross to see where the missing thing goes.</p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
-    {%- assign n_weapons = 0 %}{% assign n_map = 0 %}{% assign n_photo = 0 %}{% assign n_marks = 0 %}{% assign n_obj = 0 %}{% assign n_faction = 0 %}
+    {%- assign n_weapons = 0 %}{% assign n_map = 0 %}{% assign n_photo = 0 %}{% assign n_marks = 0 %}{% assign n_obj = 0 %}{% assign n_terminal = 0 %}{% assign n_faction = 0 %}
     <div class="table-wrap">
       <table class="debug-table">
         <thead>
@@ -399,6 +430,7 @@ A checklist of what each map has and what's still missing. {% endcomment %}
             <th title="In-game photo">{% include photo-icon.svg %}<span class="debug-th">Photo</span></th>
             <th title="Marks on the map">{% include marks-icon.svg %}<span class="debug-th">Marks</span></th>
             <th title="Objectives">{% include objectives-icon.svg %}<span class="debug-th">Objectives</span></th>
+            <th title="Purchase terminal (terminal: in _data/maps.yml)">{% include hud-icon.html file="hud_cnc_g_equipbuy" class="debug-th-pic" decorative="1" %}<span class="debug-th">Terminal</span></th>
             <th>Faction</th>
             <th class="debug-name">Map</th>
           </tr>
@@ -422,6 +454,7 @@ A checklist of what each map has and what's still missing. {% endcomment %}
             <td>{% if ingame_img %}{% assign n_photo = n_photo | plus: 1 %}<span class="debug-yes" title="{{ ingame_img }}">&#10004;</span>{% else %}<span class="debug-no" title="assets/images/ingame/{{ img_name }}.webp">&#10008;</span>{% endif %}</td>
             <td>{% if marks_n > 0 and map_img %}{% assign n_marks = n_marks | plus: 1 %}<span class="debug-yes" title="{{ marks_n }} marks">&#10004;</span>{% else %}<span class="debug-no" title="{% if map_img %}Map marker tool / _data/map_marks.yml{% else %}needs a map image first{% endif %}">&#10008;</span>{% endif %}</td>
             <td>{% if map.objectives %}{% assign n_obj = n_obj | plus: 1 %}<span class="debug-yes" title="{{ map.objectives.size }} steps">&#10004;</span>{% else %}<span class="debug-no" title="objectives in _data/maps.yml">&#10008;</span>{% endif %}</td>
+            <td>{% if map.terminal %}{% assign n_terminal = n_terminal | plus: 1 %}<span class="debug-yes debug-term" title="terminal: {{ map.terminal }}">{% case map.terminal %}{% when "full" %}Full{% when "no-vehicles" %}No vehicles{% when "vehicles-destroyed" %}Vehicles destroyed{% when "none" %}None{% else %}{{ map.terminal }}{% endcase %}</span>{% else %}<span class="debug-no" title="terminal in _data/maps.yml">&#10008;</span>{% endif %}</td>
             <td>{% if map.faction %}{% assign n_faction = n_faction | plus: 1 %}{% assign faction = map.faction | downcase %}<span class="team-badge team-{% if faction == 'gdi' %}gdi{% elsif faction == 'nod' %}nod{% else %}other{% endif %}">{% if faction == 'nod' %}Nod{% else %}{{ map.faction }}{% endif %}</span>{% else %}<span class="debug-no" title="faction in _data/maps.yml">&#10008;</span>{% endif %}</td>
             <td class="debug-name"><code>{{ map.name }}</code>{% if map.images_from %} <span class="muted">(images from <code>{{ map.images_from }}</code>)</span>{% endif %}</td>
           </tr>
@@ -430,7 +463,7 @@ A checklist of what each map has and what's still missing. {% endcomment %}
         {%- assign total = site.data.maps | size %}
         <tfoot>
           <tr>
-            <td>{{ n_weapons }}/{{ total }}</td><td>{{ n_map }}/{{ total }}</td><td>{{ n_photo }}/{{ total }}</td><td>{{ n_marks }}/{{ total }}</td><td>{{ n_obj }}/{{ total }}</td><td>{{ n_faction }}/{{ total }}</td>
+            <td>{{ n_weapons }}/{{ total }}</td><td>{{ n_map }}/{{ total }}</td><td>{{ n_photo }}/{{ total }}</td><td>{{ n_marks }}/{{ total }}</td><td>{{ n_obj }}/{{ total }}</td><td>{{ n_terminal }}/{{ total }}</td><td>{{ n_faction }}/{{ total }}</td>
             <td class="debug-name">Total</td>
           </tr>
         </tfoot>

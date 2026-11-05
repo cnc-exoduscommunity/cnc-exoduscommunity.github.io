@@ -164,6 +164,8 @@ Then open <http://localhost:4000>.
 | `assets/js/site.js` | Theme toggle, collapsible sections, the header that follows the page, the map preview (previous/next, arrow keys, zoom and drag) and the live server status. |
 | `assets/images/maps/` | Map previews, named after the map (`M01.webp`). |
 | `assets/images/hud/` | The game's HUD icons (weapons, pickups, buildings, purchase cards), with their original file names. Their in-game names are in `_data/hud_icons.yml`; show one with `{% include hud-icon.html file="hud_timec4" %}`, which also writes an `&` in a file name as `%26` so the link works. |
+| `assets/images/pickups/` | The textures on the pickups' 3D models (`p_*.png`, from the RenegadeViewer tool); which pickup uses which is in `_data/pickups.yml`. |
+| `_data/pickups.yml` | Every pickup (health, armor, keycards, data disc, ammo, weapon pickups) with its HUD icon, model textures and the game's preset names. |
 | `assets/images/marks/` | Pictures for the map marks (`Islands_crate_1.webp`). |
 | `assets/images/rg-logo.png` | Header logo. If it is missing, or `logo:` is removed from `_config.yml`, the header shows the site title as text. |
 | `assets/images/radar.svg`, `circuit.svg` | Background art (radar dial and circuit lines), drawn for this site. |
@@ -234,6 +236,14 @@ and the tutorial is `M00_Tutorial`.
 Opened by clicking a map's row. ❮ ❯ or the ← → keys step through every map that has an image;
 the mouse wheel, pinching or + / − zoom, dragging moves the map, double-click zooms in or out, and `0` or Reset goes back to 100%.
 The zoom carries over from map to map. When a map is the one being played, it shows the same **Now playing** badge as the table.
+
+### Purchase terminal
+
+Each map's preview shows the first page of the purchase terminal for its side (GDI or Nod cards from `assets/images/hud/`),
+with what isn't sold there greyed out. It comes from `terminal:` in `_data/maps.yml`: `full`, `no-vehicles`,
+`vehicles-destroyed` (a stock map whose vehicle building starts destroyed, so the game shows "Destroyed") or `none`
+(no terminal at all). Maps without it don't show the terminal; the debug panel lists them. Beacons are greyed out on
+every map while `server.beacons_for_sale` in `_config.yml` is `false`.
 
 ### Map marks
 

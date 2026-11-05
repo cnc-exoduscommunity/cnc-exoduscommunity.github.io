@@ -7,6 +7,9 @@
 # cost:  credits, for purchase cards (0 = free)
 # note:  optional extra detail
 #
+# Pickups (health, armor, keycards, the data disc, weapon pickups) and the textures on
+# their models are in _data/pickups.yml.
+#
 # On a page, use _includes/hud-icon.html, which looks the name up here and writes
 # the file's address with & turned into %26 (a raw & would break the link):
 #   {% include hud-icon.html file="hud_c&c_g_barracks" %}
@@ -143,7 +146,7 @@ nod_purchase:
     - { file: "hud_cnc_ncharacter", name: "Characters button" }
     - { file: "hud_cnc_n_vehiclebuy", name: "Vehicles button" }
     - { file: "hud_cnc_nod_nuke", name: "Nuclear Strike Beacon", cost: 1000 }
-    - { file: "hud_cnc_noffshot", name: "Nod Officer", cost: 175, note: "Also the card art for the secret Acolyte, Initiate, Templar, Visceroid and Civilian." }
+    - { file: "hud_cnc_noffshot", name: "Nod Officer", cost: 175, note: "Also the card art for the secret Acolyte, Initiate, Templar, Visceroid, Civilian and a secret Raveshaw." }
     - { file: "hud_cnc_nblackrok", name: "Rocket Soldier Officer", cost: 225 }
     - { file: "hud_cnc_nchemall", name: "Chem Warrior", cost: 150 }
     - { file: "hud_cnc_nblacksnip", name: "Black Hand Sniper", cost: 500 }

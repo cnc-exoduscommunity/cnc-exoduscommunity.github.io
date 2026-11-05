@@ -7,24 +7,30 @@
 # hotkey: the number key that selects it in game (Prima's guide: 1 pistol,
 #   2 automatic, 3 sniper, 4 chem, 5 rocket, 6 grenade, 7 energy/repair,
 #   8 Tiberium, 9 C4, 0 beacons).
+# versions: optional, when the game has more than one version (preset) of the weapon
+#   with the same name and icon (not shown on the site yet).
 # Everyone also spawns with a Pistol (1) and Timed C4 (9) (shown as a note).
 - name: Maintenance Tool
   aliases: [Repair Gun]
   hud: hud_repairgun
   image: repair-gun.webp
   hotkey: 7
+  versions: "the normal Repair Gun repairs 2, the C&C \"Special\" one 4"
 - name: Automatic Rifle
   hud: hud_autoguns_hud_autoguns_upper
   image: automatic-rifle.webp
   hotkey: 2
+  versions: "4 versions: GDI 7 damage per shot, Nod 5, in both normal and C&C mode"
 - name: Chaingun
   hud: hud_chainguns_hud_chainguns_lower
   image: chaingun.webp
   hotkey: 2
+  versions: "GDI and Nod copies with the same stats"
 - name: Sniper Rifle
   hud: hud_sniperock_hud_sniperock_lower
   image: sniper-rifle.webp
   hotkey: 3
+  versions: "4 versions: 70 damage normally, 100 in C&C mode; GDI and Nod copies are the same"
 - name: Tiberium Flechette Gun
   hud: hud_tibflech
   image: tiberium-flechette-gun.webp
@@ -45,6 +51,7 @@
   hud: hud_tibrvoltr_hud_tibrvoltr_upper
   image: volt-auto-rifle.webp
   hotkey: 7
+  versions: "GDI and Nod copies with the same stats"
 - name: Railgun
   hud: hud_sg_lr_rg_hud_sg_lr_rg_lower
   image: railgun.webp
@@ -61,15 +68,18 @@
   hud: hud_sniperock_hud_sniperock_upper
   image: rocket-launcher.webp
   hotkey: 5
+  versions: "normal: 35 damage; C&C mode: 40"
 - name: Flamethrower
   hud: hud_chem_fire_hud_chem_fire_upper
   image: flamethrower.webp
   hotkey: 4
+  versions: "normal and C&C versions: same damage, different warhead entry"
 - name: Chemical Sprayer
   aliases: [Chem Sprayer]
   hud: hud_chem_fire_hud_chem_fire_lower
   image: chemical-sprayer.webp
   hotkey: 4
+  versions: "normal and C&C versions: same damage, different warhead entry"
 # credit: prima = the image: is from Prima's Official Strategy Guide (only shown when there's no hud: icon)
 - name: Pistol
   hud: hud_autoguns_hud_autoguns_lower
@@ -86,6 +96,7 @@
   image: ramjet-rifle.webp
   credit: prima
   hotkey: 3
+  versions: "normal: 100 Steel damage; C&C mode: 200 Shrapnel"
 - name: Advanced Repair Gun
   image: advanced-repair-gun.webp
   credit: prima
@@ -95,6 +106,7 @@
   image: remote-c4.webp
   credit: prima
   hotkey: 9
+  versions: "3 versions: normal, C&C, and a C&C one limited to 2 at once"
 - name: Proximity C4
   hud: hud_proxyc4
   image: proximity-c4.webp
@@ -105,15 +117,18 @@
   image: timed-c4.webp
   credit: prima
   hotkey: 9
+  versions: "3 versions: normal, C&C, and a C&C one limited to 2 at once"
 - name: Ion Cannon Beacon
   aliases: [Ion Beacon]
   hud: hud_ionbeaken
   image: ion-cannon-beacon.webp
   credit: prima
   hotkey: 0
+  versions: "normal and C&C copies with the same stats"
 - name: Nuclear Strike Beacon
   aliases: [Nuke Beacon, Nuclear Beacon]
   hud: hud_nukebeak
   image: nuclear-strike-beacon.webp
   credit: prima
   hotkey: 0
+  versions: "normal and C&C copies with the same stats"

@@ -12,24 +12,38 @@
 # ingame_credit: the same for the in-game photo (assets/images/ingame/<name>.webp); default fandom.
 # ingame_date: when that photo was taken (dd-mm-yyyy hh:mm), shown after its credit.
 #
+# terminal: what the purchase terminal sells on that map (shown in the map preview):
+#   full               - infantry, characters and vehicles
+#   no-vehicles        - no vehicles (the Vehicles button is greyed out)
+#   vehicles-destroyed - a stock map where the vehicle building starts destroyed
+#                        (the game shows "Destroyed" under Vehicles)
+#   none               - no purchase terminal at all
+#   Leave it out when it's not known yet. Beacons are never sold on this server
+#   (server.beacons_for_sale in _config.yml).
+#
 # A map gets a clickable preview when assets/images/maps/<name>.webp
 # (or .png / .jpg) exists, e.g. assets/images/maps/M01.webp.
 - name: ttm1
+  terminal: no-vehicles
   description: Custom map
   faction: GDI
 - name: City
+  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: GDI
 - name: Complex
+  terminal: vehicles-destroyed
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: GDI
 - name: Walls
+  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: GDI
 - name: Mesa
+  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: GDI
@@ -46,6 +60,7 @@
     - Maintenance Tool
     - Grenade Launcher
 - name: Canyon
+  terminal: vehicles-destroyed
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
@@ -53,6 +68,7 @@
     - Maintenance Tool
     - Laser Rifle
 - name: Under
+  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
@@ -68,6 +84,7 @@
   objectives:
     - Destroy the GDI Base.
 - name: Volcano
+  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
@@ -80,6 +97,7 @@
     - Now destroy that GDI base. The vehicles will come in handy here.
     - Destroy all GDI vehicles inside the GDI base in order to gain access to the GDI WF.
 - name: Islands
+  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
@@ -90,6 +108,7 @@
     - Destroy all GDI vehicles inside the GDI base in order to unlock the pedestal.
     - "Optional: Destroying GDI Guard Towers will allow Nod stealth units easy access."
 - name: Hourglass
+  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
@@ -106,44 +125,52 @@
     - Laser Rifle
     - Rocket Launcher
 - name: Skirmish00
+  terminal: full
   description: Multiplayer Practice / Offline Skirmish mode
   note: "Played on the map `Under`"
   images_from: Under
   image_credit: cncnz
   faction: GDI
 - name: M00_Tutorial
+  terminal: no-vehicles
   description: Tutorial
   note: Campaign training level
   faction: Nod
   image_credit: vgmaps
 - name: M13
+  terminal: no-vehicles
   description: "Mission 1: The Scorpion Hunters"
   note: The first mission's file is numbered 13
   faction: GDI
   image_credit: vgmaps
 - name: M01
+  terminal: none
   description: "Mission 2: Rescue and Retribution"
   faction: GDI
   image_credit: vgmaps
 - name: M02
+  terminal: no-vehicles
   description: "Mission 3: Armored Assault"
   ingame_credit: ryanturner
   ingame_date: "01-08-2025 21:22"
   faction: GDI
   image_credit: vgmaps
 - name: M03
+  terminal: no-vehicles
   description: "Mission 4: The Plot Erupts"
   ingame_credit: ryanturner
   ingame_date: "04-08-2025 15:35"
   faction: GDI
   image_credit: vgmaps
 - name: M04
+  terminal: no-vehicles
   description: "Mission 5: Stowaway"
   ingame_credit: ryanturner
   ingame_date: "08-08-2025 14:09"
   faction: GDI
   image_credit: vgmaps
 - name: M05
+  terminal: no-vehicles
   description: "Mission 6: Deadly Reunion"
   ingame_credit: ryanturner
   ingame_date: "08-08-2025 14:24"
@@ -151,6 +178,7 @@
   faction: GDI
   image_credit: vgmaps
 - name: M06
+  terminal: no-vehicles
   description: "Mission 7: The Grip of the Black Hand"
   ingame_credit: ryanturner
   ingame_date: "11-08-2025 22:12"
@@ -160,6 +188,7 @@
     - Maintenance Tool
     - Grenade Launcher
 - name: M07
+  terminal: no-vehicles
   description: "Mission 8: Obelisk of Oppression"
   ingame_credit: ryanturner
   ingame_date: "11-08-2025 22:13"
@@ -167,24 +196,28 @@
   faction: GDI
   image_credit: vgmaps
 - name: M08
+  terminal: no-vehicles
   description: "Mission 9: Evolution of Evil"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 14:50"
   faction: GDI
   image_credit: vgmaps
 - name: M09
+  terminal: no-vehicles
   description: "Mission 10: All Brains, No Brawn"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 14:53"
   faction: GDI
   image_credit: vgmaps
 - name: M10
+  terminal: no-vehicles
   description: "Mission 11: Tomorrow's Technology Today"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 17:14"
   faction: GDI
   image_credit: vgmaps
 - name: M11
+  terminal: no-vehicles
   description: "Mission 12: Stomping on Holy Ground"
   ingame_credit: ryanturner
   ingame_date: "16-08-2025 15:00"

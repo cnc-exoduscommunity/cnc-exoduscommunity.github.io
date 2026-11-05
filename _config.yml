@@ -32,6 +32,9 @@ server:
   status_source_name: "CnCNet"
   status_source_url: "https://cncnet.org/renegade"
   direct_status_url: "https://raw.githubusercontent.com/cnc-exoduscommunity/cnc-exoduscommunity.github.io/server-status/status.json"
+  # Whether the purchase terminals sell the Ion Cannon / Nuclear Strike Beacon.
+  # No map on this server does; the map previews show the beacon greyed out.
+  beacons_for_sale: false
   # The BRenBot version the server runs, for the "Technical note" under the Nod-map
   # warning (why Nod maps show 0 players, and which version fixes it). Update
   # version/checked after asking the server (!version in game); remove the block

@@ -1,0 +1,100 @@
+# Pickups: things lying on the ground that you walk over to take.
+# hud:      the icon in the pickup list that pops up when you take it
+#           (assets/images/hud/<hud>.png, see _data/hud_icons.yml)
+# textures: the images on its 3D model (assets/images/pickups/<texture>.png),
+#           taken from the game with the RenegadeViewer tool
+# presets:  the game's preset names for it
+# note:     optional extra detail
+#
+# The game picks the health and armor icon by how much the pickup gives (in its
+# code, not per pickup): 30 or less = health icon 1 / armor icon 3, 31 to 75 =
+# icon 2 for both, more than 75 = health icon 3 / armor icon 1.
+
+health:
+  title: "Health"
+  items:
+    - { name: "Health 25", hud: hud_health1, textures: [p_health1], presets: [POW_Health_025] }
+    - { name: "Health 50", hud: hud_health2, textures: [p_health2], presets: [POW_Health_050] }
+    - { name: "Health 100", hud: hud_health3, textures: [p_health3], presets: [POW_Health_100] }
+    - { name: "C&C Health Max (500)", hud: hud_health3, textures: [p_health3], presets: [CnC_POW_Health_Max] }
+    - { name: "Augmented Health", hud: hud_hemedal, textures: [p_medal], presets: [POW_Medal_Health], note: "Health medal: gives 500 health and +5% max health." }
+
+armor:
+  title: "Armor"
+  note: "All three armor models share one texture, p_armor."
+  items:
+    - { name: "Armor 25", hud: hud_armor3, textures: [p_armor], presets: [POW_Armor_025] }
+    - { name: "Armor 50", hud: hud_armor2, textures: [p_armor], presets: [POW_Armor_050] }
+    - { name: "Armor 100", hud: hud_armor1, textures: [p_armor], presets: [POW_Armor_100] }
+    - { name: "C&C Armor Max", hud: hud_armor1, textures: [p_armor], presets: [CnC_POW_Armor_Max] }
+    - { name: "Mobius Shield (500)", hud: hud_armor1, textures: [p_feild, p_various], presets: [POW_Mobius_Shield] }
+    - { name: "Augmented Armor", hud: hud_armedal, textures: [p_medal], presets: [POW_Medal_Armor], note: "Armor medal: gives 500 armor and +5% max armor. Shares p_medal with the health medal." }
+
+crates:
+  title: "Campaign supply crates"
+  items:
+    - { name: "Supply crate", hud: hud_health3, textures: [p_various, p_glow], presets: [Level_2_Crate_1, Level_2_Crate_2, Level_2_Crate_3, Level_2_Crate_4, Level_3_Objective_Powerup_Temp], note: "Give health and armor (and some hand out a weapon); show the Health 100 / Armor 100 icons." }
+
+keycards:
+  title: "Keycards"
+  note: "All three models share one texture, p_keycrd."
+  items:
+    - { name: "Security Card, level 1 (green)", hud: hud_keycard_green, textures: [p_keycrd], presets: [Level_01_Keycard, M04_L01_Keycard] }
+    - { name: "Security Card, level 2 (yellow)", hud: hud_keycard_yellow, textures: [p_keycrd], presets: [Level_02_Keycard, M04_L02_Keycard] }
+    - { name: "Security Card, level 3 (red)", hud: hud_keycard_red, textures: [p_keycrd], presets: [Level_03_Keycard, M04_L03_Keycard] }
+
+other:
+  title: "Other"
+  items:
+    - { name: "Data Disc", hud: hud_cd_rom, textures: [p_disc, p_feild], presets: [POW_Data_Disc], note: "The only pickup that uses p_disc." }
+    - { name: "Mystery crate", hud: hud_mystery_crate, note: "The original game never uses this icon; probably for crates on modded servers." }
+
+ammo:
+  title: "Ammo refills"
+  items:
+    - { name: "C&C ammo pickups", textures: [p_various, p_glow], presets: [CnC_POW_Ammo_Clip01, CnC_POW_Ammo_Clip02, CnC_POW_Ammo_Clip04, CnC_POW_Ammo_ClipMax, CnC_Ammo_Crate], note: "Refill the weapons you already carry; no pickup icon of their own (crate model). The terminal's Refill is a purchase card instead: hud_cnc_g_equipbuy (GDI), hud_cnc_n_equipbuy (Nod)." }
+
+weapons:
+  title: "Weapon pickups"
+  note: "A weapon pickup shows the weapon's own HUD icon."
+  items:
+    - { name: "Automatic Rifle", hud: hud_autoguns_hud_autoguns_upper, presets: [POW_AutoRifle_Player, POW_AutoRifle_Player_Nod], note: "4 versions with the C&C ones." }
+    - { name: "Automatic Pistol", hud: hud_autoguns_hud_autoguns_lower, presets: [POW_Pistol_Player] }
+    - { name: "Sniper Rifle", hud: hud_sniperock_hud_sniperock_lower, presets: [POW_SniperRifle_Player, POW_SniperRifle_Player_Nod], note: "Some campaign crates hand one out." }
+    - { name: "Rocket Launcher", hud: hud_sniperock_hud_sniperock_upper, presets: [POW_RocketLauncher_Player, CnC_POW_RocketLauncher_Player] }
+    - { name: "Chain Gun", hud: hud_chainguns_hud_chainguns_lower, presets: [POW_Chaingun_Player, POW_Chaingun_Player_Nod], note: "Also from a campaign crate." }
+    - { name: "Laser Chain Gun", hud: hud_chainguns_hud_chainguns_upper, presets: [POW_LaserChaingun_Player] }
+    - { name: "Flame Thrower", hud: hud_chem_fire_hud_chem_fire_upper }
+    - { name: "Chem Sprayer", hud: hud_chem_fire_hud_chem_fire_lower }
+    - { name: "Grenade Launcher", hud: hud_grana_ionc_hud_grana_ionc_upper, note: "Also from a campaign crate." }
+    - { name: "Personal Ion Cannon", hud: hud_grana_ionc_hud_grana_ionc_lower }
+    - { name: "Shotgun", hud: hud_sg_lr_rg_hud_sg_lr_rg_upper, note: "Also from a campaign crate." }
+    - { name: "Laser Rifle", hud: hud_sg_lr_rg_hud_sg_lr_rg_middle }
+    - { name: "Rail Gun", hud: hud_sg_lr_rg_hud_sg_lr_rg_lower }
+    - { name: "Volt Auto Rifle", hud: hud_tibrvoltr_hud_tibrvoltr_upper, presets: [POW_VoltAutoRifle_Player, CnC_POW_VoltAutoRifle_Player_Nod] }
+    - { name: "Tiberium Auto Rifle", hud: hud_tibrvoltr_hud_tibrvoltr_lower }
+    - { name: "Remote C4", hud: hud_remotec4, presets: [POW_MineRemote_Player, CnC_POW_MineRemote_01, CnC_POW_MineRemote_02] }
+    - { name: "Timed C4", hud: hud_timec4, presets: [POW_MineTimed_Player, CnC_POW_MineTimed_Player_01, CnC_POW_MineTimed_Player_02] }
+    - { name: "Proximity C4", hud: hud_proxyc4, presets: [POW_MineProximity_Player, CnC_MineProximity_05] }
+    - { name: "Repair Gun", hud: hud_repairgun, presets: [POW_RepairGun_Player, CnC_POW_RepairGun_Player] }
+    - { name: "Ion Cannon Beacon", hud: hud_ionbeaken, presets: [POW_IonCannonBeacon_Player, CnC_POW_IonCannonBeacon_Player] }
+    - { name: "Nuclear Strike Beacon", hud: hud_nukebeak, presets: [POW_Nuclear_Missle_Beacon, CnC_POW_Nuclear_Missle_Beacon] }
+    - { name: "Tiberium Flechette Gun", hud: hud_tibflech, presets: [POW_TiberiumFlechetteGun_Player] }
+    - { name: "Ramjet Rifle", hud: hud_ramsentu_hud_ramsentu_lower, presets: [POW_RamjetRifle_Player] }
+
+no_icon:
+  title: "Special pickups without a pickup icon"
+  note: "They have model textures but no pickup icon in the game's code. Most share p_various / p_various2 with p_glow and p_feild."
+  items:
+    - { name: "Backpack", textures: [p_backpack] }
+    - { name: "Stealth Suit", textures: [p_stealth] }
+    - { name: "Uplink", textures: [p_uplink] }
+    - { name: "Tissue Nanites", textures: [p_tnanites] }
+    - { name: "Grenade Vest", textures: [p_grenvest] }
+    - { name: "Head Band", textures: [p_headband] }
+    - { name: "Adrenaline", textures: [p_adren_disc], note: "p_adren_disc comes from M08." }
+    - { name: "Ammo Regeneration", textures: [p_various, p_various2] }
+    - { name: "Double Damage", textures: [p_various, p_various2] }
+    - { name: "Neuro Link", textures: [p_various, p_various2] }
+    - { name: "Anti-Sound", textures: [p_various, p_various2] }
+    - { name: "Tiberium Shield", textures: [p_various, p_various2] }
