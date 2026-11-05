@@ -1128,3 +1128,14 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .map-dialog-quality { margin-left: 0.6rem; }
 .map-dialog-quality[hidden] { display: none; }
 .map-dialog-quality[aria-pressed="true"] { border-color: var(--title); color: var(--title); }
+
+/* High-quality map: drawn on a canvas under the marks; progress bar while it downloads. */
+.map-dialog-hd { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.map-dialog-hd[hidden] { display: none; }
+.map-dialog-progress { position: absolute; left: 50%; bottom: 0.8rem; z-index: 3; transform: translateX(-50%); width: min(22rem, calc(100% - 2rem)); padding: 0.5rem 0.7rem; border: 1px solid var(--border); border-radius: 6px; background: rgba(0, 0, 0, 0.82); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6); pointer-events: none; }
+.map-dialog-progress[hidden] { display: none; }
+.map-dialog-progress-bar { height: 0.45rem; border-radius: 999px; background: rgba(255, 255, 255, 0.15); overflow: hidden; }
+.map-dialog-progress-bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #c98a1a, #ffd21a); transition: width 0.15s; }
+.map-dialog-progress.is-unknown .map-dialog-progress-bar span { animation: progress-slide 1.2s ease-in-out infinite; }
+@keyframes progress-slide { from { transform: translateX(-100%); } to { transform: translateX(600%); } }
+.map-dialog-progress-text { margin: 0.35rem 0 0; color: #fff; font-size: 0.8rem; text-align: center; }

@@ -291,6 +291,7 @@ sections:
           <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span><span class="map-dialog-faction"></span></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span></h3>
           <div class="map-dialog-frame">
             <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
+              <canvas class="map-dialog-hd" hidden></canvas>
               <div class="map-dialog-canvas">
                 <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
                 <div class="map-marks"></div>
@@ -298,6 +299,7 @@ sections:
               </div>
             </div>
             <div class="map-mark-pop" role="status" hidden></div>
+            <div class="map-dialog-progress" role="progressbar" aria-live="polite" hidden><div class="map-dialog-progress-bar"><span></span></div><p class="map-dialog-progress-text"></p></div>
             <div class="map-dialog-empty" hidden>No Map Data at This Time</div>
           </div>
           <div class="map-dialog-zoom" role="group" aria-label="Zoom">

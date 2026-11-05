@@ -212,24 +212,98 @@ var MapMarks = (function () {
   var viewButtons = viewsBox ? viewsBox.querySelectorAll("[data-view]") : [];
   var wantView = "map";
   // Quality: maps with a high-resolution copy (assets/images/maps/hd/) show the normal
-  // picture by default, while the high one downloads and decodes in the background, so
-  // "Quality: High" switches straight away. The choice is remembered in this browser.
+  // picture by default, while the high one downloads and decodes in the background.
+  // "Quality: High" shows it (with a progress bar while it's still coming in) drawn on a
+  // canvas: only the part on screen is drawn, from the decoded picture, so zooming and
+  // moving stay sharp straight away instead of waiting for the browser to redraw.
+  // The choice is remembered in this browser.
   var qualityBtn = dialog.querySelector(".map-dialog-quality");
   var quality = "normal";
   try { if (localStorage.getItem("mapQuality") === "high") quality = "high"; } catch (e) {}
-  var hdReady = {};   // url -> true once downloaded and decoded
-  var hdLoading = {}; // url -> Image being fetched
-  function preloadHd(url, done) {
-    if (hdReady[url]) { if (done) done(); return; }
-    var im = hdLoading[url];
-    if (!im) {
-      im = hdLoading[url] = new Image();
-      im.decoding = "async";
-      im.src = url;
-    }
-    var finish = function () { hdReady[url] = true; if (done) done(); };
-    if (im.decode) im.decode().then(finish, function () { im.addEventListener("load", finish, { once: true }); });
-    else im.addEventListener("load", finish, { once: true });
+  var hdCanvas = dialog.querySelector(".map-dialog-hd");
+  var hdCtx = hdCanvas && hdCanvas.getContext ? hdCanvas.getContext("2d") : null;
+  var progressBox = dialog.querySelector(".map-dialog-progress");
+  var hdState = {};      // url -> { loaded, total, ready, failed, pic }
+  var hdUrl = null;      // the high-resolution picture of the map on screen (when Quality is High)
+  function mb(n) { return (n / 1048576).toFixed(1); }
+  function preloadHd(url) {
+    if (hdState[url]) return;
+    var st = hdState[url] = { loaded: 0, total: 0, ready: false, failed: false, pic: null };
+    var decode = function (blob) {
+      st.decoding = true; hdProgress();
+      if (window.createImageBitmap) return createImageBitmap(blob);
+      return new Promise(function (ok, bad) {
+        var im = new Image(); im.onload = function () { ok(im); }; im.onerror = bad; im.src = URL.createObjectURL(blob);
+      });
+    };
+    fetch(url).then(function (res) {
+      if (!res.ok) throw new Error(res.status);
+      st.total = +res.headers.get("content-length") || 0;
+      if (!res.body || !res.body.getReader) return res.blob();
+      var reader = res.body.getReader(), chunks = [];
+      var pump = function () {
+        return reader.read().then(function (r) {
+          if (r.done) return new Blob(chunks, { type: "image/webp" });
+          chunks.push(r.value); st.loaded += r.value.length; hdProgress();
+          return pump();
+        });
+      };
+      return pump();
+    }).then(decode).then(function (pic) {
+      st.pic = pic; st.ready = true; hdRefresh();
+    }).catch(function () { st.failed = true; hdRefresh(); });
+  }
+  // The progress bar over the map while the high-resolution picture is on its way.
+  function hdProgress() {
+    if (!progressBox) return;
+    var st = hdUrl && hdState[hdUrl];
+    var show = !!(st && !st.ready);
+    progressBox.hidden = !show;
+    if (!show) return;
+    var bar = progressBox.querySelector(".map-dialog-progress-bar span");
+    var text = progressBox.querySelector(".map-dialog-progress-text");
+    if (st.failed) { bar.style.width = "0"; text.textContent = "The high-quality map couldn't be loaded; showing the normal one."; return; }
+    if (st.decoding) { bar.style.width = "100%"; text.textContent = "Preparing the high-quality map..."; return; }
+    var pct = st.total ? Math.min(100, Math.round(st.loaded / st.total * 100)) : 0;
+    bar.style.width = (st.total ? pct : 15) + "%";
+    progressBox.classList.toggle("is-unknown", !st.total);
+    text.textContent = "Loading the high-quality map... " + (st.total ? pct + "% (" + mb(st.loaded) + " / " + mb(st.total) + " MB)" : mb(st.loaded) + " MB");
+  }
+  // Canvas on or off for the map on screen, then draw.
+  function hdRefresh() {
+    var st = hdUrl && hdState[hdUrl];
+    var on = !!(st && st.ready && hdCtx);
+    if (hdCanvas) hdCanvas.hidden = !on;
+    image.style.visibility = on ? "hidden" : "";
+    zoom.setMax(hdUrl && !(st && st.failed) ? 10 : 4);
+    hdProgress();
+    hdDraw();
+  }
+  function hdDraw() {
+    var st = hdUrl && hdState[hdUrl];
+    if (!hdCtx || !st || !st.ready || hdCanvas.hidden) return;
+    var vw = viewport.clientWidth, vh = viewport.clientHeight, dpr = window.devicePixelRatio || 1;
+    var cw = Math.round(vw * dpr), ch = Math.round(vh * dpr);
+    if (hdCanvas.width !== cw || hdCanvas.height !== ch) { hdCanvas.width = cw; hdCanvas.height = ch; }
+    hdCtx.setTransform(1, 0, 0, 1, 0, 0);
+    hdCtx.clearRect(0, 0, cw, ch);
+    var iw = image.naturalWidth, ih = image.naturalHeight;
+    if (!iw || !ih || !vw || !vh) return;
+    // Where the picture sits in the box (scaled to fit, centred), then the zoom on top.
+    var fit = Math.min(vw / iw, vh / ih), w = iw * fit, h = ih * fit;
+    var z = zoom.state();
+    var dx = (z.tx + z.scale * (vw - w) / 2) * dpr, dy = (z.ty + z.scale * (vh - h) / 2) * dpr;
+    var dw = z.scale * w * dpr, dh = z.scale * h * dpr;
+    // Zoomed out, the normal picture is sharp enough (and quicker to draw).
+    var pic = dw <= iw * 1.25 ? image : st.pic;
+    var pw = pic.naturalWidth || pic.width, ph = pic.naturalHeight || pic.height;
+    // Only the part that's on screen.
+    var x0 = Math.max(0, dx), y0 = Math.max(0, dy), x1 = Math.min(cw, dx + dw), y1 = Math.min(ch, dy + dh);
+    if (x1 <= x0 || y1 <= y0) return;
+    var sx = (x0 - dx) / dw * pw, sy = (y0 - dy) / dh * ph, sw = (x1 - x0) / dw * pw, sh = (y1 - y0) / dh * ph;
+    hdCtx.imageSmoothingEnabled = true;
+    hdCtx.imageSmoothingQuality = "high";
+    hdCtx.drawImage(pic, sx, sy, sw, sh, x0, y0, x1 - x0, y1 - y0);
   }
   if (qualityBtn) qualityBtn.addEventListener("click", function () {
     quality = quality === "high" ? "normal" : "high";
@@ -268,7 +342,7 @@ var MapMarks = (function () {
   var current = 0;
   // The image and its marks sit on one "canvas" that zooms and pans as a whole.
   var canvas = dialog.querySelector(".map-dialog-canvas") || image;
-  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), canvas, dialog.querySelector(".map-dialog-zoom-level"), function () { placePop(); });
+  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), canvas, dialog.querySelector(".map-dialog-zoom-level"), function () { placePop(); hdDraw(); });
 
   // ---- Map marks (_data/map_marks.yml) on the overhead map ----
   // Hover a mark to see its card; click it to keep the card open (needed for
@@ -454,7 +528,7 @@ var MapMarks = (function () {
   if (pop) pop.addEventListener("wheel", function (e) { e.stopPropagation(); });
   // Clicking the map (not a mark) closes a pinned card.
   canvas.addEventListener("click", function (e) { if (pinned && !e.target.closest(".map-mark")) hidePop(); });
-  image.addEventListener("load", layoutMarks);
+  image.addEventListener("load", function () { layoutMarks(); hdDraw(); });
   dialog.querySelectorAll("[data-zoom]").forEach(function (b) {
     b.addEventListener("click", function () { zoom[b.getAttribute("data-zoom")](); });
   });
@@ -570,16 +644,10 @@ var MapMarks = (function () {
       qualityBtn.textContent = "Quality: " + (quality === "high" ? "High" : "Normal");
       qualityBtn.title = quality === "high" ? "Showing the high-resolution map (bigger download). Click for the normal one." : "Showing the normal map. Click for the high-resolution one (bigger download).";
     }
-    // The high-resolution picture: fetched in the background; shown (once it's ready) when
-    // Quality is High. It can be zoomed further before it gets blurry.
-    zoom.setMax(hd && quality === "high" ? 10 : 4);
-    if (hd) {
-      var shownLink = link;
-      preloadHd(hd, function () {
-        if (quality === "high" && links[current] === shownLink && image.getAttribute("src") === srcs.map) image.src = hd;
-      });
-      if (quality === "high" && hdReady[hd]) srcs.map = hd;
-    }
+    // The high-resolution picture: fetched in the background, drawn on the canvas once it's
+    // ready when Quality is High (see hdRefresh).
+    if (hd) preloadHd(hd);
+    hdUrl = hd && quality === "high" ? hd : null;
     var withImage = !!view;
     fillLoadscreen(view === "loading" ? sc : null);
     dialog.classList.toggle("is-loadscreen", view === "loading");
@@ -654,6 +722,7 @@ var MapMarks = (function () {
     zoom.refresh();
     matchSideHeight();
     layoutMarks();
+    hdRefresh();
   }
 
   links.forEach(function (link, i) {
@@ -813,7 +882,8 @@ function makeZoom(viewport, img, label, onChange) {
     out: function () { var c = center(); zoomAt(scale / 1.5, c.x, c.y); },
     reset: function () { scale = 1; tx = 0; ty = 0; apply(); },
     refresh: apply,
-    setMax: function (m) { MAX = m; if (scale > MAX) { var c = center(); zoomAt(MAX, c.x, c.y); } }
+    setMax: function (m) { MAX = m; if (scale > MAX) { var c = center(); zoomAt(MAX, c.x, c.y); } },
+    state: function () { return { scale: scale, tx: tx, ty: ty }; }
   };
 }
 
