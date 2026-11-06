@@ -1412,3 +1412,4 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-map-row { display: inline-flex; align-items: center; gap: 0.45rem; max-width: 100%; }
 .mm-side-logo { width: 2rem; height: 2rem; flex: none; }
 .mm-side-logo[hidden] { display: none; }
+.layer-quality { margin: 0.15rem 0 0; color: var(--muted); font-size: 0.72rem; white-space: normal; max-width: 15rem; }

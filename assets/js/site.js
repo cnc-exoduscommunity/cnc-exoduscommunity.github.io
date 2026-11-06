@@ -305,15 +305,16 @@ function setUrlParam(key, value, fallback) {
     Array.prototype.forEach.call(layerImgs, function (im) { im.hidden = true; im.removeAttribute("src"); });
     image.style.visibility = "";
   }
-  function applyLayers(link) {
-    var url = link.getAttribute("data-layers"), base = layerBase(url);
+  // Fills the floor list and the layer switches for a map (loads its layers.json once).
+  function layerOptions(link, then) {
+    var url = link.getAttribute("data-layers");
     var meta = layering.info[url];
     if (!meta) {
       fetch(url).then(function (r) { return r.json(); }).then(function (m) {
         layering.info[url] = m;
-        if (links[current] === link) applyLayers(link);
+        if (links[current] === link) then(link);
       }).catch(function () {});
-      return;
+      return null;
     }
     var floorSel = layerPanel.querySelector("[data-layer-floor]");
     var keep = layering.floor;
@@ -324,6 +325,14 @@ function setUrlParam(key, value, fallback) {
     floorSel.value = layering.floor = keep;
     var hasEditor = (meta.layers || []).indexOf("editor") >= 0;
     layerPanel.querySelector('[data-layer-has="editor"]').hidden = !hasEditor;
+    var lq = layerPanel.querySelector(".layer-quality");
+    if (lq) lq.hidden = !link.getAttribute("data-hd");
+    return meta;
+  }
+  function applyLayers(link) {
+    var url = link.getAttribute("data-layers"), base = layerBase(url);
+    var meta = layerOptions(link, applyLayers);
+    if (!meta) return;
     var floor = layering.floor;
     // One storey on its own (it has the map and the units together), or the stack.
     image.src = base + (floor ? "floor-" + floor : "empty") + ".webp";
@@ -347,9 +356,9 @@ function setUrlParam(key, value, fallback) {
       show(current);
     });
     Array.prototype.forEach.call(layerPanel.querySelectorAll("[data-layer-toggle]"), function (c) {
-      c.addEventListener("change", function () { layering.on[c.getAttribute("data-layer-toggle")] = c.checked; applyLayers(links[current]); });
+      c.addEventListener("change", function () { layering.on[c.getAttribute("data-layer-toggle")] = c.checked; show(current); });
     });
-    layerPanel.querySelector("[data-layer-floor]").addEventListener("change", function (e) { layering.floor = e.target.value; applyLayers(links[current]); });
+    layerPanel.querySelector("[data-layer-floor]").addEventListener("change", function (e) { layering.floor = e.target.value; show(current); });
     // Clicks on the panel aren't map drags.
     layerPanel.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
     layerPanel.addEventListener("dblclick", function (e) { e.stopPropagation(); });
@@ -970,14 +979,20 @@ function setUrlParam(key, value, fallback) {
     // The high-resolution picture: fetched in the background, drawn on the canvas once it's
     // ready when Quality is High (see hdRefresh).
     if (hd) preloadHd(hd);
-    var layered = layering.wanted && view === "map" && link.getAttribute("data-layers");
+    // The layering test only has normal-quality pictures; with everything on and all floors
+    // it's the same as the finished map, so the high-quality picture is used then.
+    var layersDefault = !layering.floor && layering.on.empty && layering.on.filled && layering.on.editor;
+    var layered = layering.wanted && view === "map" && link.getAttribute("data-layers") && !(hd && quality === "high" && layersDefault);
     hdUrl = hd && quality === "high" && !layered ? hd : null;
     var withImage = !!view;
     fillLoadscreen(view === "loading" ? sc : null);
     dialog.classList.toggle("is-loadscreen", view === "loading");
     if (withImage) {
       image.src = srcs[view];
-      if (layered) applyLayers(link); else clearLayers();
+      if (layered) applyLayers(link); else {
+        clearLayers();
+        if (layering.wanted && view === "map" && link.getAttribute("data-layers")) layerOptions(link, function (l) { layerOptions(l, function () {}); });
+      }
       if (layerPanel) layerPanel.hidden = !(view === "map" && link.getAttribute("data-layers"));
       image.alt = (view === "photo" ? "In-game view of " : view === "loading" ? "Loading screen of " : "Overhead map of ") + mapName;
     } else {
