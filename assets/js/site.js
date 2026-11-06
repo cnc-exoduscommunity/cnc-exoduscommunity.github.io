@@ -19,10 +19,25 @@ var MapMarks = (function () {
                glyph: '<path d="M8 1.2l2 4.4 4.8.5-3.6 3.2 1 4.8L8 11.7l-4.2 2.4 1-4.8-3.6-3.2 4.8-.5z"/>' },
     vehicle: { label: "Vehicle", plural: "Vehicles",
                glyph: '<path d="M4.2 5.2h5.6l1.2 2.6H3z"/><path d="M8.6 5.8h6v1.2h-6z"/><path d="M1.2 8.4h13.6v2.8c0 .9-.7 1.6-1.6 1.6H2.8c-.9 0-1.6-.7-1.6-1.6z"/>' },
+    objective: { label: "Objective", plural: "Objectives",
+               glyph: '<circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="8" r="2.2"/>' },
     other:   { label: "Other", plural: "Other",
                glyph: '<path d="M6.9 2.5h2.2v6.8H6.9z"/><circle cx="8" cy="12.2" r="1.3"/>' }
   };
-  var ORDER = ["spawn", "secret", "vehicle", "other"];
+  var ORDER = ["objective", "spawn", "secret", "vehicle", "other"];
+  // Objective pictures (_data/objective_pogs.yml), read from the page.
+  var POG_BASE = "/assets/images/objectives/";
+  var pogs = null;
+  function pogInfo(key) {
+    if (!pogs) {
+      pogs = {};
+      try {
+        var d = JSON.parse((document.getElementById("objective-pogs-data") || {}).textContent || "{}") || {};
+        Object.keys(d).forEach(function (m) { (d[m].pogs || []).forEach(function (p) { pogs[p.file.replace(/^pog_/, "")] = p; }); });
+      } catch (e) {}
+    }
+    return pogs[key] || null;
+  }
   function kind(k) { return KINDS[k] ? k : "other"; }
   function icon(k) {
     return '<svg class="map-mark-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="currentColor">' + KINDS[kind(k)].glyph + "</svg>";
@@ -36,12 +51,18 @@ var MapMarks = (function () {
     b.style.left = mark.x + "%";
     b.style.top = mark.y + "%";
     b.innerHTML = icon(k);
-    b.setAttribute("aria-label", KINDS[k].label + (mark.label ? ": " + mark.label : ""));
+    // An objective with a picture shows the game's own objective picture.
+    if (k === "objective" && mark.pog) {
+      b.classList.add("has-pog");
+      b.innerHTML = '<img class="map-mark-pog" alt="" src="' + POG_BASE + "pog_" + encodeURIComponent(mark.pog) + '.png">';
+    }
+    var pi = k === "objective" && mark.pog && pogInfo(mark.pog);
+    b.setAttribute("aria-label", KINDS[k].label + (mark.label ? ": " + mark.label : pi ? ": " + pi.name : ""));
     return b;
   }
   // Where an image of a mark lives (a full link is used as is).
   function imageUrl(base, name) { return /^(https?:)?\//.test(name) ? name : base + name; }
-  return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl };
+  return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE };
 })();
 
 // Debug mode (switch at the bottom of the page, or ?debug=1 / ?debug=0 in the URL):
@@ -299,7 +320,7 @@ function setUrlParam(key, value, fallback) {
   var layerPanel = dialog.querySelector(".layer-panel");
   var layerImgs = dialog.querySelectorAll(".map-layer-img");
   var layering = { wanted: false, info: {}, on: { empty: true, filled: true, editor: true }, floor: "" };
-  try { layering.wanted = localStorage.getItem("layering") === "1"; } catch (e) {}
+  try { layering.wanted = localStorage.getItem("mapLayering") === "1"; } catch (e) {}   // off unless picked
   function layerBase(url) { return url.replace(/layers\.json(\?.*)?$/, ""); }
   function clearLayers() {
     Array.prototype.forEach.call(layerImgs, function (im) { im.hidden = true; im.removeAttribute("src"); });
@@ -351,7 +372,7 @@ function setUrlParam(key, value, fallback) {
     layerPanel.querySelector(".layer-opts").hidden = !layering.wanted;
     tryBox.addEventListener("change", function () {
       layering.wanted = tryBox.checked;
-      try { localStorage.setItem("layering", layering.wanted ? "1" : "0"); } catch (e) {}
+      try { localStorage.setItem("mapLayering", layering.wanted ? "1" : "0"); } catch (e) {}
       layerPanel.querySelector(".layer-opts").hidden = !layering.wanted;
       show(current);
     });
@@ -512,9 +533,9 @@ function setUrlParam(key, value, fallback) {
   // canvas: only the part on screen is drawn, from the decoded picture, so zooming and
   // moving stay sharp straight away instead of waiting for the browser to redraw.
   // The choice is remembered in this browser.
-  var qualityBtn = dialog.querySelector(".map-dialog-quality");
+  var qualityBtns = dialog.querySelectorAll("[data-quality]");
   var quality = "normal";
-  try { if (localStorage.getItem("mapQuality") === "high") quality = "high"; } catch (e) {}
+  try { if (localStorage.getItem("mapDetails") === "high") quality = "high"; } catch (e) {}
   var hdCanvas = dialog.querySelector(".map-dialog-hd");
   var hdCtx = hdCanvas && hdCanvas.getContext ? hdCanvas.getContext("2d") : null;
   var progressBox = dialog.querySelector(".map-dialog-progress");
@@ -600,11 +621,12 @@ function setUrlParam(key, value, fallback) {
     hdCtx.imageSmoothingQuality = "high";
     hdCtx.drawImage(pic, sx, sy, sw, sh, x0, y0, x1 - x0, y1 - y0);
   }
-  if (qualityBtn) qualityBtn.addEventListener("click", function () {
-    quality = quality === "high" ? "normal" : "high";
-    try { localStorage.setItem("mapQuality", quality); } catch (e) {}
+  Array.prototype.forEach.call(qualityBtns, function (b) { b.addEventListener("click", function () {
+    if (b.disabled) return;
+    quality = b.getAttribute("data-quality") === "high" ? "high" : "normal";
+    try { localStorage.setItem("mapDetails", quality); } catch (e) {}
     show(current);
-  });
+  }); });
   Array.prototype.forEach.call(viewButtons, function (b) {
     b.addEventListener("click", function () { wantView = b.getAttribute("data-view"); zoom.reset(); show(current); });
   });
@@ -688,8 +710,15 @@ function setUrlParam(key, value, fallback) {
     head.innerHTML = '<span class="map-mark-dot map-mark-' + k + '">' + MapMarks.icon(k) + "</span>";
     var t = document.createElement("span");
     t.className = "map-mark-pop-title";
-    t.textContent = mark.label || info.label;
+    var pog = k === "objective" && mark.pog ? MapMarks.pogInfo(mark.pog) : null;
+    t.textContent = mark.label || (pog && pog.name) || info.label;
     head.appendChild(t);
+    if (pog && !mark.label) {
+      var pk = document.createElement("span");
+      pk.className = "map-mark-pop-kind";
+      pk.textContent = (pog.kind === "side" ? "Secondary" : "Primary") + " objective" + (pog.action ? " (" + pog.action + ")" : "");
+      head.appendChild(pk);
+    }
     if (mark.label) {
       var kk = document.createElement("span");
       kk.className = "map-mark-pop-kind";
@@ -968,21 +997,24 @@ function setUrlParam(key, value, fallback) {
     }
     var showPhoto = view === "photo";
     var hd = view === "map" && link.getAttribute("data-hd");
-    if (qualityBtn) {
-      qualityBtn.hidden = false;
-      qualityBtn.disabled = !hd;
-      qualityBtn.setAttribute("aria-pressed", String(quality === "high"));
-      qualityBtn.textContent = "Quality: " + (quality === "high" ? "High" : "Normal");
-      qualityBtn.title = !hd ? (view === "map" ? "There's no high-quality picture for this map" : "Quality is for the map picture")
-        : quality === "high" ? "Showing the high-resolution map (bigger download). Click for the normal one." : "Showing the normal map. Click for the high-resolution one (bigger download).";
-    }
+    Array.prototype.forEach.call(qualityBtns, function (b) {
+      var high = b.getAttribute("data-quality") === "high";
+      b.setAttribute("aria-pressed", String(hd ? high === (quality === "high") : !high));
+      b.disabled = high && !hd;
+    });
+    var qBox = dialog.querySelector(".map-quality");
+    if (qBox) qBox.title = hd ? "" : (view === "map" ? "There's no high-detail picture for this map yet." : "Details is for the map picture.");
+    // The layering test needs Details: High.
+    var tryBox = layerPanel && layerPanel.querySelector("[data-layer-try]");
+    var canLayer = !!(hd && quality === "high");
+    if (tryBox) { tryBox.disabled = !canLayer; layerPanel.classList.toggle("is-disabled", !canLayer); }
     // The high-resolution picture: fetched in the background, drawn on the canvas once it's
     // ready when Quality is High (see hdRefresh).
     if (hd) preloadHd(hd);
     // The layering test only has normal-quality pictures; with everything on and all floors
     // it's the same as the finished map, so the high-quality picture is used then.
     var layersDefault = !layering.floor && layering.on.empty && layering.on.filled && layering.on.editor;
-    var layered = layering.wanted && view === "map" && link.getAttribute("data-layers") && !(hd && quality === "high" && layersDefault);
+    var layered = layering.wanted && canLayer && view === "map" && link.getAttribute("data-layers") && !(hd && quality === "high" && layersDefault);
     hdUrl = hd && quality === "high" && !layered ? hd : null;
     var withImage = !!view;
     fillLoadscreen(view === "loading" ? sc : null);
@@ -991,9 +1023,12 @@ function setUrlParam(key, value, fallback) {
       image.src = srcs[view];
       if (layered) applyLayers(link); else {
         clearLayers();
-        if (layering.wanted && view === "map" && link.getAttribute("data-layers")) layerOptions(link, function (l) { layerOptions(l, function () {}); });
+        if (layering.wanted && canLayer && view === "map" && link.getAttribute("data-layers")) layerOptions(link, function (l) { layerOptions(l, function () {}); });
       }
-      if (layerPanel) layerPanel.hidden = !(view === "map" && link.getAttribute("data-layers"));
+      if (layerPanel) {
+        layerPanel.hidden = !(view === "map" && link.getAttribute("data-layers"));
+        layerPanel.querySelector(".layer-opts").hidden = !(layering.wanted && canLayer);
+      }
       image.alt = (view === "photo" ? "In-game view of " : view === "loading" ? "Loading screen of " : "Overhead map of ") + mapName;
     } else {
       image.removeAttribute("src");

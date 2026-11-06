@@ -1,0 +1,14 @@
+# The in-game sounds (assets/sounds/index.json, made by tools/convert_sounds.py).
+# Counts for the Index and the Sounds section; re-made when the sounds are converted again.
+total: 10299
+minutes: 397
+categories:
+  - { name: "Dialogue", slug: dialogue, count: 8836 }
+  - { name: "Game subtitles", slug: game-subtitles, count: 6964 }
+  - { name: "No transcript", slug: no-transcript, count: 9 }
+  - { name: "EVA", slug: eva, count: 1096 }
+  - { name: "Voices", slug: voices, count: 8327 }
+  - { name: "Weapons", slug: weapons, count: 269 }
+  - { name: "Vehicles", slug: vehicles, count: 173 }
+  - { name: "Music (mp3)", slug: music, count: 68 }
+  - { name: "Other", slug: other, count: 1091 }

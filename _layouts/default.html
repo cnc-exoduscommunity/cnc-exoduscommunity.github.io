@@ -135,5 +135,8 @@
   </footer>
 
   <script src="{{ '/assets/js/site.js' | relative_url }}"></script>
+  {%- if page.url == "/" %}
+  <script src="{{ '/assets/js/sounds.js' | relative_url }}"></script>
+  {%- endif %}
 </body>
 </html>

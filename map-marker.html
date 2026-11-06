@@ -65,6 +65,11 @@ back the new text for that file. Logic in assets/js/map-marker.js.
             <button class="btn btn-small mm-delete" type="button" data-mm-delete>Delete</button>
           </div>
           <label class="mm-field"><span class="mm-label">Kind</span><select data-mm-f="kind"></select></label>
+          <div class="mm-field" data-mm-pogfield hidden>
+            <span class="mm-label">Objective picture <span class="mm-opt">(the game's own; this map's first)</span></span>
+            <div class="mm-pog-pick" data-mm-pogs></div>
+            <p class="mm-pog-name" data-mm-pogname></p>
+          </div>
           <label class="mm-field"><span class="mm-label">Name <span class="mm-opt">(optional, shown on hover)</span></span><input type="text" data-mm-f="label" placeholder="e.g. GDI start" maxlength="80"></label>
           <label class="mm-field"><span class="mm-label">Note <span class="mm-opt">(optional)</span></span><textarea rows="3" data-mm-f="note" placeholder="e.g. Jump on the crates to reach it"></textarea></label>
           <div class="mm-field">
@@ -102,5 +107,6 @@ back the new text for that file. Logic in assets/js/map-marker.js.
 </section>
 
 <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
+<script type="application/json" id="objective-pogs-data">{{ site.data.objective_pogs | jsonify }}</script>
 <script>window.MAP_MARKS_BASE = {{ '/assets/images/marks/' | relative_url | jsonify }};</script>
 <script src="{{ '/assets/js/map-marker.js' | relative_url }}" defer></script>

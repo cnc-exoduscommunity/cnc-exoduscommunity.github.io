@@ -1,0 +1,142 @@
+# Objective pictures (the "pogs" the game shows for each objective), in assets/images/objectives/.
+# Matched against the mission scripts from the released game source. kind: main = primary,
+# side = secondary. action: the word shown under the picture on the HUD. Used by the
+# "Objective" marks (Map marker tool), which show the picture on the map.
+# The map names (M00 = M00_Tutorial, ...) are the keys.
+
+M00_Tutorial:
+  title: "Commando Training"
+  pogs:
+    - { file: "pog_m00_1_01", name: "Locate Advanced Guard Tower", kind: "main" }
+    - { file: "pog_m00_1_02", name: "Locate Infantry Barracks", kind: "main" }
+    - { file: "pog_m00_1_03", name: "Locate Weapons Factory", kind: "main" }
+    - { file: "pog_m00_1_04", name: "Locate Tiberium Refinery", kind: "main" }
+    - { file: "pog_m00_1_05", name: "Locate Power Plant", kind: "main" }
+    - { file: "pog_m00_1_06", name: "Eliminate Nod Officers", kind: "main" }
+M01:
+  title: "Rescue and Retribution"
+  pogs:
+    - { file: "pog_m01_1_01", name: "Locate Detention Center", kind: "main" }
+    - { file: "pog_m01_1_02", name: "Access Communications Mainframe", kind: "main", action: "Hack" }
+    - { file: "pog_m01_1_03", name: "Open Detention Center", kind: "main" }
+    - { file: "pog_m01_1_04", name: "Disable SAM Site", kind: "main" }
+    - { file: "pog_m01_2_01", name: "Eliminate Nod Officer", kind: "side" }
+    - { file: "pog_m01_2_02", name: "Destroy Nod Turrets", kind: "side" }
+    - { file: "pog_m01_2_03", name: "Rescue Civilians", kind: "side" }
+    - { file: "pog_m01_2_04", name: "Evacuate Civilians", kind: "side" }
+    - { file: "pog_m01_2_05", name: "Contact GDI Commander", kind: "side" }
+    - { file: "pog_m01_2_06", name: "Rescue Clergy", kind: "side" }
+    - { file: "pog_m01_2_08", name: "Rescue Prisoners", kind: "side" }
+M02:
+  title: "Armored Assault"
+  pogs:
+    - { file: "pog_m02_1_03", name: "Disable Dam Master Control Terminal", kind: "main" }
+    - { file: "pog_m02_1_04", name: "Infiltrate Cargo Plane", kind: "main", action: "Capture" }
+    - { file: "pog_m02_2_01", name: "Disable Hand of Nod", kind: "side", note: "M01 uses it too" }
+    - { file: "pog_m02_2_02", name: "Disable Helipad", kind: "side" }
+    - { file: "pog_m02_2_03", name: "Secure Guard Tower", kind: "side" }
+    - { file: "pog_m02_2_04", name: "Secure Third House", kind: "side" }
+    - { file: "pog_m02_2_05", name: "Secure First House", kind: "side" }
+    - { file: "pog_m02_2_06", name: "Secure Second House", kind: "side" }
+    - { file: "pog_m02_2_07", name: "Secure Ski Resort", kind: "side" }
+    - { file: "pog_m02_2_08", name: "Disable First SAM Site", kind: "side" }
+    - { file: "pog_m02_2_09", name: "Destroy Nod Convoy", kind: "side" }
+    - { file: "pog_m02_2_10", name: "Disable Second SAM Site", kind: "side" }
+    - { file: "pog_m02_2_11", name: "Disable Third SAM Site", kind: "side" }
+    - { file: "pog_m02_2_12", name: "Disable Fourth SAM Site", kind: "side" }
+    - { file: "pog_m02_2_13", name: "Disable Power Plant", kind: "side" }
+    - { file: "pog_m02_2_14", name: "Destroy Tiberium Machines Alpha, Beta and Gamma", kind: "side", note: "one picture for all three" }
+    - { file: "pog_m02_2_15", name: "Acquire Mammoth Tank", kind: "side" }
+M03:
+  title: "The Plot Erupts"
+  pogs:
+    - { file: "pog_m03_1_01", name: "Locate Communications Center", kind: "main" }
+    - { file: "pog_m03_1_02", name: "Acquire Security Card", kind: "main", note: "M10 also uses it, for “Infiltrate Spacecraft”" }
+    - { file: "pog_m03_1_03", name: "Hack Communications Mainframe", kind: "main" }
+    - { file: "pog_m03_1_04", name: "Escape via Submarine", kind: "main" }
+    - { file: "pog_m03_2_01", name: "Secure Beachhead", kind: "side" }
+    - { file: "pog_m03_2_02", name: "Disable Lower SAM Sites and Disable Upper SAM Sites", kind: "side" }
+M04:
+  title: "Stowaway"
+  pogs:
+    - { file: "pog_m04_1_01", name: "Rescue Prisoners", kind: "main" }
+    - { file: "pog_m04_1_02", name: "Acquire Prison Security Card", kind: "main" }
+    - { file: "pog_m04_1_03", name: "Sabotage Missile Racks", kind: "main" }
+    - { file: "pog_m04_1_04", name: "Sabotage Torpedo Racks", kind: "main" }
+    - { file: "pog_m04_1_05", name: "Acquire Submarine Security Card", kind: "main" }
+    - { file: "pog_m04_1_06", name: "Protect Prisoners", kind: "main" }
+    - { file: "pog_m04_1_07", name: "Acquire Deck Security Card", kind: "main" }
+    - { file: "pog_m04_2_01", name: "Disable Critical Engine Areas", kind: "side" }
+    - { file: "pog_m04_2_02", name: "Destroy Apache", kind: "side" }
+M05:
+  title: "Deadly Reunion"
+  pogs:
+    - { file: "pog_m05_1_01", name: "Eliminate Black Hand", kind: "main" }
+    - { file: "pog_m05_1_02", name: "Locate Patch", kind: "main", note: "also used for meeting Gunner" }
+    - { file: "pog_m05_1_03", name: "Locate Hotwire", kind: "main" }
+    - { file: "pog_m05_1_04", name: "Contact Gunner", kind: "main" }
+    - { file: "pog_m05_1_05", name: "Locate Deadeye", kind: "main" }
+    - { file: "pog_m05_2_01", name: "Secure Town Square", kind: "side" }
+    - { file: "pog_m05_2_03", name: "Contact Escapee", kind: "side" }
+    - { file: "pog_m05_2_04", name: "Eliminate Engineers", kind: "side" }
+    - { file: "pog_m05_2_06", name: "Rescue Babushka", kind: "side" }
+    - { file: "pog_m05_2_07", name: "Escort Resistance", kind: "side" }
+M06:
+  title: "The Grip of the Black Hand"
+  pogs:
+    - { file: "pog_m06_1_01", name: "Eliminate Mendoza", kind: "main" }
+    - { file: "pog_m06_1_03", name: "Access War Room Computer", kind: "main", action: "Hack" }
+    - { file: "pog_m06_1_04", name: "Evacuate Scientists", kind: "main" }
+    - { file: "pog_m06_1_05", name: "Escort Sydney", kind: "main" }
+M07:
+  title: "Obelisk of Oppression"
+  pogs:
+    - { file: "pog_m07_1_01", name: "Escort Hotwire to SAM Sites", kind: "main" }
+    - { file: "pog_m07_1_02", name: "Destroy SSM Launchers", kind: "main" }
+    - { file: "pog_m07_1_03", name: "Escape Nuclear Strike", kind: "main" }
+    - { file: "pog_m07_1_04", name: "Evacuate Sydney", kind: "main", note: "M11 also uses it, for “Escort Sydney”" }
+    - { file: "pog_m07_1_05", name: "Protect Team Members", kind: "main" }
+    - { file: "pog_m07_2_03", name: "Destroy Stealth Tank", kind: "side" }
+    - { file: "pog_m07_2_04", name: "Rescue Resistance", kind: "side" }
+    - { file: "pog_m07_2_05", name: "Disable Obelisk", kind: "side", note: "M02 also uses it, for its own Obelisk" }
+    - { file: "pog_m07_2_06", name: "Destroy Napalm Stockpile", kind: "side" }
+    - { file: "pog_m07_2_07", name: "Destroy Radar Installations", kind: "side" }
+M08:
+  title: "Evolution of Evil"
+  pogs:
+    - { file: "pog_m08_1_01", name: "Eliminate Raveshaw", kind: "main" }
+    - { file: "pog_m08_1_02", name: "Escape Prison", kind: "main" }
+    - { file: "pog_m08_1_03", name: "Infiltrate Research Facility", kind: "main", note: "M09 also uses it, for “Escort Mobius to Surface”" }
+    - { file: "pog_m08_1_04", name: "Rescue Scientists", kind: "main", note: "M02 also uses it, for “Locate Missing Scientists”" }
+    - { file: "pog_m08_2_01", name: "Disable Helipad", kind: "side" }
+    - { file: "pog_m08_2_02", name: "Disable Station Alpha", kind: "side", note: "M06 also uses it, for “Disable Alarm”" }
+    - { file: "pog_m08_2_03", name: "Disable Station Beta", kind: "side" }
+M09:
+  title: "All Brains, No Brawn"
+  pogs:
+    - { file: "pog_m09_1_01", name: "Acquire Power Suit", kind: "main" }
+    - { file: "pog_m09_1_02", name: "Protect Mobius", kind: "main" }
+    - { file: "pog_m09_1_03", name: "Escort Mobius to GDI", kind: "main" }
+M10:
+  title: "Tomorrow’s Technology Today"
+  pogs:
+    - { file: "pog_m10_1_01", name: "Access the Southeastern, Northeastern and Northwestern Gates", kind: "main" }
+    - { file: "pog_m10_1_02", name: "Disable Construction Yard", kind: "main" }
+    - { file: "pog_m10_1_04", name: "Disable Communications Center", kind: "main" }
+    - { file: "pog_m10_1_05", name: "Disable Power Plant", kind: "main" }
+    - { file: "pog_m10_1_07", name: "Sabotage Temple of Nod", kind: "main" }
+    - { file: "pog_m10_1_08", name: "Acquire Base Security Card", kind: "main" }
+    - { file: "pog_m10_2_01", name: "Disable Hand of Nod", kind: "side" }
+    - { file: "pog_m10_2_02", name: "Disable the SAM Sites", kind: "side", note: "Northern, Eastern, Southern and Western" }
+    - { file: "pog_m10_2_03", name: "Disable Tiberium Refinery", kind: "side" }
+    - { file: "pog_m10_2_05", name: "Destroy Airstrip", kind: "side" }
+    - { file: "pog_m10_2_06", name: "Disable the Northern and Western Helipads", kind: "side" }
+    - { file: "pog_m10_2_07", name: "Disable Tiberium Silos", kind: "side" }
+    - { file: "pog_m10_2_11", name: "Destroy Turrets", kind: "side" }
+M11:
+  title: "Stomping on Holy Ground"
+  pogs:
+    - { file: "pog_m11_1_01", name: "Rescue Sydney", kind: "main" }
+    - { file: "pog_m11_1_02", name: "Infiltrate Temple Bunker", kind: "main" }
+    - { file: "pog_m11_1_03", name: "Infiltrate Temple Power Core", kind: "main" }
+    - { file: "pog_m11_1_04", name: "Sabotage Nuclear Missile", kind: "main" }

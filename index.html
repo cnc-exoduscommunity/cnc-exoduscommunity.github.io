@@ -107,11 +107,21 @@ sections:
         </div>
       </li>
       {%- assign sounds_ready = site.data.sounds | size %}
+      {%- assign sc = site.data.sound_categories %}
       <li>
-        <a class="toc-item{% if sounds_ready == 0 %} is-soon{% endif %}" href="#sounds">
+        <a class="toc-item" href="#sounds">
           <span class="toc-num">03</span>
-          <span class="toc-text"><span class="toc-title">Sounds{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</span><span class="toc-desc">The in-game <code>!sounds</code> commands, with a preview of each</span></span>
+          <span class="toc-text"><span class="toc-title">Sounds</span><span class="toc-desc">The in-game <code>!sounds</code> commands, and every sound in the game{% if sc.total %} ({{ sc.total }}){% endif %}</span></span>
         </a>
+        <div class="toc-sub">
+          <a href="#sounds-commands" class="{% if sounds_ready == 0 %}is-soon{% endif %}">In-game commands{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</a>
+          {%- if sc.total %}
+          <a href="#sounds-game">In-game sounds <span class="toc-count">{{ sc.total }}</span></a>
+          {%- for c in sc.categories %}
+          <a href="#sounds-{{ c.slug }}" class="toc-sub2">{{ c.name | remove: " (mp3)" }} <span class="toc-count">{{ c.count }}</span></a>
+          {%- endfor %}
+          {%- endif %}
+        </div>
       </li>
       <li>
         <a class="toc-item" href="#gallery">
@@ -242,6 +252,7 @@ sections:
 
     {%- comment %} The marks for the map preview, read by site.js. {% endcomment %}
     <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
+<script type="application/json" id="objective-pogs-data">{{ site.data.objective_pogs | jsonify }}</script>
     {%- comment %} The loading screens (_data/loadscreens.yml), read by site.js. {% endcomment %}
     <script type="application/json" id="purchase-data">{"maps": {{ site.data.purchase.maps | jsonify }}, "flying": {{ site.data.purchase.flying_maps | jsonify }}}</script>
     {%- comment %} The buildings on each map (_data/buildings.yml), read by site.js. {% endcomment %}
@@ -334,17 +345,6 @@ sections:
           <div class="map-dialog-emblem" aria-hidden="true"></div>
           <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span><span class="map-dialog-faction"></span></h3>
           <div class="map-dialog-frame">
-            {%- comment %} The layering test: map / units / editor layers and one storey at a time, from the RenegadeViewer export. {% endcomment %}
-            <div class="layer-panel" hidden>
-              <label class="layer-try"><input type="checkbox" data-layer-try> Try out layering system? <span class="layer-beta">Testing</span></label>
-              <div class="layer-opts" hidden>
-                <label><input type="checkbox" data-layer-toggle="empty" checked> Map</label>
-                <label><input type="checkbox" data-layer-toggle="filled" checked> Units and objects</label>
-                <label data-layer-has="editor"><input type="checkbox" data-layer-toggle="editor" checked> Editor (waypaths, zones)</label>
-                <label class="layer-floor">Floor <select data-layer-floor><option value="">All floors</option></select></label>
-                <p class="layer-quality" hidden>Single floors and layers are normal quality only for now.</p>
-              </div>
-            </div>
             <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
               <canvas class="map-dialog-hd" hidden></canvas>
               <div class="map-dialog-canvas">
@@ -364,12 +364,28 @@ sections:
             <span class="map-dialog-zoom-level" aria-live="polite">100%</span>
             <button class="btn btn-small" type="button" data-zoom="in" aria-label="Zoom in">+</button>
             <button class="btn btn-small" type="button" data-zoom="reset">Reset</button>
-            <button class="btn btn-small map-dialog-quality" type="button" aria-pressed="true" hidden>Quality: High</button>
             <span class="map-dialog-views" role="group" aria-label="View" hidden>
               <button class="btn btn-small" type="button" data-view="map" aria-pressed="true">Map</button>
               <button class="btn btn-small" type="button" data-view="photo" aria-pressed="false">In-Game Photo</button>
               <button class="btn btn-small" type="button" data-view="loading" aria-pressed="false">Loading Screen</button>
+              <span class="map-dialog-sep" aria-hidden="true"></span>
+              <span class="map-quality" role="group" aria-label="Map details">
+                <span class="map-quality-label">Details</span>
+                <button class="btn btn-small" type="button" data-quality="low" aria-pressed="true" title="Low: the normal picture. Quick to load; up to 400% zoom.">Low</button>
+                <button class="btn btn-small" type="button" data-quality="high" aria-pressed="false" title="High: a much bigger picture, so you can zoom in further (up to 1000%) and still read the details. Bigger download.">High</button>
+              </span>
             </span>
+          </div>
+          {%- comment %} The layering test: only with Details: High. {% endcomment %}
+          <div class="layer-panel" hidden>
+            <label class="layer-try" title="Shows the map in parts you can switch on and off, or one storey at a time. Needs Details: High."><input type="checkbox" data-layer-try> Try out layering system? <span class="layer-beta">Testing</span></label>
+            <div class="layer-opts" hidden>
+              <label title="The map itself: ground, cliffs, buildings and props."><input type="checkbox" data-layer-toggle="empty" checked> Map <span class="layer-what">ground, buildings, props</span></label>
+              <label title="Things placed on the map: vehicles, defences and the units its spawners make."><input type="checkbox" data-layer-toggle="filled" checked> Units and objects <span class="layer-what">vehicles, defences, spawned units</span></label>
+              <label data-layer-has="editor" title="Level-editor helpers: waypaths, zones and so on."><input type="checkbox" data-layer-toggle="editor" checked> Editor <span class="layer-what">waypaths, zones</span></label>
+              <label class="layer-floor" title="One storey on its own (map and units together), with everything above and below cut away. 1 is the top.">Floor <select data-layer-floor><option value="">All floors</option></select></label>
+              <p class="layer-quality" hidden>Single floors and layers are normal quality only for now.</p>
+            </div>
           </div>
           {%- assign marks_count = site.data.map_marks | size %}
           {%- if marks_count > 0 %}
@@ -419,26 +435,66 @@ sections:
 </details>
 
 {%- assign sounds_ready = site.data.sounds | size %}
-<details class="panel{% if sounds_ready == 0 %} is-soon{% endif %}" id="sounds">
-  <summary class="panel-tab"><h2 class="panel-tab-title">Sounds{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</h2></summary>
+{%- assign sc = site.data.sound_categories %}
+<details class="panel" id="sounds">
+  <summary class="panel-tab"><h2 class="panel-tab-title">Sounds</h2></summary>
   <div class="panel-body">
-    <p>In game, type <code>!sounds</code> to see the list, then type a command to play that sound for everyone.</p>
-    <div class="table-wrap">
-      <table class="sounds-table">
-        <thead><tr><th class="col-fit">#</th><th>Name / Command</th><th>Audio</th></tr></thead>
-        <tbody>
-          {%- for sound in site.data.sounds %}
-          <tr>
-            <td class="col-fit">{{ forloop.index }}</td>
-            <td><code>{{ sound.command | escape }}</code>{% if sound.name %} <span class="sound-name">{{ sound.name | escape }}</span>{% endif %}</td>
-            <td>{% if sound.audio %}<audio controls preload="none" src="{{ '/assets/sounds/' | append: sound.audio | relative_url }}"></audio>{% else %}<span class="muted">-</span>{% endif %}</td>
-          </tr>
-          {%- else %}
-          <tr class="sounds-empty"><td class="col-fit">-</td><td>The list of sounds is coming soon.</td><td><span class="muted">-</span></td></tr>
-          {%- endfor %}
-        </tbody>
-      </table>
-    </div>
+    <section class="sound-part{% if sounds_ready == 0 %} is-soon{% endif %}" id="sounds-commands">
+      <h3 class="sound-part-title">In-game commands{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</h3>
+      <p>In game, type <code>!sounds</code> to see the list, then type a command to play that sound for everyone.</p>
+      {%- if sounds_ready > 0 %}
+      <div class="table-wrap">
+        <table class="sounds-table">
+          <thead><tr><th class="col-fit">#</th><th>Name / Command</th><th>Audio</th></tr></thead>
+          <tbody>
+            {%- for sound in site.data.sounds %}
+            <tr>
+              <td class="col-fit">{{ forloop.index }}</td>
+              <td><code>{{ sound.command | escape }}</code>{% if sound.name %} <span class="sound-name">{{ sound.name | escape }}</span>{% endif %}</td>
+              <td>{% if sound.audio %}<audio controls preload="none" src="{{ '/assets/sounds/' | append: sound.audio | relative_url }}"></audio>{% else %}<span class="muted">-</span>{% endif %}</td>
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+    </section>
+
+    {%- if sc.total %}
+    <section class="sound-part" id="sounds-game">
+      <h3 class="sound-part-title">In-game sounds <span class="sound-total">{{ sc.total }} sounds · {{ sc.minutes }} min</span></h3>
+      <p>Every sound in the game and the co-op maps, viewed and extracted from the game files with <a href="{{ site.data.credits.renegadeviewer.url }}">{{ site.data.credits.renegadeviewer.name }}</a> (a fan-made tool; not associated with EA or Exodus). Pick a sound to hear it; the lines spoken in it are shown with who says them.</p>
+      <div class="snd" data-sounds="{{ '/assets/sounds/index.json' | relative_url }}" data-base="{{ '/assets/sounds/' | relative_url }}">
+        <div class="snd-side">
+          <input class="snd-search" type="search" placeholder="Search names, lines, speakers... (e.g. havoc, mammoth)" aria-label="Search sounds">
+          <div class="snd-cats" role="group" aria-label="Categories">
+            <button type="button" class="snd-cat" data-cat="" aria-pressed="true">All <span class="snd-n">{{ sc.total }}</span></button>
+            {%- for c in sc.categories %}
+            <button type="button" class="snd-cat" id="sounds-{{ c.slug }}" data-cat="{{ c.name | escape }}" aria-pressed="false">{{ c.name | remove: " (mp3)" }} <span class="snd-n">{{ c.count }}</span></button>
+            {%- endfor %}
+          </div>
+          <div class="snd-listbar">
+            <span class="snd-shown">Loading...</span>
+            <label>Sort <select class="snd-sort"><option value="name">File name A-Z</option><option value="len">Longest first</option><option value="short">Shortest first</option><option value="said">Said by</option></select></label>
+          </div>
+          <div class="snd-list" tabindex="0" role="listbox" aria-label="Sounds"><div class="snd-list-inner"></div></div>
+        </div>
+        <div class="snd-main">
+          <div class="snd-wave"><canvas></canvas><span class="snd-time">0:00.0 / 0:00.0</span></div>
+          <div class="snd-controls">
+            <button class="btn btn-small" type="button" data-snd="back">&#9664;&#9664; 2 s</button>
+            <button class="btn btn-small snd-play" type="button" data-snd="play">Play</button>
+            <button class="btn btn-small" type="button" data-snd="fwd">2 s &#9654;&#9654;</button>
+            <button class="btn btn-small" type="button" data-snd="stop">Stop</button>
+            <label class="snd-check"><input type="checkbox" data-snd-opt="loop"> Replay</label>
+            <label class="snd-check snd-vol">Volume <input type="range" min="0" max="100" value="50" data-snd-opt="vol"> <span class="snd-volv">50%</span></label>
+            <label class="snd-check"><input type="checkbox" data-snd-opt="auto" checked> Play on select</label>
+          </div>
+          <div class="snd-info"><p class="muted">Pick a sound from the list.</p></div>
+        </div>
+      </div>
+    </section>
+    {%- endif %}
   </div>
 </details>
 

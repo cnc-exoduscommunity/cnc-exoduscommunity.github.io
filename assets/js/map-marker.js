@@ -35,6 +35,7 @@
   // Only the fields the site uses, in a fixed order, without empty ones.
   function tidy(m) {
     var out = { kind: MapMarks.kind(m.kind), x: round(clamp(+m.x || 0)), y: round(clamp(+m.y || 0)) };
+    if (out.kind === "objective" && m.pog) out.pog = String(m.pog);
     if (m.label && String(m.label).trim()) out.label = String(m.label).trim();
     if (m.note && String(m.note).trim()) out.note = String(m.note).trim();
     var imgs = (Array.isArray(m.images) ? m.images : []).map(function (s) { return String(s).trim(); }).filter(Boolean);
@@ -71,7 +72,8 @@
     "# there, then copy its text over this whole file.",
     "#",
     "# One entry per map (the map's name, as in _data/maps.yml), with a list of marks:",
-    "#   kind:   spawn | secret | vehicle | other",
+    "#   kind:   objective | spawn | secret | vehicle | other",
+    "#   pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)",
     "#   x, y:   where on the image, in percent (0-100) from the left / top edge",
     "#   label:  optional, a short name shown on hover (e.g. \"GDI start\")",
     "#   note:   optional, a longer text shown under the label",
@@ -96,6 +98,7 @@
     return HEADER + "\n\n" + keys.map(function (k) {
       return key(k) + ":\n" + d[k].map(function (m) {
         var parts = ["kind: " + m.kind, "x: " + num(m.x), "y: " + num(m.y)];
+        if (m.pog) parts.push("pog: " + m.pog);
         if (m.label) parts.push("label: " + q(m.label));
         if (m.note) parts.push("note: " + q(m.note));
         if (m.images) parts.push("images: [" + m.images.map(q).join(", ") + "]");
@@ -222,6 +225,7 @@
     if (fresh || document.activeElement !== fields.label) fields.label.value = m.label || "";
     if (fresh || document.activeElement !== fields.note) fields.note.value = m.note || "";
     posEl.textContent = "x " + num(+m.x) + "%, y " + num(+m.y) + "% (from the top left)";
+    renderPogs(m);
     // Pictures, with a preview: a picked file, or the file on the site.
     imagesEl.textContent = "";
     (m.images || []).forEach(function (name, i, all) {
@@ -254,6 +258,41 @@
       });
       li.appendChild(tools);
       imagesEl.appendChild(li);
+    });
+  }
+
+  // ---- Objective pictures ----
+  var pogData = {};
+  try { pogData = JSON.parse((document.getElementById("objective-pogs-data") || {}).textContent || "{}") || {}; } catch (e) {}
+  var pogField = document.querySelector("[data-mm-pogfield]"), pogBox = document.querySelector("[data-mm-pogs]"), pogName = document.querySelector("[data-mm-pogname]");
+  var pogShownFor = null;
+  function renderPogs(m) {
+    if (!pogField) return;
+    var isObj = MapMarks.kind(m.kind) === "objective";
+    pogField.hidden = !isObj;
+    if (!isObj) return;
+    var key = m.pog || "";
+    var info = key && MapMarks.pogInfo(key);
+    pogName.textContent = info ? info.name + " - " + (info.kind === "side" ? "secondary" : "primary") + (info.action ? " (" + info.action + ")" : "") + (info.note ? " · " + info.note : "") : "Pick a picture (or leave it as a plain objective mark).";
+    if (pogShownFor === mapName + "|" + key) return;
+    pogShownFor = mapName + "|" + key;
+    pogBox.textContent = "";
+    // This map's pictures first, then the other missions'.
+    var keys = Object.keys(pogData);
+    keys.sort(function (a, b) { return (a === mapName ? -1 : 0) - (b === mapName ? -1 : 0); });
+    keys.forEach(function (mk) {
+      var g = document.createElement("p"); g.className = "mm-pog-group";
+      g.textContent = mk + " - " + (pogData[mk].title || "");
+      pogBox.appendChild(g);
+      (pogData[mk].pogs || []).forEach(function (p) {
+        var k = p.file.replace(/^pog_/, "");
+        var b = document.createElement("button");
+        b.type = "button"; b.title = p.name + (p.kind === "side" ? " (secondary)" : "");
+        b.setAttribute("aria-pressed", String(k === key));
+        b.innerHTML = '<img alt="" src="' + MapMarks.POG_BASE + p.file + '.png">' + (p.kind === "side" ? '<span class="mm-pog-side">2nd</span>' : "");
+        b.addEventListener("click", function () { var mm = marks()[selected]; if (!mm) return; mm.pog = (mm.pog === k ? undefined : k); if (!mm.pog) delete mm.pog; render(); });
+        pogBox.appendChild(b);
+      });
     });
   }
 
