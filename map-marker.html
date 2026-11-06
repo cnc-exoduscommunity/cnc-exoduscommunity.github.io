@@ -47,9 +47,21 @@ back the new text for that file. Logic in assets/js/map-marker.js.
         </span>
       </label>
       <div class="mm-field">
-        <span class="mm-label">Click the map to add</span>
-        <div class="mm-kinds" role="group" aria-label="Kind of mark to add" data-mm-kinds></div>
+        <span class="mm-label">Mode</span>
+        <div class="mm-modes" role="group" aria-label="What a click on the map does">
+          <button class="btn btn-small" type="button" data-mm-mode="select" title="Clicks pick marks to edit or move; nothing new is added.">Select</button>
+          <button class="btn btn-small" type="button" data-mm-mode="place" title="Clicks add a mark of the chosen kind.">Place</button>
+        </div>
       </div>
+      <div class="mm-field mm-place-field" data-mm-placefield>
+        <span class="mm-label">Click the map to place</span>
+        <div class="mm-kinds" role="group" aria-label="Kind of mark to place" data-mm-kinds></div>
+      </div>
+    </div>
+    {%- comment %} Place mode: what the chosen kind can be (a pickup, an objective picture...). Fixed height so nothing below moves. {% endcomment %}
+    <div class="mm-place-opts" data-mm-placeopts>
+      <p class="mm-place-now"><span class="mm-label">Placing</span> <span data-mm-placenow></span></p>
+      <div class="mm-pog-pick mm-icon-pick mm-place-pick" data-mm-placepick></div>
     </div>
 
     <div class="mm-draft" data-mm-draft hidden>

@@ -123,7 +123,7 @@
     b.setAttribute("data-kind", k);
     b.innerHTML = '<span class="map-mark-dot map-mark-' + k + '">' + MapMarks.icon(k) + "</span>";
     b.appendChild(document.createTextNode(MapMarks.KINDS[k].label));
-    b.addEventListener("click", function () { addKind = k; markKinds(); });
+    b.addEventListener("click", function () { addKind = k; if (mode !== "place") setMode("place"); markKinds(); renderPlace(); });
     kindsBox.appendChild(b);
     var o = document.createElement("option");
     o.value = k; o.textContent = MapMarks.KINDS[k].label;
@@ -136,6 +136,78 @@
   }
   markKinds();
 
+  // ---- Mode: Select (clicks pick marks) or Place (clicks add the chosen kind) ----
+  var mode = "place";
+  try { if (localStorage.getItem("map-marker-mode") === "select") mode = "select"; } catch (e) {}
+  var placeField = $("[data-mm-placefield]"), placeOpts = $("[data-mm-placeopts]");
+  function setMode(m) {
+    mode = m;
+    try { localStorage.setItem("map-marker-mode", m); } catch (e) {}
+    document.querySelectorAll("[data-mm-mode]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-mm-mode") === m)); });
+    // Hidden but keeping their space, so the map doesn't jump.
+    placeField.style.visibility = placeOpts.style.visibility = m === "place" ? "" : "hidden";
+    stage.classList.toggle("is-select", m === "select");
+  }
+  document.querySelectorAll("[data-mm-mode]").forEach(function (b) {
+    b.addEventListener("click", function () { setMode(b.getAttribute("data-mm-mode")); });
+  });
+
+  // What the next mark of each kind will be: an objective picture or an icon (none = plain).
+  var placeChoice = {};
+  try { placeChoice = JSON.parse(localStorage.getItem("map-marker-place") || "{}") || {}; } catch (e) {}
+  var placeNow = $("[data-mm-placenow]"), placePick = $("[data-mm-placepick]");
+  function placeGroups(k) {
+    if (k === "objective") {
+      var keys = Object.keys(pogData);
+      keys.sort(function (a, b) { return (a === mapName ? -1 : 0) - (b === mapName ? -1 : 0); });
+      return keys.map(function (mk) {
+        return { title: mk + " - " + (pogData[mk].title || ""), items: (pogData[mk].pogs || []).map(function (p) {
+          return { key: p.file.replace(/^pog_/, ""), name: p.name + (p.kind === "side" ? " (secondary)" : ""), src: MapMarks.POG_BASE + p.file + ".png", side: p.kind === "side" };
+        }) };
+      });
+    }
+    var groups = MapMarks.icons().filter(function (g) { return k === "pickup" ? g.title !== "Sides" : g.title === "Sides"; });
+    return groups.map(function (g) {
+      return { title: g.title, items: g.items.map(function (it) { return { key: it.hud, name: it.name, src: MapMarks.iconUrl(it.hud) }; }) };
+    });
+  }
+  function placeName(k, key) {
+    if (!key) return "";
+    if (k === "objective") { var pi = MapMarks.pogInfo(key); return pi ? pi.name : key; }
+    return MapMarks.iconName(key) || key;
+  }
+  var placeShownFor = null;
+  function renderPlace() {
+    var k = addKind, cur = placeChoice[k] || "";
+    var keepScroll = placeShownFor === k + "|" + mapName ? placePick.scrollTop : 0;
+    placeShownFor = k + "|" + mapName;
+    var label = MapMarks.KINDS[k].label;
+    placeNow.textContent = label + (cur ? ": " + placeName(k, cur) : k === "pickup" ? " (pick what it is below)" : " (plain symbol)");
+    placePick.textContent = "";
+    var none = document.createElement("button");
+    none.type = "button"; none.className = "mm-place-none"; none.title = "Plain " + label.toLowerCase() + " symbol";
+    none.setAttribute("aria-pressed", String(!cur));
+    none.innerHTML = '<span class="map-mark-dot map-mark-' + k + '">' + MapMarks.icon(k) + "</span>";
+    none.addEventListener("click", function () { delete placeChoice[k]; savePlace(); renderPlace(); });
+    placePick.appendChild(none);
+    placeGroups(k).forEach(function (g) {
+      var h = document.createElement("p"); h.className = "mm-pog-group"; h.textContent = g.title;
+      placePick.appendChild(h);
+      g.items.forEach(function (it) {
+        var b = document.createElement("button");
+        b.type = "button"; b.title = it.name;
+        b.setAttribute("aria-pressed", String(it.key === cur));
+        var img = document.createElement("img"); img.alt = it.name; img.src = it.src;
+        b.appendChild(img);
+        if (it.side) { var s2 = document.createElement("span"); s2.className = "mm-pog-side"; s2.textContent = "2nd"; b.appendChild(s2); }
+        b.addEventListener("click", function () { placeChoice[k] = it.key; savePlace(); renderPlace(); });
+        placePick.appendChild(b);
+      });
+    });
+    placePick.scrollTop = keepScroll;
+  }
+  function savePlace() { try { localStorage.setItem("map-marker-place", JSON.stringify(placeChoice)); } catch (e) {} }
+
   // ---- Map ----
   var mapName = null, selected = -1, mapOpt = null;
   function marks() { return data[mapName] || (data[mapName] = []); }
@@ -147,6 +219,7 @@
     selected = -1;
     mapOpt = opt;
     view();
+    renderPlace();
     // The map's side: its GDI / Nod logo next to the list.
     var logo = document.querySelector("[data-mm-side]"), side = opt.getAttribute("data-faction");
     if (logo) {
@@ -412,10 +485,13 @@
     if (e.type === "pointercancel") { render(); return; }
     if (d.index >= 0) { selected = d.index; render(); return; }        // clicked or dragged a mark
     if (d.cancel || Math.hypot(e.clientX - d.x, e.clientY - d.y) >= 4) return;     // moved the map, not a click
+    if (mode === "select") { if (selected >= 0) { selected = -1; render(); } return; }   // Select: a click on the map only deselects
     var r = stage.getBoundingClientRect();
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
     var p = toPercent(e);
-    marks().push({ kind: addKind, x: p.x, y: p.y });
+    var nm = { kind: addKind, x: p.x, y: p.y }, pick = placeChoice[addKind];
+    if (pick) { if (addKind === "objective") nm.pog = pick; else nm.icon = pick; }
+    marks().push(nm);
     selected = marks().length - 1;
     render();
     fields.label.focus({ preventScroll: true });
@@ -625,5 +701,6 @@
   // Start on ?map=Name, else the last map used, else the first.
   var start = null;
   try { start = new URLSearchParams(location.search).get("map") || localStorage.getItem(MAP_KEY); } catch (e) {}
+  setMode(mode);
   setMap(start);
 })();
