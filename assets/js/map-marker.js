@@ -138,6 +138,13 @@
     mapName = opt.value;
     selected = -1;
     image.src = opt.getAttribute("data-image");
+    // The map's side: its GDI / Nod logo next to the list.
+    var logo = document.querySelector("[data-mm-side]"), side = opt.getAttribute("data-faction");
+    if (logo) {
+      var src = side && logo.getAttribute("data-logo-" + side);
+      logo.hidden = !src;
+      if (src) { logo.src = src; logo.alt = side === "nod" ? "Nod" : "GDI"; logo.title = (side === "nod" ? "Nod" : "GDI") + " map"; }
+    }
     image.alt = "Overhead map of " + mapName;
     try { localStorage.setItem(MAP_KEY, mapName); } catch (e) {}
     try {
@@ -150,7 +157,8 @@
   function optionLabels() {
     Array.prototype.forEach.call(mapSelect.options, function (o) {
       var n = (data[o.value] || []).length;
-      o.textContent = o.value + " - " + o.getAttribute("data-description") + (n ? "  (" + n + " mark" + (n === 1 ? "" : "s") + ")" : "");
+      var f = o.getAttribute("data-faction");
+      o.textContent = o.value + (f === "gdi" ? " [GDI]" : f === "nod" ? " [Nod]" : "") + " - " + o.getAttribute("data-description") + (n ? "  (" + n + " mark" + (n === 1 ? "" : "s") + ")" : "");
     });
   }
   mapSelect.addEventListener("change", function () { setMap(mapSelect.value); });

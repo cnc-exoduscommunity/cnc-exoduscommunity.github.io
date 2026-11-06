@@ -195,7 +195,7 @@ function setUrlParam(key, value, fallback) {
   var panelEl = dialog.querySelector(".map-dialog-panel");
   // Weapons: a card on the left of the map, or below the map on narrow screens.
   var weaponsCard = dialog.querySelector(".map-dialog-weapons-card");
-  var weaponLists = dialog.querySelectorAll(".map-dialog-weapons:not(.map-dialog-onmap-list)");
+  var weaponLists = dialog.querySelectorAll(".map-dialog-weapons:not(.map-dialog-onmap-list):not(.mdw-always):not(.mdw-onmap-list)");
   var onmapBoxes = dialog.querySelectorAll(".map-dialog-onmap");
   var weaponsNone = dialog.querySelector(".map-dialog-weapons-none");
   var belowWeapons = dialog.querySelector(".map-dialog-below-weapons");
@@ -293,6 +293,66 @@ function setUrlParam(key, value, fallback) {
       rows.appendChild(row);
     });
     terminalTip(bBox).hidden = true;
+  }
+  // ---- Layering test ("Try out layering system?"): the export's layers stacked over each
+  // other (map, units and objects, editor), or one storey on its own. Remembered per browser.
+  var layerPanel = dialog.querySelector(".layer-panel");
+  var layerImgs = dialog.querySelectorAll(".map-layer-img");
+  var layering = { wanted: false, info: {}, on: { empty: true, filled: true, editor: true }, floor: "" };
+  try { layering.wanted = localStorage.getItem("layering") === "1"; } catch (e) {}
+  function layerBase(url) { return url.replace(/layers\.json(\?.*)?$/, ""); }
+  function clearLayers() {
+    Array.prototype.forEach.call(layerImgs, function (im) { im.hidden = true; im.removeAttribute("src"); });
+    image.style.visibility = "";
+  }
+  function applyLayers(link) {
+    var url = link.getAttribute("data-layers"), base = layerBase(url);
+    var meta = layering.info[url];
+    if (!meta) {
+      fetch(url).then(function (r) { return r.json(); }).then(function (m) {
+        layering.info[url] = m;
+        if (links[current] === link) applyLayers(link);
+      }).catch(function () {});
+      return;
+    }
+    var floorSel = layerPanel.querySelector("[data-layer-floor]");
+    var keep = layering.floor;
+    floorSel.textContent = "";
+    floorSel.appendChild(new Option("All floors", ""));
+    (meta.floors || []).forEach(function (f) { floorSel.appendChild(new Option(f.n + ": " + f.name, String(f.n))); });
+    if (!(meta.floors || []).some(function (f) { return String(f.n) === keep; })) keep = "";
+    floorSel.value = layering.floor = keep;
+    var hasEditor = (meta.layers || []).indexOf("editor") >= 0;
+    layerPanel.querySelector('[data-layer-has="editor"]').hidden = !hasEditor;
+    var floor = layering.floor;
+    // One storey on its own (it has the map and the units together), or the stack.
+    image.src = base + (floor ? "floor-" + floor : "empty") + ".webp";
+    image.style.visibility = floor || layering.on.empty ? "" : "hidden";
+    Array.prototype.forEach.call(layerImgs, function (im) {
+      var key = im.getAttribute("data-layer");
+      var show = !floor && layering.on[key] && (meta.layers || []).indexOf(key) >= 0;
+      im.hidden = !show;
+      if (show) im.src = base + key + ".webp"; else im.removeAttribute("src");
+    });
+    Array.prototype.forEach.call(layerPanel.querySelectorAll("[data-layer-toggle]"), function (c) { c.disabled = !!floor; });
+  }
+  if (layerPanel) {
+    var tryBox = layerPanel.querySelector("[data-layer-try]");
+    tryBox.checked = layering.wanted;
+    layerPanel.querySelector(".layer-opts").hidden = !layering.wanted;
+    tryBox.addEventListener("change", function () {
+      layering.wanted = tryBox.checked;
+      try { localStorage.setItem("layering", layering.wanted ? "1" : "0"); } catch (e) {}
+      layerPanel.querySelector(".layer-opts").hidden = !layering.wanted;
+      show(current);
+    });
+    Array.prototype.forEach.call(layerPanel.querySelectorAll("[data-layer-toggle]"), function (c) {
+      c.addEventListener("change", function () { layering.on[c.getAttribute("data-layer-toggle")] = c.checked; applyLayers(links[current]); });
+    });
+    layerPanel.querySelector("[data-layer-floor]").addEventListener("change", function (e) { layering.floor = e.target.value; applyLayers(links[current]); });
+    // Clicks on the panel aren't map drags.
+    layerPanel.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
+    layerPanel.addEventListener("dblclick", function (e) { e.stopPropagation(); });
   }
   var purchase = { maps: {}, flying: [] };
   try { purchase = JSON.parse((document.getElementById("purchase-data") || {}).textContent || "{}") || purchase; } catch (e) {}
@@ -910,12 +970,15 @@ function setUrlParam(key, value, fallback) {
     // The high-resolution picture: fetched in the background, drawn on the canvas once it's
     // ready when Quality is High (see hdRefresh).
     if (hd) preloadHd(hd);
-    hdUrl = hd && quality === "high" ? hd : null;
+    var layered = layering.wanted && view === "map" && link.getAttribute("data-layers");
+    hdUrl = hd && quality === "high" && !layered ? hd : null;
     var withImage = !!view;
     fillLoadscreen(view === "loading" ? sc : null);
     dialog.classList.toggle("is-loadscreen", view === "loading");
     if (withImage) {
       image.src = srcs[view];
+      if (layered) applyLayers(link); else clearLayers();
+      if (layerPanel) layerPanel.hidden = !(view === "map" && link.getAttribute("data-layers"));
       image.alt = (view === "photo" ? "In-game view of " : view === "loading" ? "Loading screen of " : "Overhead map of ") + mapName;
     } else {
       image.removeAttribute("src");
@@ -923,6 +986,7 @@ function setUrlParam(key, value, fallback) {
       zoom.reset();
     }
     image.hidden = !withImage;
+    if (!withImage) { clearLayers(); if (layerPanel) layerPanel.hidden = true; }
     showMarks(link, view !== "map");
     emptyMsg.hidden = withImage;
     frame.classList.toggle("is-empty", !withImage);

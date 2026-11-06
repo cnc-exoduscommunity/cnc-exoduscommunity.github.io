@@ -19,6 +19,8 @@ back the new text for that file. Logic in assets/js/map-marker.js.
     <div class="mm-toolbar">
       <label class="mm-field mm-map-field">
         <span class="mm-label">Map</span>
+        <span class="mm-map-row">
+        <img class="mm-side-logo" data-mm-side alt="" width="64" height="64" hidden data-logo-gdi="{{ '/assets/images/hud/hud_c%26c_gdilogo.png' | relative_url }}" data-logo-nod="{{ '/assets/images/hud/hud_c%26c_nodlogo.png' | relative_url }}">
         <select class="mm-map" data-mm-map>
           {%- for map in site.data.maps %}
           {%- unless map.images_from %}
@@ -29,11 +31,12 @@ back the new text for that file. Logic in assets/js/map-marker.js.
             {%- if map_file and map_img == nil %}{% capture img_v %}{{ map_file.modified_time | date: "%s" }}{% endcapture %}{% assign map_img = map_path | append: "?v=" | append: img_v %}{% endif %}
           {%- endfor %}
           {%- if map_img %}
-          <option value="{{ map.name | escape }}" data-image="{{ map_img | relative_url }}" data-description="{{ map.description | escape }}">{{ map.name }}</option>
+          <option value="{{ map.name | escape }}" data-image="{{ map_img | relative_url }}" data-description="{{ map.description | escape }}" data-faction="{{ map.faction | downcase }}">{{ map.name }}</option>
           {%- endif %}
           {%- endunless %}
           {%- endfor %}
         </select>
+        </span>
       </label>
       <div class="mm-field">
         <span class="mm-label">Click the map to add</span>

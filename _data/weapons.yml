@@ -9,6 +9,8 @@
 #   8 Tiberium, 9 C4, 0 beacons).
 # versions: optional, when the game has more than one version (preset) of the weapon
 #   with the same name and icon (not shown on the site yet).
+# carried_by: which purchasable characters carry it (gdi / nod lists, names as on the
+#   purchase terminal), or { everyone: true }. Shown under the weapon in the map preview.
 # Everyone also spawns with a Pistol (1) and Timed C4 (9) (shown as a note).
 - name: Maintenance Tool
   aliases: [Repair Gun]
@@ -16,108 +18,130 @@
   image: repair-gun.webp
   hotkey: 7
   versions: "the normal Repair Gun repairs 2, the C&C \"Special\" one 4"
+  carried_by: { gdi: ["Engineer", "Hotwire"], nod: ["Engineer", "Technician"] }
 - name: Automatic Rifle
   hud: hud_autoguns_hud_autoguns_upper
   image: automatic-rifle.webp
   hotkey: 2
   versions: "4 versions: GDI 7 damage per shot, Nod 5, in both normal and C&C mode"
+  carried_by: { gdi: ["GDI Soldier"], nod: ["Nod Soldier"] }
 - name: Chaingun
   hud: hud_chainguns_hud_chainguns_lower
   image: chaingun.webp
   hotkey: 2
   versions: "GDI and Nod copies with the same stats"
+  carried_by: { gdi: ["GDI Officer"], nod: ["Nod Officer"] }
 - name: Sniper Rifle
   hud: hud_sniperock_hud_sniperock_lower
   image: sniper-rifle.webp
   hotkey: 3
   versions: "4 versions: 70 damage normally, 100 in C&C mode; GDI and Nod copies are the same"
+  carried_by: { gdi: ["Deadeye"], nod: ["Black Hand Sniper"] }
 - name: Tiberium Flechette Gun
   hud: hud_tibflech
   image: tiberium-flechette-gun.webp
   hotkey: 8
+  carried_by: { gdi: ["Patch"] }
 - name: Tiberium Auto Rifle
   hud: hud_tibrvoltr_hud_tibrvoltr_lower
   image: tiberium-auto-rifle.webp
   hotkey: 8
+  carried_by: { gdi: ["Sydney"] }
 - name: Laser Rifle
   hud: hud_sg_lr_rg_hud_sg_lr_rg_middle
   image: laser-rifle.webp
   hotkey: 7
+  carried_by: { nod: ["Stealth Black Hand"] }
 - name: Laser Chaingun
   hud: hud_chainguns_hud_chainguns_upper
   image: laser-chaingun.webp
   hotkey: 7
+  carried_by: { nod: ["Black Hand Laser Chaingunner"] }
 - name: Volt Auto Rifle
   hud: hud_tibrvoltr_hud_tibrvoltr_upper
   image: volt-auto-rifle.webp
   hotkey: 7
   versions: "GDI and Nod copies with the same stats"
+  carried_by: { gdi: ["Mobius"], nod: ["Mendoza"] }
 - name: Railgun
   hud: hud_sg_lr_rg_hud_sg_lr_rg_lower
   image: railgun.webp
   hotkey: 7
+  carried_by: { nod: ["Raveshaw"] }
 - name: Personal Ion Cannon
   hud: hud_grana_ionc_hud_grana_ionc_lower
   image: personal-ion-cannon.webp
   hotkey: 7
+  carried_by: { gdi: ["Sydney (Power Suit)"] }
 - name: Grenade Launcher
   hud: hud_grana_ionc_hud_grana_ionc_upper
   image: grenade-launcher.webp
   hotkey: 6
+  carried_by: { gdi: ["Grenadier"] }
 - name: Rocket Launcher
   hud: hud_sniperock_hud_sniperock_upper
   image: rocket-launcher.webp
   hotkey: 5
   versions: "normal: 35 damage; C&C mode: 40"
+  carried_by: { gdi: ["Rocket Soldier Officer", "Gunner"], nod: ["Rocket Soldier Officer"] }
 - name: Flamethrower
   hud: hud_chem_fire_hud_chem_fire_upper
   image: flamethrower.webp
   hotkey: 4
   versions: "normal and C&C versions: same damage, different warhead entry"
+  carried_by: { nod: ["Flamethrower"] }
 - name: Chemical Sprayer
   aliases: [Chem Sprayer]
   hud: hud_chem_fire_hud_chem_fire_lower
   image: chemical-sprayer.webp
   hotkey: 4
   versions: "normal and C&C versions: same damage, different warhead entry"
+  carried_by: { nod: ["Chem Warrior"] }
 # credit: prima = the image: is from Prima's Official Strategy Guide (only shown when there's no hud: icon)
 - name: Pistol
   hud: hud_autoguns_hud_autoguns_lower
   image: pistol.webp
   credit: prima
   hotkey: 1
+  carried_by: { everyone: true }
 - name: Shotgun
   hud: hud_sg_lr_rg_hud_sg_lr_rg_upper
   image: shotgun.webp
   credit: prima
   hotkey: 2
+  carried_by: { gdi: ["Shotgun Trooper"], nod: ["Shotgun Trooper"] }
 - name: Ramjet Rifle
   hud: hud_ramsentu_hud_ramsentu_lower
   image: ramjet-rifle.webp
   credit: prima
   hotkey: 3
   versions: "normal: 100 Steel damage; C&C mode: 200 Shrapnel"
+  carried_by: { gdi: ["Havoc"], nod: ["Sakura"] }
 - name: Advanced Repair Gun
   image: advanced-repair-gun.webp
   credit: prima
   hotkey: 7
+  carried_by: { gdi: ["Hotwire"], nod: ["Technician"] }
 - name: Remote C4
   hud: hud_remotec4
   image: remote-c4.webp
   credit: prima
   hotkey: 9
   versions: "3 versions: normal, C&C, and a C&C one limited to 2 at once"
+  carried_by: { gdi: ["Engineer", "Hotwire"], nod: ["Engineer", "Technician"] }
 - name: Proximity C4
   hud: hud_proxyc4
   image: proximity-c4.webp
   credit: prima
   hotkey: 9
+  carried_by: { gdi: ["Hotwire"], nod: ["Technician"] }
 - name: Timed C4
   hud: hud_timec4
   image: timed-c4.webp
   credit: prima
   hotkey: 9
   versions: "3 versions: normal, C&C, and a C&C one limited to 2 at once"
+  carried_by: { everyone: true }
 - name: Ion Cannon Beacon
   aliases: [Ion Beacon]
   hud: hud_ionbeaken

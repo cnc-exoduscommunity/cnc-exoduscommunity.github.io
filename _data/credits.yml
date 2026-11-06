@@ -13,3 +13,7 @@ ryanturner:
   url: https://github.com/TheSCREWEDSoftware
 prima:
   name: Prima's Official Strategy Guide
+renegadeviewer:
+  name: RenegadeViewer
+  url: https://github.com/TheSCREWEDSoftware/RenegadeViewer
+  note: "Viewed and extracted from the game files with RenegadeViewer, a fan-made tool by Ryan Turner; not associated with EA or Exodus."

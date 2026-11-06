@@ -1,0 +1,36 @@
+{
+  "map": "M01",
+  "box": [
+    0,
+    0,
+    16384,
+    12590
+  ],
+  "source_size": [
+    16384,
+    12590
+  ],
+  "m_per_px": 0.091,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3"
+    },
+    {
+      "n": 4,
+      "name": "Level 4 (bottom)"
+    }
+  ]
+}

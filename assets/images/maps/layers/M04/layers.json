@@ -1,0 +1,52 @@
+{
+  "map": "M04",
+  "box": [
+    0,
+    0,
+    11278,
+    16384
+  ],
+  "source_size": [
+    11278,
+    16384
+  ],
+  "m_per_px": 0.072,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3"
+    },
+    {
+      "n": 4,
+      "name": "Level 4"
+    },
+    {
+      "n": 5,
+      "name": "Level 5"
+    },
+    {
+      "n": 6,
+      "name": "Level 6"
+    },
+    {
+      "n": 7,
+      "name": "Level 7"
+    },
+    {
+      "n": 8,
+      "name": "Level 8 (bottom)"
+    }
+  ]
+}

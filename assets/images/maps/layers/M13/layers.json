@@ -1,0 +1,28 @@
+{
+  "map": "M13",
+  "box": [
+    0,
+    0,
+    16384,
+    14250
+  ],
+  "source_size": [
+    16384,
+    14250
+  ],
+  "m_per_px": 0.037,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2 (bottom)"
+    }
+  ]
+}

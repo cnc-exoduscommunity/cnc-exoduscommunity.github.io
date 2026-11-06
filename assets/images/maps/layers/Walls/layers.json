@@ -1,0 +1,32 @@
+{
+  "map": "Walls",
+  "box": [
+    0,
+    0,
+    9178,
+    16384
+  ],
+  "source_size": [
+    9178,
+    16384
+  ],
+  "m_per_px": 0.042,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3 (bottom)"
+    }
+  ]
+}

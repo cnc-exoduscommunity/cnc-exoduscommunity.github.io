@@ -27,3 +27,7 @@ Command_Conquer_Renegade_Prima_Official_eGuide.pdf
 
 # Loading screens: only the .webp copies are published; the original PNGs and tiles stay local
 assets/images/loadscreens/*.png
+
+# RenegadeViewer exports and terminal pictures: kept locally, converted with tools/convert_maps.py
+/[0-9][0-9]_[0-9][0-9]_[0-9][0-9][0-9][0-9]_*/
+/customMap/

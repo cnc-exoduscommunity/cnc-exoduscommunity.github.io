@@ -32,7 +32,7 @@
 - name: City
   terminal: full
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: GDI
 - name: Complex
   terminal: vehicles-destroyed
@@ -42,7 +42,7 @@
 - name: Walls
   terminal: full
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: GDI
   objectives:
     - "The enemy has taken the field. Liberate it by destroying the Nod vehicles occupying it."
@@ -53,7 +53,7 @@
 - name: Mesa
   terminal: full
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: GDI
   objectives:
     - Destroy all vehicles besieging our base as well as the 2 MCT's inside the tiberium cave.
@@ -86,7 +86,7 @@
 - name: Under
   terminal: full
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: Nod
   objectives:
     - "Reclaim the field for Kane. This will also free the trapped Nod bots."
@@ -122,7 +122,7 @@
 - name: Islands
   terminal: full
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: Nod
   objectives:
     - GDI has taken the field. Destroy all enemy vehicles and the mini console to reclaim it.
@@ -151,8 +151,7 @@
   terminal: full
   description: Multiplayer Practice / Offline Skirmish mode
   note: "Played on the map `Under`"
-  images_from: Under
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: GDI
 - name: M00_Tutorial
   terminal: no-vehicles
@@ -165,7 +164,7 @@
   description: "Mission 1: The Scorpion Hunters"
   note: The first mission's file is numbered 13
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
   objectives:
     - "Fight your way through Nod occupied territory to reach the Nod base."
     - "Two Medium Tanks spawn on map load and will be destroyed by Nod if you do not act swiftly."
@@ -176,7 +175,7 @@
   terminal: none
   description: "Mission 2: Rescue and Retribution"
   faction: GDI
-  image_credit: ryanturner   # rendered with the RenegadeViewer tool
+  image_credit: renegadeviewer
   scalable_difficulty: true
 - name: M02
   terminal: no-vehicles
@@ -184,7 +183,7 @@
   ingame_credit: ryanturner
   ingame_date: "01-08-2025 21:22"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
 - name: M03
   terminal: no-vehicles
   description: "Mission 4: The Plot Erupts"
@@ -198,7 +197,7 @@
   ingame_credit: ryanturner
   ingame_date: "08-08-2025 14:09"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
 - name: M05
   terminal: no-vehicles
   description: "Mission 6: Deadly Reunion"
@@ -206,7 +205,7 @@
   ingame_date: "08-08-2025 14:24"
   note: "The night version"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
   objectives:
     - "Free the nearby civillians and destroy the Nod vehicles to clear the area."
     - "To free civillians kill their guards (stationary Nod troops near civillians) and then poke them."
@@ -226,7 +225,7 @@
   ingame_credit: ryanturner
   ingame_date: "11-08-2025 22:12"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
   weapons:
     - Maintenance Tool
     - Grenade Launcher
@@ -237,28 +236,28 @@
   ingame_date: "11-08-2025 22:13"
   note: "The day version of M05, with an almost inverted path (going back)"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
 - name: M08
   terminal: no-vehicles
   description: "Mission 9: Evolution of Evil"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 14:50"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
 - name: M09
   terminal: no-vehicles
   description: "Mission 10: All Brains, No Brawn"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 14:53"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
 - name: M10
   terminal: no-vehicles
   description: "Mission 11: Tomorrow's Technology Today"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 17:14"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer
 - name: M11
   terminal: no-vehicles
   description: "Mission 12: Stomping on Holy Ground"
@@ -266,4 +265,4 @@
   ingame_date: "16-08-2025 15:00"
   note: "The map shown is the one used in game, since there's no map data for this mission"
   faction: GDI
-  image_credit: vgmaps
+  image_credit: renegadeviewer

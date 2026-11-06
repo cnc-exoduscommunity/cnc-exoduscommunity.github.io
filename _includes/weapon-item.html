@@ -1,0 +1,23 @@
+{%- comment %}
+One weapon in a weapons list (map preview): picture, hotkey, name, and who carries it.
+Takes name (as written in _data/maps.yml; looked up in _data/weapons.yml by name or alias).
+"Carried by" comes from carried_by: in _data/weapons.yml (gdi / nod lists): characters
+on both sides first, then the ones only one side has, marked (GDI) or (Nod).
+{% endcomment -%}
+{%- assign wi_img = nil %}{% assign wi_key = nil %}{% assign wi_credit = nil %}{% assign wi = nil %}
+{%- for w in site.data.weapons %}{% if w.name == include.name or w.aliases contains include.name %}{% assign wi = w %}{% endif %}{% endfor %}
+{%- if wi %}
+{%- if wi.hud %}{% assign wi_img = '/assets/images/hud/' | append: wi.hud | append: '.png' %}{% elsif wi.image %}{% assign wi_img = '/assets/images/weapons/' | append: wi.image %}{% if wi.credit %}{% assign wi_credit = site.data.credits[wi.credit].name %}{% endif %}{% endif %}
+{%- assign wi_key = wi.hotkey %}
+{%- endif %}
+{%- capture wi_by %}
+{%- if wi.carried_by.everyone %}Everyone spawns with it
+{%- elsif wi.carried_by %}
+{%- assign wi_g = wi.carried_by.gdi | default: "" %}{% assign wi_n = wi.carried_by.nod | default: "" %}
+{%- assign wi_parts = "" | split: "" %}
+{%- for c in wi_g %}{% if wi_n contains c %}{% assign wi_parts = wi_parts | push: c %}{% else %}{% assign t = c | append: " (GDI)" %}{% assign wi_parts = wi_parts | push: t %}{% endif %}{% endfor %}
+{%- for c in wi_n %}{% unless wi_g contains c %}{% assign t = c | append: " (Nod)" %}{% assign wi_parts = wi_parts | push: t %}{% endunless %}{% endfor %}
+{%- if wi_parts.size > 0 %}{{ wi_parts | join: ", " }}{% endif %}
+{%- endif %}
+{%- endcapture %}
+<li>{% if wi_img or wi_key %}<span class="weapon-pic">{% if wi_img %}<img src="{{ wi_img | relative_url | replace: '&', '%26' }}" alt=""{% if wi_credit %} title="Picture: {{ wi_credit | escape }}"{% endif %} loading="lazy">{% endif %}{% if wi_key %}<kbd class="weapon-key" title="Hotkey {{ wi_key }}">{{ wi_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-text"><span class="weapon-name">{{ include.name | escape }}</span>{% if wi_by != "" %}<span class="weapon-by">{{ wi_by }}</span>{% endif %}</span></li>

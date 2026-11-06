@@ -167,6 +167,11 @@ sections:
           {%- assign hd_path = "/assets/images/maps/hd/" | append: img_name | append: ".webp" %}
           {%- assign hd_file = site.static_files | where: "path", hd_path | first %}
           {%- if hd_file and map_img %}{% capture img_v %}{{ hd_file.modified_time | date: "%s" }}{% endcapture %}{% assign hd_img = hd_path | append: "?v=" | append: img_v %}{% endif %}
+          {%- comment %} Layers for the "Try out layering" test (tools/convert_maps.py): assets/images/maps/layers/<name>/ {% endcomment %}
+          {%- assign layers_url = nil %}
+          {%- assign layers_path = "/assets/images/maps/layers/" | append: img_name | append: "/layers.json" %}
+          {%- assign layers_file = site.static_files | where: "path", layers_path | first %}
+          {%- if layers_file and map_img %}{% capture img_v %}{{ layers_file.modified_time | date: "%s" }}{% endcapture %}{% assign layers_url = layers_path | append: "?v=" | append: img_v %}{% endif %}
           {%- assign ingame_credit_key = map.ingame_credit | default: "fandom" %}
           {%- assign ingame_credit = site.data.credits[ingame_credit_key] %}
           {%- comment %} Marks (spawn points, secrets...) from _data/map_marks.yml, by map name, or by the map whose images it uses. {% endcomment %}
@@ -178,7 +183,7 @@ sections:
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons or map.terminal -%}
-              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
+              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %}{% if layers_url %} data-layers="{{ layers_url | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, marks, objectives (right). {% endcomment -%}
                 <span class="map-icons">
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
@@ -208,20 +213,14 @@ sections:
             {%- if map.map_weapons %}
             <ul class="map-onmap-weapons" hidden>
               {%- for weapon in map.map_weapons %}
-              {%- assign weapon_img = nil %}{% assign weapon_key = nil %}
-              {%- assign weapon_credit = nil %}
-              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% if w.hud %}{% assign weapon_img = '/assets/images/hud/' | append: w.hud | append: '.png' %}{% elsif w.image %}{% assign weapon_img = '/assets/images/weapons/' | append: w.image %}{% if w.credit %}{% assign weapon_credit = site.data.credits[w.credit].name %}{% endif %}{% endif %}{% assign weapon_key = w.hotkey %}{% endif %}{% endfor %}
-              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ weapon_img | relative_url | replace: '&', '%26' }}" alt=""{% if weapon_credit %} title="Picture: {{ weapon_credit | escape }}"{% endif %} loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
+              {%- include weapon-item.html name=weapon %}
               {%- endfor %}
             </ul>
             {%- endif %}
             {%- if map.weapons %}
             <ul class="map-weapons" hidden>
               {%- for weapon in map.weapons %}
-              {%- assign weapon_img = nil %}{% assign weapon_key = nil %}
-              {%- assign weapon_credit = nil %}
-              {%- for w in site.data.weapons %}{% if w.name == weapon or w.aliases contains weapon %}{% if w.hud %}{% assign weapon_img = '/assets/images/hud/' | append: w.hud | append: '.png' %}{% elsif w.image %}{% assign weapon_img = '/assets/images/weapons/' | append: w.image %}{% if w.credit %}{% assign weapon_credit = site.data.credits[w.credit].name %}{% endif %}{% endif %}{% assign weapon_key = w.hotkey %}{% endif %}{% endfor %}
-              <li>{% if weapon_img or weapon_key %}<span class="weapon-pic">{% if weapon_img %}<img src="{{ weapon_img | relative_url | replace: '&', '%26' }}" alt=""{% if weapon_credit %} title="Picture: {{ weapon_credit | escape }}"{% endif %} loading="lazy">{% endif %}{% if weapon_key %}<kbd class="weapon-key" title="Hotkey {{ weapon_key }}">{{ weapon_key }}</kbd>{% endif %}</span>{% endif %}<span class="weapon-name">{{ weapon | escape }}</span></li>
+              {%- include weapon-item.html name=weapon %}
               {%- endfor %}
             </ul>
             {%- endif %}</td>
@@ -239,7 +238,7 @@ sections:
         </tbody>
       </table>
     </div>
-    <p class="hint">Map images: credit to <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign; <code>M01</code>: <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a>) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); loading screens: the game's own files; in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a> (campaign); weapon pictures: the game's own HUD icons, and {{ site.data.credits.prima.name }} for the ones without one</p>
+    <p class="hint">Map images: most are rendered from the game's own map files with <a href="{{ site.data.credits.renegadeviewer.url }}">{{ site.data.credits.renegadeviewer.name }}</a>, a fan-made tool by <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a> (not associated with EA or Exodus); the rest are from <a href="{{ site.data.credits.vgmaps.url }}">{{ site.data.credits.vgmaps.name }}</a> (campaign) and <a href="{{ site.data.credits.cncnz.url }}">{{ site.data.credits.cncnz.name }}</a> (multiplayer); loading screens and HUD icons: the game's own files, viewed and extracted with RenegadeViewer; in-game photos: <a href="{{ site.data.credits.fandom.url }}">{{ site.data.credits.fandom.name }}</a> (multiplayer) and <a href="{{ site.data.credits.ryanturner.url }}">{{ site.data.credits.ryanturner.name }}</a> (campaign); weapon pictures: the game's own HUD icons, and {{ site.data.credits.prima.name }} for the ones without one</p>
 
     {%- comment %} The marks for the map preview, read by site.js. {% endcomment %}
     <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
@@ -288,15 +287,22 @@ sections:
           <section class="mdw">
             <p class="map-dialog-objectives-title">Weapons</p>
             <div class="mdw-tabs" role="tablist" aria-label="Weapons">
-              <button class="mdw-tab" type="button" role="tab" data-wtab="start" aria-selected="true">Starting weapons</button>
+              <button class="mdw-tab" type="button" role="tab" data-wtab="start" aria-selected="true">Starting</button>
               <button class="mdw-tab" type="button" role="tab" data-wtab="map" aria-selected="false">Map</button>
               <button class="mdw-tab" type="button" role="tab" data-wtab="secrets" aria-selected="false">Secrets</button>
             </div>
             <div class="mdw-body">
               <div class="mdw-panel" data-wpanel="start" role="tabpanel">
+                {%- comment %} What everyone spawns with, then the map's own starting weapons. {% endcomment %}
+                <ul class="map-dialog-weapons mdw-always">
+                  {%- assign always = "Pistol,Timed C4" | split: "," %}
+                  {%- for weapon in always %}
+                  {%- include weapon-item.html name=weapon %}
+                  {%- endfor %}
+                </ul>
                 <ul class="map-dialog-weapons"></ul>
-                <p class="map-dialog-side-none map-dialog-weapons-none">No starting weapons listed for this map yet.</p>
-                <p class="map-dialog-weapons-also">Everyone also spawns with a {% include hud-icon.html file="hud_autoguns_hud_autoguns_lower" class="weapon-inline-pic" decorative="1" %}Pistol <kbd class="weapon-key-inline" title="Hotkey 1">1</kbd> and {% include hud-icon.html file="hud_timec4" class="weapon-inline-pic" decorative="1" %}Timed&nbsp;C4 <kbd class="weapon-key-inline" title="Hotkey 9">9</kbd>.</p>
+                <p class="map-dialog-side-none map-dialog-weapons-none">No other starting weapons listed for this map yet.</p>
+
                 <p class="map-dialog-weapons-keys">The numbers on the weapons are their hotkeys: the number keys <kbd class="weapon-key-inline">1</kbd> to <kbd class="weapon-key-inline">0</kbd> on your keyboard.</p>
               </div>
               <div class="mdw-panel" data-wpanel="map" role="tabpanel" hidden>
@@ -328,10 +334,22 @@ sections:
           <div class="map-dialog-emblem" aria-hidden="true"></div>
           <h3 class="map-dialog-title" id="map-dialog-title"><span class="map-dialog-headline"><span class="map-dialog-name"></span></span><span class="map-dialog-comment"></span><span class="map-dialog-note"></span><span class="map-dialog-faction"></span></h3>
           <div class="map-dialog-frame">
+            {%- comment %} The layering test: map / units / editor layers and one storey at a time, from the RenegadeViewer export. {% endcomment %}
+            <div class="layer-panel" hidden>
+              <label class="layer-try"><input type="checkbox" data-layer-try> Try out layering system? <span class="layer-beta">Testing</span></label>
+              <div class="layer-opts" hidden>
+                <label><input type="checkbox" data-layer-toggle="empty" checked> Map</label>
+                <label><input type="checkbox" data-layer-toggle="filled" checked> Units and objects</label>
+                <label data-layer-has="editor"><input type="checkbox" data-layer-toggle="editor" checked> Editor (waypaths, zones)</label>
+                <label class="layer-floor">Floor <select data-layer-floor><option value="">All floors</option></select></label>
+              </div>
+            </div>
             <div class="map-dialog-viewport" title="Scroll or pinch to zoom, drag to move, double-click to zoom in or out">
               <canvas class="map-dialog-hd" hidden></canvas>
               <div class="map-dialog-canvas">
                 <img class="map-dialog-image" alt="" width="512" height="512" draggable="false">
+                <img class="map-dialog-image map-layer-img" data-layer="filled" alt="" draggable="false" hidden>
+                <img class="map-dialog-image map-layer-img" data-layer="editor" alt="" draggable="false" hidden>
                 <div class="map-marks"></div>
                 <div class="loadscreen-text" aria-hidden="true" hidden></div>
               </div>
