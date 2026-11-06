@@ -227,6 +227,8 @@
       var q = document.createElement("em"); q.textContent = "“" + s.t + "”"; line.appendChild(q);
       if (s.ts) { var src = document.createElement("span"); src.className = "muted"; src.textContent = " - " + s.ts.toLowerCase(); line.appendChild(src); }
       add("Line", line);
+    } else if ((s.c || []).some(function (c) { return c === "Voices" || c === "EVA" || c === "No transcript"; })) {
+      add("Line", "No transcript yet (not in the game's subtitles)", "muted");
     }
     add("Said by", s.s);
     add("Mission", s.m);
