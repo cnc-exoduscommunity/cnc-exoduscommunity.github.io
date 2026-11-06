@@ -12,12 +12,12 @@
   var ROW = 52;                 // row height (px), the list only draws the rows on screen
   var audio = new Audio();
   audio.preload = "auto";
-  var opts = { loop: false, auto: true, vol: 0.5 };
+  var opts = { loop: false, autoPlay: false, vol: 0.5 };  // "Play on select" is off unless you tick it
   try {
     var saved = JSON.parse(localStorage.getItem("soundPlayer") || "{}");
     if (typeof saved.vol === "number") opts.vol = saved.vol;
     if (typeof saved.loop === "boolean") opts.loop = saved.loop;
-    if (typeof saved.auto === "boolean") opts.auto = saved.auto;
+    if (typeof saved.autoPlay === "boolean") opts.autoPlay = saved.autoPlay;  // (the old "auto" setting, on by default, is ignored)
   } catch (e) {}
   function saveOpts() { try { localStorage.setItem("soundPlayer", JSON.stringify(opts)); } catch (e) {} }
 
@@ -141,7 +141,7 @@
     audio.loop = opts.loop;
     peaks = null; paint();
     wave(audio.src);
-    if (opts.auto) audio.play().catch(function () {});
+    if (opts.autoPlay) audio.play().catch(function () {});
   }
   function wave(src) {
     var token = ++waveToken;
@@ -203,10 +203,10 @@
     else if (a === "fwd") { audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 2); paint(); }
   });
   var loopBox = box.querySelector('[data-snd-opt="loop"]'), autoBox = box.querySelector('[data-snd-opt="auto"]'), vol = box.querySelector('[data-snd-opt="vol"]');
-  loopBox.checked = opts.loop; autoBox.checked = opts.auto; vol.value = Math.round(opts.vol * 100);
+  loopBox.checked = opts.loop; autoBox.checked = opts.autoPlay; vol.value = Math.round(opts.vol * 100);
   $(".snd-volv").textContent = vol.value + "%";
   loopBox.addEventListener("change", function () { opts.loop = audio.loop = loopBox.checked; saveOpts(); });
-  autoBox.addEventListener("change", function () { opts.auto = autoBox.checked; saveOpts(); });
+  autoBox.addEventListener("change", function () { opts.autoPlay = autoBox.checked; saveOpts(); });
   vol.addEventListener("input", function () { opts.vol = audio.volume = vol.value / 100; $(".snd-volv").textContent = vol.value + "%"; saveOpts(); });
 
   // ---- Details ----
