@@ -1434,7 +1434,6 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .sound-part-title { margin: 0 0 0.4rem; font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-size: 1.3rem; color: var(--title); }
 .sound-total { margin-left: 0.4rem; color: var(--muted); font-family: inherit; font-size: 0.8rem; font-weight: 400; }
 .toc-count { margin-left: 0.25rem; padding: 0 0.35rem; border-radius: 999px; background: var(--code-bg); color: var(--muted); font-size: 0.75em; }
-.toc-sub a.toc-sub2 { padding-left: 1.4rem; font-size: 0.88em; }
 .toc-sub a.is-soon { filter: grayscale(1); opacity: 0.55; }
 .snd { --snd-wave: #3f8f3a; --snd-wave-done: #9cff8a; display: grid; grid-template-columns: minmax(16rem, 26rem) minmax(0, 1fr); gap: 0; height: 40rem; border: 1px solid var(--border-soft); border-radius: 4px; overflow: hidden; background: rgba(0, 0, 0, 0.25); }
 [data-theme="light"] .snd { --snd-wave: #4c9a46; --snd-wave-done: #1f6a1a; background: rgba(255, 255, 255, 0.4); }
@@ -1490,3 +1489,4 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-pog-pick .mm-pog-side { position: absolute; left: 1px; top: 1px; padding: 0 2px; border-radius: 2px; background: rgba(0,0,0,0.8); color: #9fd0ff; font-size: 0.55rem; font-weight: 700; }
 .mm-pog-group { grid-column: 1 / -1; margin: 0.2rem 0 0; color: var(--muted); font-size: 0.75rem; }
 .mm-pog-name { margin: 0.3rem 0 0; font-size: 0.85rem; }
+

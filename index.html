@@ -117,9 +117,6 @@ sections:
           <a href="#sounds-commands" class="{% if sounds_ready == 0 %}is-soon{% endif %}">In-game commands{% if sounds_ready == 0 %} <span class="soon-tag">Coming soon</span>{% endif %}</a>
           {%- if sc.total %}
           <a href="#sounds-game">In-game sounds <span class="toc-count">{{ sc.total }}</span></a>
-          {%- for c in sc.categories %}
-          <a href="#sounds-{{ c.slug }}" class="toc-sub2">{{ c.name | remove: " (mp3)" }} <span class="toc-count">{{ c.count }}</span></a>
-          {%- endfor %}
           {%- endif %}
         </div>
       </li>
