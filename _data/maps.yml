@@ -28,6 +28,7 @@
 - name: ttm1
   terminal: no-vehicles
   description: Custom map
+  image_credit: renegadeviewer
   faction: GDI
 - name: City
   terminal: full
@@ -99,10 +100,12 @@
 - name: Coop_B02_B10
   terminal: full
   description: Custom co-op map
+  image_credit: renegadeviewer
   faction: GDI
 - name: Coop_Tropics_B1
   terminal: full
   description: Custom co-op map
+  image_credit: renegadeviewer
   faction: Nod
   objectives:
     - Destroy the GDI Base.

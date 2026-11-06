@@ -1,0 +1,35 @@
+{
+  "map": "ttm1",
+  "box": [
+    0,
+    0,
+    16384,
+    9297
+  ],
+  "source_size": [
+    16384,
+    9297
+  ],
+  "m_per_px": 0.064,
+  "layers": [
+    "empty"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3"
+    },
+    {
+      "n": 4,
+      "name": "Level 4 (bottom)"
+    }
+  ]
+}

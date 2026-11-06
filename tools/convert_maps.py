@@ -82,9 +82,10 @@ def read_layers(folder):
 def convert(folder, layers=True):
     name = re.sub(r"^.*?-", "", os.path.basename(os.path.normpath(folder)), count=1)
     site_name = re.sub(r"^C&C_", "", name)
-    world = one(folder, "World")
+    # World is the finished map; a map with no units has only Empty (the same picture).
+    world = one(folder, "World") or one(folder, "Empty")
     if not world:
-        print(f"! {folder}: no World/all_*.png, skipped")
+        print(f"! {folder}: no World/ or Empty/ all_*.png, skipped")
         return
     print(f"{site_name}  ({folder})", flush=True)
     im = Image.open(world)

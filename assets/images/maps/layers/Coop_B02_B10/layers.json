@@ -1,0 +1,36 @@
+{
+  "map": "Coop_B02_B10",
+  "box": [
+    0,
+    0,
+    16384,
+    12837
+  ],
+  "source_size": [
+    16384,
+    12837
+  ],
+  "m_per_px": 0.057,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3"
+    },
+    {
+      "n": 4,
+      "name": "Level 4 (bottom)"
+    }
+  ]
+}
