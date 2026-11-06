@@ -37,6 +37,7 @@
   function tidy(m) {
     var out = { kind: MapMarks.kind(m.kind), x: round(clamp(+m.x || 0)), y: round(clamp(+m.y || 0)) };
     if (out.kind === "objective" && m.pog) out.pog = String(m.pog);
+    if (out.kind !== "objective" && m.icon) out.icon = String(m.icon);
     if (m.label && String(m.label).trim()) out.label = String(m.label).trim();
     if (m.note && String(m.note).trim()) out.note = String(m.note).trim();
     var imgs = (Array.isArray(m.images) ? m.images : []).map(function (s) { return String(s).trim(); }).filter(Boolean);
@@ -73,8 +74,10 @@
     "# there, then copy its text over this whole file.",
     "#",
     "# One entry per map (the map's name, as in _data/maps.yml), with a list of marks:",
-    "#   kind:   objective | spawn | secret | vehicle | other",
+    "#   kind:   objective | spawn | secret | vehicle | pickup | other",
     "#   pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)",
+    "#   icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the",
+    "#           GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)",
     "#   x, y:   where on the image, in percent (0-100) from the left / top edge",
     "#   label:  optional, a short name shown on hover (e.g. \"GDI start\")",
     "#   note:   optional, a longer text shown under the label",
@@ -100,6 +103,7 @@
       return key(k) + ":\n" + d[k].map(function (m) {
         var parts = ["kind: " + m.kind, "x: " + num(m.x), "y: " + num(m.y)];
         if (m.pog) parts.push("pog: " + m.pog);
+        if (m.icon) parts.push("icon: " + q(m.icon));
         if (m.label) parts.push("label: " + q(m.label));
         if (m.note) parts.push("note: " + q(m.note));
         if (m.images) parts.push("images: [" + m.images.map(q).join(", ") + "]");
@@ -228,6 +232,7 @@
     if (fresh || document.activeElement !== fields.note) fields.note.value = m.note || "";
     posEl.textContent = "x " + num(+m.x) + "%, y " + num(+m.y) + "% (from the top left)";
     renderPogs(m);
+    renderIcons(m);
     // Pictures, with a preview: a picked file, or the file on the site.
     imagesEl.textContent = "";
     (m.images || []).forEach(function (name, i, all) {
@@ -294,6 +299,38 @@
         b.innerHTML = '<img alt="" src="' + MapMarks.POG_BASE + p.file + '.png">' + (p.kind === "side" ? '<span class="mm-pog-side">2nd</span>' : "");
         b.addEventListener("click", function () { var mm = marks()[selected]; if (!mm) return; mm.pog = (mm.pog === k ? undefined : k); if (!mm.pog) delete mm.pog; render(); });
         pogBox.appendChild(b);
+      });
+    });
+  }
+
+  // ---- Icons (pickups, GDI / Nod) for the other kinds ----
+  var iconField = document.querySelector("[data-mm-iconfield]"), iconBox = document.querySelector("[data-mm-icons]"), iconNameEl = document.querySelector("[data-mm-iconname]");
+  var iconShownFor = null;
+  function renderIcons(m) {
+    if (!iconField) return;
+    var show = MapMarks.kind(m.kind) !== "objective";
+    iconField.hidden = !show;
+    if (!show) return;
+    var key = m.icon || "";
+    iconNameEl.textContent = key ? MapMarks.iconName(key) || key : "None: the mark shows its kind's symbol.";
+    if (iconShownFor === key && iconBox.children.length) return;
+    iconShownFor = key;
+    iconBox.textContent = "";
+    MapMarks.icons().forEach(function (g) {
+      var h = document.createElement("p"); h.className = "mm-pog-group"; h.textContent = g.title;
+      iconBox.appendChild(h);
+      g.items.forEach(function (it) {
+        var b = document.createElement("button");
+        b.type = "button"; b.title = it.name;
+        b.setAttribute("aria-pressed", String(it.hud === key));
+        var img = document.createElement("img"); img.alt = it.name; img.src = MapMarks.iconUrl(it.hud);
+        b.appendChild(img);
+        b.addEventListener("click", function () {
+          var mm = marks()[selected]; if (!mm) return;
+          if (mm.icon === it.hud) delete mm.icon; else mm.icon = it.hud;
+          render();
+        });
+        iconBox.appendChild(b);
       });
     });
   }

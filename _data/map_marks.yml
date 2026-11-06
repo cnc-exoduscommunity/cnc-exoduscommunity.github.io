@@ -3,8 +3,10 @@
 # there, then copy its text over this whole file.
 #
 # One entry per map (the map's name, as in _data/maps.yml), with a list of marks:
-#   kind:   objective | spawn | secret | vehicle | other
+#   kind:   objective | spawn | secret | vehicle | pickup | other
 #   pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)
+#   icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the
+#           GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)
 #   x, y:   where on the image, in percent (0-100) from the left / top edge
 #   label:  optional, a short name shown on hover (e.g. "GDI start")
 #   note:   optional, a longer text shown under the label

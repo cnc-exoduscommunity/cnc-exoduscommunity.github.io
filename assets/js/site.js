@@ -21,10 +21,36 @@ var MapMarks = (function () {
                glyph: '<path d="M4.2 5.2h5.6l1.2 2.6H3z"/><path d="M8.6 5.8h6v1.2h-6z"/><path d="M1.2 8.4h13.6v2.8c0 .9-.7 1.6-1.6 1.6H2.8c-.9 0-1.6-.7-1.6-1.6z"/>' },
     objective: { label: "Objective", plural: "Objectives",
                glyph: '<circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="8" r="2.2"/>' },
+    pickup:  { label: "Pickup", plural: "Pickups",
+               glyph: '<path d="M2 4.5h12v9H2z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.1 6h1.8v2h2v1.8h-2v2H7.1v-2h-2V8h2z"/>' },
     other:   { label: "Other", plural: "Other",
                glyph: '<path d="M6.9 2.5h2.2v6.8H6.9z"/><circle cx="8" cy="12.2" r="1.3"/>' }
   };
-  var ORDER = ["objective", "spawn", "secret", "vehicle", "other"];
+  var ORDER = ["objective", "spawn", "secret", "vehicle", "pickup", "other"];
+  // Icons a mark can show instead of its glyph (icon: in map_marks.yml): the GDI / Nod
+  // logos and the pickups (_data/pickups.yml), all HUD icons from assets/images/hud/.
+  var ICON_BASE = "/assets/images/hud/";
+  var iconGroups = null, iconNames = {};
+  function icons() {
+    if (iconGroups) return iconGroups;
+    iconGroups = [{ title: "Sides", items: [{ hud: "hud_c&c_gdilogo", name: "GDI" }, { hud: "hud_c&c_nodlogo", name: "Nod" }] }];
+    try {
+      var d = JSON.parse((document.getElementById("pickups-data") || {}).textContent || "{}") || {};
+      Object.keys(d).forEach(function (g) {
+        var seen = {}, items = [];
+        (d[g].items || []).forEach(function (it) {
+          if (!it.hud) return;
+          if (seen[it.hud]) { seen[it.hud].name += " / " + it.name; return; }
+          items.push(seen[it.hud] = { hud: it.hud, name: it.name });
+        });
+        if (items.length) iconGroups.push({ title: d[g].title || g, items: items });
+      });
+    } catch (e) {}
+    iconGroups.forEach(function (g) { g.items.forEach(function (it) { iconNames[it.hud] = it.name; }); });
+    return iconGroups;
+  }
+  function iconName(hud) { icons(); return iconNames[hud] || ""; }
+  function iconUrl(hud) { return ICON_BASE + encodeURIComponent(hud) + ".png"; }
   // Objective pictures (_data/objective_pogs.yml), read from the page.
   var POG_BASE = "/assets/images/objectives/";
   var pogs = null;
@@ -56,13 +82,20 @@ var MapMarks = (function () {
       b.classList.add("has-pog");
       b.innerHTML = '<img class="map-mark-pog" alt="" src="' + POG_BASE + "pog_" + encodeURIComponent(mark.pog) + '.png">';
     }
+    // Any other mark can show a HUD icon (a pickup, the GDI / Nod logo).
+    else if (k !== "objective" && mark.icon) {
+      b.classList.add("has-icon");
+      b.innerHTML = '<img class="map-mark-icon" alt="" src="' + iconUrl(mark.icon) + '">';
+    }
     var pi = k === "objective" && mark.pog && pogInfo(mark.pog);
-    b.setAttribute("aria-label", KINDS[k].label + (mark.label ? ": " + mark.label : pi ? ": " + pi.name : ""));
+    var nm = mark.label || (pi ? pi.name : "") || (k !== "objective" && mark.icon ? iconName(mark.icon) : "");
+    b.setAttribute("aria-label", KINDS[k].label + (nm ? ": " + nm : ""));
     return b;
   }
   // Where an image of a mark lives (a full link is used as is).
   function imageUrl(base, name) { return /^(https?:)?\//.test(name) ? name : base + name; }
-  return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE };
+  return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE,
+           icons: icons, iconName: iconName, iconUrl: iconUrl };
 })();
 
 // Debug mode (switch at the bottom of the page, or ?debug=1 / ?debug=0 in the URL):
@@ -714,7 +747,8 @@ function setUrlParam(key, value, fallback) {
     var t = document.createElement("span");
     t.className = "map-mark-pop-title";
     var pog = k === "objective" && mark.pog ? MapMarks.pogInfo(mark.pog) : null;
-    t.textContent = mark.label || (pog && pog.name) || info.label;
+    var iconLabel = k !== "objective" && mark.icon ? MapMarks.iconName(mark.icon) : "";
+    t.textContent = mark.label || (pog && pog.name) || iconLabel || info.label;
     head.appendChild(t);
     if (pog && !mark.label) {
       var pk = document.createElement("span");

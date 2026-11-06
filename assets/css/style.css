@@ -1504,3 +1504,8 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-pog-name { margin: 0.3rem 0 0; font-size: 0.85rem; }
 .mm-zoom .map-dialog-views { flex-basis: auto; justify-content: flex-start; margin-left: 0.6rem; }
 .mm-stage-wrap .mm-layer-panel .layer-quality { flex-basis: 100%; margin: 0; }
+/* Marks with a HUD icon (pickups, GDI / Nod logo). */
+.map-mark-pickup { --mark: #c0392b; }
+.map-mark.has-icon { width: 2.1rem; height: 2.1rem; padding: 0.15rem; background: rgba(0, 0, 0, 0.85); border-color: var(--mark); }
+.map-mark-icon { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.mm-icon-pick img { object-fit: contain; padding: 0.15rem; box-sizing: border-box; }

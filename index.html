@@ -250,6 +250,7 @@ sections:
     {%- comment %} The marks for the map preview, read by site.js. {% endcomment %}
     <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
 <script type="application/json" id="objective-pogs-data">{{ site.data.objective_pogs | jsonify }}</script>
+<script type="application/json" id="pickups-data">{{ site.data.pickups | jsonify }}</script>
     {%- comment %} The loading screens (_data/loadscreens.yml), read by site.js. {% endcomment %}
     <script type="application/json" id="purchase-data">{"maps": {{ site.data.purchase.maps | jsonify }}, "flying": {{ site.data.purchase.flying_maps | jsonify }}}</script>
     {%- comment %} The buildings on each map (_data/buildings.yml), read by site.js. {% endcomment %}
