@@ -17,7 +17,7 @@ built with [Jekyll](https://jekyllrb.com/) and hosted on GitHub Pages at
 
 Not sure how to connect? Have a look at [CnCNet](https://cncnet.org/renegade), [W3D Hub](https://w3dhub.com/) or [Tiberian Technologies](https://www.tiberiantechnologies.org/).
 
-The [website](https://cnc-exoduscommunity.github.io) also shows whether the server is online, the current map, who's playing and the time left, live from [CnCNet](https://cncnet.org/renegade).
+The [website](https://cnc-exoduscommunity.github.io) also shows whether the server is online, the current map, who's playing and the time left, live from [CnCNet](https://cncnet.org/renegade). For every map in the rotation it has an overhead map you can zoom into (with spawn points, objectives and pickups marked), the objectives, starting weapons, purchase terminal and buildings, and a **Sounds** section where you can listen to every sound in the game.
 
 ## Map rotation
 
@@ -25,20 +25,20 @@ The maps the server cycles through, in order. In game, type `!rotation` to see t
 
 | Map | Campaign name / Note |
 | :-- | :------------------- |
-| ttm1 | Custom map |
-| City | Original multiplayer map, changed to allow co-op |
-| Complex | Original multiplayer map, changed to allow co-op |
-| Walls | Original multiplayer map, changed to allow co-op |
-| Mesa | Original multiplayer map, changed to allow co-op |
-| Canyon | Original multiplayer map, changed to allow co-op |
-| Under | Original multiplayer map, changed to allow co-op |
+| [ttm1](assets/images/maps/ttm1.webp) | Custom map |
+| [City](assets/images/maps/City.webp) | Original multiplayer map, changed to allow co-op |
+| [Complex](assets/images/maps/Complex.webp) | Original multiplayer map, changed to allow co-op |
+| [Walls](assets/images/maps/Walls.webp) | Original multiplayer map, changed to allow co-op |
+| [Mesa](assets/images/maps/Mesa.webp) | Original multiplayer map, changed to allow co-op |
+| [Canyon](assets/images/maps/Canyon.webp) | Original multiplayer map, changed to allow co-op |
+| [Under](assets/images/maps/Under.webp) | Original multiplayer map, changed to allow co-op |
 | Coop_B01_B6 | Custom co-op map |
-| Coop_B02_B10 | Custom co-op map |
-| Coop_Tropics_B1 | Custom co-op map |
-| Volcano | Original multiplayer map, changed to allow co-op |
-| Islands | Original multiplayer map, changed to allow co-op |
-| Hourglass | Original multiplayer map, changed to allow co-op |
-| Skirmish00 | Original skirmish map |
+| [Coop_B02_B10](assets/images/maps/Coop_B02_B10.webp) | Custom co-op map |
+| [Coop_Tropics_B1](assets/images/maps/Coop_Tropics_B1.webp) | Custom co-op map |
+| [Volcano](assets/images/maps/Volcano.webp) | Original multiplayer map, changed to allow co-op |
+| [Islands](assets/images/maps/Islands.webp) | Original multiplayer map, changed to allow co-op |
+| [Hourglass](assets/images/maps/Hourglass.webp) | Original multiplayer map, changed to allow co-op |
+| [Skirmish00](assets/images/maps/Skirmish00.webp) | Original skirmish map |
 | [M00_Tutorial](assets/images/maps/M00_Tutorial.webp) | Tutorial - campaign training level |
 | [M13](assets/images/maps/M13.webp) | Mission 1: The Scorpion Hunters - the first mission's file is numbered 13 |
 | [M01](assets/images/maps/M01.webp) | Mission 2: Rescue and Retribution |
@@ -53,7 +53,7 @@ The maps the server cycles through, in order. In game, type `!rotation` to see t
 | [M10](assets/images/maps/M10.webp) | Mission 11: Tomorrow's Technology Today |
 | [M11](assets/images/maps/M11.webp) | Mission 12: Stomping on Holy Ground |
 
-Linked map names open an overhead map. Map images: credit to [vgmaps.de](https://vgmaps.de/maps/pc/command-and-conquer-renegade)
+Linked map names open an overhead map. Map images: most were viewed and extracted from the game files with [RenegadeViewer](https://github.com/TheSCREWEDSoftware/RenegadeViewer) (a fan-made tool; not associated with EA or Exodus); the others are from [cncnz.com](https://cncnz.com/games/renegade/multiplayer-maps/) and [vgmaps.de](https://vgmaps.de/maps/pc/command-and-conquer-renegade).
 
 ## IRC
 
@@ -153,17 +153,27 @@ Then open <http://localhost:4000>.
 | :--- | :--------- |
 | `_config.yml` | Site settings: title, URL, header logo, Discord and Steam links, server address, live status source and the "Not sure how to connect?" links. |
 | `index.html` | The home page: Message Of The Day, Index, Map rotation, IRC, Sounds, Gallery, Tools and the Debug panel. |
-| `_data/maps.yml` | The map rotation table. |
-| `_data/map_marks.yml` | Marks on the map images (spawn points, secrets, vehicles, other), made with the Map marker tool. |
+| `_data/maps.yml` | The map rotation table, and per map: description, side, objectives, purchase terminal, image credit. |
+| `_data/map_marks.yml` | Marks on the map images (objectives, spawn points, secrets, vehicles, pickups, other), made with the Map marker tool. |
+| `_data/weapons.yml` | Weapons: HUD icon, who carries them, and which maps hand them out (the map preview's **Weapons** card). |
+| `_data/purchase.yml` | The purchase terminal's Characters and Vehicles pages per side, with prices, and per-map changes. |
+| `_data/buildings.yml` | The GDI and Nod buildings on each map (the map preview's **Buildings** list). |
+| `_data/objective_pogs.yml` | The game's objective pictures per mission (`assets/images/objectives/`), used by objective marks. |
+| `_data/sound_categories.yml` | The Sounds section's categories and totals, written by `tools/convert_sounds.py`. |
+| `_data/sounds.yml` | The in-game `!sounds` commands (empty for now, so "In-game commands" shows as Coming soon). |
 | `map-marker.html` | The Map marker tool, at `/tools/map-marker/` (the file is at the root because `tools/` isn't part of the site). Its logic is in `assets/js/map-marker.js`. |
 | `_data/credits.yml` | Image credits, used by `image_credit:` in `_data/maps.yml`. |
 | `_includes/irc.md` | The IRC section (Markdown). |
 | `_layouts/default.html` | The page template: header (logo, Join Server, Discord, Steam, GitHub, theme toggle), footer (with the Debug mode switch), theme and debug pickers. |
 | `_plugins/last_commit.rb` | Reads the last git commit (hash, date, branch) for the footer's "Site Revision" line. |
 | `assets/css/style.css` | All styling. The colours of both themes are variables at the top. |
-| `assets/js/site.js` | Theme toggle, collapsible sections, the header that follows the page, the map preview (previous/next, arrow keys, zoom and drag) and the live server status. |
+| `assets/js/site.js` | Theme and side toggles, collapsible sections, the header that follows the page, the map preview (previous/next, arrow keys, zoom and drag, Details, layering, marks, weapons, terminal, buildings) and the live server status. |
+| `assets/js/sounds.js` | The sound player in the Sounds section (list, search, categories, waveform, controls). Only loaded on the home page. |
+| `assets/sounds/` | Every sound in the game as small `.m4a` files, plus `index.json` with the details the player shows. Made by `tools/convert_sounds.py`. |
 | `assets/images/maps/` | Map previews, named after the map (`M01.webp`). |
-| `assets/images/maps/hd/` | Optional high-resolution copies (same name, `.webp`). When one exists the preview shows a **Quality** button: Normal by default, while the high-resolution picture downloads in the background so High switches straight away (the choice is remembered per browser). Transparent areas show the page behind them. |
+| `assets/images/maps/hd/` | Optional high-resolution copies (same name, `.webp`). When one exists the preview's **Details: High** button is enabled (see [Map preview views](#map-preview-views)). Transparent areas show the page behind them. |
+| `assets/images/maps/layers/<map>/` | The pictures for the "Try out layering system?" test: the map, units and objects, editor helpers and one picture per floor, plus `layers.json`. |
+| `assets/images/objectives/` | The game's objective pictures (`pog_m01_1_02.png`). |
 | `assets/images/hud/` | The game's HUD icons (weapons, pickups, buildings, purchase cards), with their original file names. Their in-game names are in `_data/hud_icons.yml`; show one with `{% include hud-icon.html file="hud_timec4" %}`, which also writes an `&` in a file name as `%26` so the link works. |
 | `assets/images/pickups/` | The textures on the pickups' 3D models (`p_*.png`, from the RenegadeViewer tool); which pickup uses which is in `_data/pickups.yml`. |
 | `_data/pickups.yml` | Every pickup (health, armor, keycards, data disc, ammo, weapon pickups) with its HUD icon, model textures and the game's preset names. |
@@ -179,7 +189,7 @@ Then open <http://localhost:4000>.
 | `_includes/image-icon.svg` | The small picture icon next to map names that have a preview. |
 | `_includes/os-icon.html` | Shows an OS icon: `{% include os-icon.html os="windows" label="Windows" %}`. |
 | `404.html` | Page shown for missing URLs. |
-| `tools/` | Local preview scripts (not part of the built site). `serve.bat` / `serve.sh` start `serve.rb`, which restarts Jekyll when `_config.yml` changes. |
+| `tools/` | Scripts, not part of the built site: `serve.bat` / `serve.sh` / `serve.rb` (local preview), `convert_maps.py` and `convert_sounds.py` (turn RenegadeViewer exports into site files), `query_server.py` (the server status check). |
 | `.github/workflows/deploy.yml` | Builds and publishes the site on every push to `main`. |
 
 ## Editing the site
@@ -233,6 +243,23 @@ Images downloaded from vgmaps.de come with long names such as
 The campaign file numbers are one behind the mission numbers: Mission 1 is `M13`, Mission 2 is `M01`, ..., Mission 12 is `M11`,
 and the tutorial is `M00_Tutorial`.
 
+### Map pictures from RenegadeViewer
+
+Most map pictures come from RenegadeViewer's **Save PNG** export: a folder named `<date>-<map file>`
+(e.g. `06_11_2026_03_12_49-C&C_Coop_B02_B10`) with `World/`, `Empty/`, `Filled/`, `Floors/` and `layers.txt`.
+Put the export folder in the repository's root (export folders are in `.gitignore`), then run:
+
+```bash
+python tools/convert_maps.py "06_11_2026_03_12_49-C&C_Coop_B02_B10"
+python tools/convert_maps.py "06_11_2026_*"        # a pattern converts several
+```
+
+It writes the normal picture (`assets/images/maps/<map>.webp`, 1600 px), the high-detail one (`hd/`, 9104 px) and the
+layering pictures (`layers/<map>/`), all cut to the same box so they line up. "C&C_" is left off the name. A map with no
+units has no `World/`; the script then uses `Empty/` (e.g. `Empty/all_ttm1_92BB640B.png`), which is the same picture.
+Needs Python 3 and Pillow (`pip install pillow`); a 16384 px export takes about a minute and 1 GB of memory.
+Add `image_credit: renegadeviewer` to the map in `_data/maps.yml`.
+
 ### The map preview
 
 Opened by clicking a map's row. ❮ ❯ or the ← → keys step through every map that has an image;
@@ -245,6 +272,17 @@ The buttons under the map switch between the map image, the in-game photo and th
 the map has). The loading screen is the picture from `assets/images/loadscreens/` with the game's own text drawn on
 top, from `_data/loadscreens.yml` (positions on the game's 640x480 grid).
 
+**Details: Low / High** (maps with a picture in `hd/`): Low, the default, is the normal picture; High downloads the big
+one (with a progress bar) so the details stay readable when zoomed in. Both zoom up to 1000% and keep the zoom when you
+switch, so seeing the blurry version is the viewer's choice. The choice is remembered per browser.
+
+**Try out layering system?** (needs Details: High, off by default): shows the map in parts you can switch on and off
+(Map, Units and objects, Editor) or one floor at a time. The layer pictures are normal quality for now.
+
+Under the map, the left card has the map's **Weapons** (Starting / Map / Secrets tabs; everyone starts with the Pistol and
+Timed C4), the **Purchase terminal** (folded; Characters and Vehicles open their pages, hover a card for details) and the
+**Buildings** on the map. The objectives are on the right.
+
 ### Purchase terminal
 
 Each map's preview shows the first page of the purchase terminal for its side (GDI or Nod cards from `assets/images/hud/`),
@@ -255,19 +293,42 @@ every map while `server.beacons_for_sale` in `_config.yml` is `false`.
 
 ### Map marks
 
-Spots on a map's overhead image: **spawn points**, **secrets**, **vehicles** and **other**. In the map preview, hovering a mark
-shows its name, note and first picture; clicking it keeps the card open and steps through all its pictures. The chips under
-the map show how many of each kind there are and switch a kind on or off. Rows with marks get a pin icon in the table.
+Spots on a map's overhead image: **objectives**, **spawn points**, **secrets**, **vehicles**, **pickups** and **other**.
+An objective mark can show the game's own objective picture; any other mark can show a HUD icon instead of its symbol (a
+pickup such as a keycard, health or the Data Disc, or the GDI / Nod logo). In the map preview, hovering a mark shows its
+name, note and first picture; clicking it keeps the card open and steps through all its pictures. The chips under the map
+show how many of each kind there are and switch a kind on or off. Rows with marks get a pin icon in the table.
 
 To add or change marks, open the **Map marker** tool (Index > Tools, or `/tools/map-marker/`):
 
-1. Pick the map and the kind of mark, then click the map to add it. Drag a mark to move it; click it to give it a name,
-   a note and pictures (pick them from your computer, or type the file name).
-2. Your work is kept in that browser until the site has it, so you can close the page and come back.
-3. Copy the text at the bottom (or download it) over the whole of `_data/map_marks.yml`, put the pictures you added in
+1. Pick the map. It has the same zoom, **Details: Low / High** and layering controls as the map preview (scroll or pinch
+   to zoom, drag the map to move it, + / − / 0).
+2. **Mode: Place** - pick a kind; the **Placing** box shows what it can be (Pickup shows the pickups, Objective the
+   objective pictures, the rest the GDI / Nod logos, or the plain symbol). Click the map to add one.
+   **Mode: Select** - clicks only pick marks, so nothing is added by accident.
+3. Drag a mark to move it; click it to change its kind, picture or icon, name, note and pictures (pick them from your
+   computer, or type the file name). Arrow keys nudge it, Delete removes it.
+4. Your work is kept in that browser until the site has it, so you can close the page and come back.
+5. Copy the text at the bottom (or download it) over the whole of `_data/map_marks.yml`, put the pictures you added in
    `assets/images/marks/` with the same names, and commit.
 
 The file format is described at the top of `_data/map_marks.yml`; it can also be edited by hand.
+
+### Sounds
+
+The **Sounds** section has two parts: **In-game commands** (the `!sounds` list, from `_data/sounds.yml`; shown as
+"Coming soon" while it's empty) and **In-game sounds**: all 10,299 sounds of the game and the co-op maps, with search,
+categories (also linked from the Index, e.g. `#sounds-eva`), sorting, a waveform and the line spoken with who says it.
+The sounds load only when the section is opened.
+
+To rebuild them from a RenegadeViewer sound export and its spreadsheet:
+
+```bash
+python tools/convert_sounds.py Sounds/renegade_sounds_10299 Renegade_Sounds.xlsx
+```
+
+It converts each sound to a small `.m4a` (skipping ones already done) and writes `assets/sounds/index.json` and
+`_data/sound_categories.yml`. Needs Python 3, openpyxl and ffmpeg. The raw export and spreadsheet stay out of git.
 
 ### Debug mode
 
@@ -315,8 +376,9 @@ To link to a specific step or paragraph, give it an id with `<span id="...">...<
 
 The site is dark by default, styled after Renegade's menus and loading screens (red and black, yellow titles, orange-outlined buttons),
 with a light theme behind the sun/moon button in the header. The choice is remembered in the browser.
-Adding `?theme=light` or `?theme=dark` to a URL sets (and remembers) the theme too,
-for example <https://cnc-exoduscommunity.github.io/?theme=light>.
+The GDI / Nod button next to it switches the site's colours between GDI gold (default) and Nod red.
+Adding `?theme=` to a URL sets (and remembers) both: `light` or `dark`, and `gdi` or `nod`, for example
+<https://cnc-exoduscommunity.github.io/?theme=light,nod>.
 To change colours, edit the variables at the top of `assets/css/style.css` (one block per theme).
 
 ### Footer revision line
