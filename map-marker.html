@@ -30,8 +30,16 @@ back the new text for that file. Logic in assets/js/map-marker.js.
             {%- assign map_file = site.static_files | where: "path", map_path | first %}
             {%- if map_file and map_img == nil %}{% capture img_v %}{{ map_file.modified_time | date: "%s" }}{% endcapture %}{% assign map_img = map_path | append: "?v=" | append: img_v %}{% endif %}
           {%- endfor %}
+          {%- assign hd_img = nil %}
+          {%- assign hd_path = "/assets/images/maps/hd/" | append: map.name | append: ".webp" %}
+          {%- assign hd_file = site.static_files | where: "path", hd_path | first %}
+          {%- if hd_file %}{% capture img_v %}{{ hd_file.modified_time | date: "%s" }}{% endcapture %}{% assign hd_img = hd_path | append: "?v=" | append: img_v %}{% endif %}
+          {%- assign layers_url = nil %}
+          {%- assign layers_path = "/assets/images/maps/layers/" | append: map.name | append: "/layers.json" %}
+          {%- assign layers_file = site.static_files | where: "path", layers_path | first %}
+          {%- if layers_file %}{% capture img_v %}{{ layers_file.modified_time | date: "%s" }}{% endcapture %}{% assign layers_url = layers_path | append: "?v=" | append: img_v %}{% endif %}
           {%- if map_img %}
-          <option value="{{ map.name | escape }}" data-image="{{ map_img | relative_url }}" data-description="{{ map.description | escape }}" data-faction="{{ map.faction | downcase }}">{{ map.name }}</option>
+          <option value="{{ map.name | escape }}" data-image="{{ map_img | relative_url }}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %}{% if layers_url %} data-layers="{{ layers_url | relative_url }}"{% endif %} data-description="{{ map.description | escape }}" data-faction="{{ map.faction | downcase }}">{{ map.name }}</option>
           {%- endif %}
           {%- endunless %}
           {%- endfor %}
@@ -51,11 +59,44 @@ back the new text for that file. Logic in assets/js/map-marker.js.
 
     <div class="mm-layout">
       <div class="mm-stage-wrap">
-        <div class="mm-stage" data-mm-stage>
-          <img class="mm-image" alt="" draggable="false" data-mm-image>
-          <div class="map-marks mm-marks" data-mm-marks></div>
+        {%- comment %} The same controls as the map preview: zoom, Map, Details Low / High, and the layering test. {% endcomment %}
+        <div class="mm-viewport" data-mm-viewport>
+          <div class="mm-canvas" data-mm-canvas>
+            <div class="mm-stage" data-mm-stage>
+              <img class="mm-map-img" alt="" draggable="false" data-mm-image>
+              <img class="map-layer-img mm-layer-img" alt="" draggable="false" data-layer="filled" hidden>
+              <img class="map-layer-img mm-layer-img" alt="" draggable="false" data-layer="editor" hidden>
+              <div class="map-marks mm-marks" data-mm-marks></div>
+            </div>
+          </div>
+          <div class="mm-hd-progress" data-mm-hd-progress hidden><span class="mm-hd-bar"><span data-mm-hd-bar></span></span><span data-mm-hd-text></span></div>
         </div>
-        <p class="hint mm-stage-hint">Tip: arrow keys nudge the selected mark (hold Shift for bigger steps), Delete removes it, Esc deselects.</p>
+        <div class="map-dialog-zoom mm-zoom" role="group" aria-label="Zoom">
+          <button class="btn btn-small" type="button" data-mm-zoom="out" aria-label="Zoom out">&minus;</button>
+          <span class="map-dialog-zoom-level mm-zoom-level" data-mm-zoom-level aria-live="polite">100%</span>
+          <button class="btn btn-small" type="button" data-mm-zoom="in" aria-label="Zoom in">+</button>
+          <button class="btn btn-small" type="button" data-mm-zoom="reset">Reset</button>
+          <span class="map-dialog-views" role="group" aria-label="View">
+            <button class="btn btn-small" type="button" aria-pressed="true" title="Marks go on the overhead map.">Map</button>
+            <span class="map-dialog-sep" aria-hidden="true"></span>
+            <span class="map-quality" role="group" aria-label="Map details">
+              <span class="map-quality-label">Details</span>
+              <button class="btn btn-small" type="button" data-mm-quality="low" aria-pressed="true" title="Low: the normal picture. Quick to load; gets blurry when you zoom in close.">Low</button>
+              <button class="btn btn-small" type="button" data-mm-quality="high" aria-pressed="false" title="High: a much bigger picture, so you can still read the details when zoomed in. Bigger download.">High</button>
+            </span>
+          </span>
+        </div>
+        <div class="layer-panel mm-layer-panel" data-mm-layers>
+          <label class="layer-try" title="Shows the map in parts you can switch on and off, or one storey at a time. Needs Details: High."><input type="checkbox" data-layer-try> Try out layering system? <span class="layer-beta">Testing</span></label>
+          <div class="layer-opts" hidden>
+            <label title="The map itself: ground, cliffs, buildings and props."><input type="checkbox" data-layer-toggle="empty" checked> Map <span class="layer-what">ground, buildings, props</span></label>
+            <label title="Things placed on the map: vehicles, defences and the units its spawners make."><input type="checkbox" data-layer-toggle="filled" checked> Units and objects <span class="layer-what">vehicles, defences, spawned units</span></label>
+            <label data-layer-has="editor" title="Level-editor helpers: waypaths, zones and so on."><input type="checkbox" data-layer-toggle="editor" checked> Editor <span class="layer-what">waypaths, zones</span></label>
+            <label class="layer-floor" title="One storey on its own (map and units together), with everything above and below cut away. 1 is the top.">Floor <select data-layer-floor><option value="">All floors</option></select></label>
+            <p class="layer-quality">Single floors and layers are normal quality only for now.</p>
+          </div>
+        </div>
+        <p class="hint mm-stage-hint">Tip: scroll or pinch to zoom, drag the map to move it (a click adds a mark). Arrow keys nudge the selected mark (hold Shift for bigger steps), Delete removes it, Esc deselects, + / - / 0 zoom.</p>
       </div>
 
       <aside class="mm-side">

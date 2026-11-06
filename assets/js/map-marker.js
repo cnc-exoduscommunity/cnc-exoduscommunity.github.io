@@ -4,12 +4,13 @@
 (function () {
   var $ = function (sel) { return document.querySelector(sel); };
   var mapSelect = $("[data-mm-map]");
-  if (!mapSelect || typeof MapMarks === "undefined") return;
+  if (!mapSelect || typeof MapMarks === "undefined" || typeof makeZoom === "undefined") return;
 
   var DRAFT_KEY = "map-marker-draft";
   var MAP_KEY = "map-marker-map";
   var base = window.MAP_MARKS_BASE || "/assets/images/marks/";
   var stage = $("[data-mm-stage]"), image = $("[data-mm-image]"), layer = $("[data-mm-marks]");
+  var viewport = $("[data-mm-viewport]"), canvas = $("[data-mm-canvas]");
   var editor = $("[data-mm-editor]"), noSelect = $("[data-mm-noselect]");
   var listEl = $("[data-mm-list]"), countEl = $("[data-mm-count]");
   var imagesEl = $("[data-mm-images]"), posEl = $("[data-mm-pos]");
@@ -132,7 +133,7 @@
   markKinds();
 
   // ---- Map ----
-  var mapName = null, selected = -1;
+  var mapName = null, selected = -1, mapOpt = null;
   function marks() { return data[mapName] || (data[mapName] = []); }
   function setMap(name) {
     var opt = Array.prototype.find.call(mapSelect.options, function (o) { return o.value === name; }) || mapSelect.options[0];
@@ -140,7 +141,8 @@
     mapSelect.value = opt.value;
     mapName = opt.value;
     selected = -1;
-    image.src = opt.getAttribute("data-image");
+    mapOpt = opt;
+    view();
     // The map's side: its GDI / Nod logo next to the list.
     var logo = document.querySelector("[data-mm-side]"), side = opt.getAttribute("data-faction");
     if (logo) {
@@ -336,20 +338,27 @@
   nameInput.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); addByName(); } });
 
   // ---- Placing and dragging on the map ----
+  // The map box zooms and pans like the map preview (makeZoom in site.js): scroll or pinch
+  // to zoom, drag the map to move it. A click (no drag) adds a mark; dragging a mark moves it.
   function toPercent(e) {
     var r = stage.getBoundingClientRect();
     return { x: round(clamp((e.clientX - r.left) / r.width * 100)), y: round(clamp((e.clientY - r.top) / r.height * 100)) };
   }
-  var drag = null;
+  var drag = null, touching = 0;
+  viewport.addEventListener("pointerdown", function () { touching++; if (touching > 1 && drag && drag.index < 0) drag.cancel = true; }, true);
   stage.addEventListener("pointerdown", function (e) {
     if (e.button !== 0) return;
     var markEl = e.target.closest(".map-mark");
-    stage.setPointerCapture(e.pointerId);
+    if (markEl) {
+      e.stopPropagation();                    // a mark: move it, don't move the map
+      viewport.setPointerCapture(e.pointerId);
+    }
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false,
              index: markEl ? Number(markEl.getAttribute("data-index")) : -1, el: markEl };
     e.preventDefault();
   });
-  stage.addEventListener("pointermove", function (e) {
+  stage.addEventListener("dblclick", function (e) { e.stopPropagation(); });   // two clicks are two marks, not a zoom
+  viewport.addEventListener("pointermove", function (e) {
     if (!drag || drag.id !== e.pointerId || drag.index < 0) return;
     if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 4) return;
     drag.moved = true;
@@ -359,18 +368,177 @@
     drag.el.style.top = p.y + "%";
     if (drag.index === selected) posEl.textContent = "x " + num(p.x) + "%, y " + num(p.y) + "% (from the top left)";
   });
-  stage.addEventListener("pointerup", function (e) {
+  function release(e) {
+    touching = Math.max(0, touching - 1);
     if (!drag || drag.id !== e.pointerId) return;
     var d = drag; drag = null;
+    if (e.type === "pointercancel") { render(); return; }
     if (d.index >= 0) { selected = d.index; render(); return; }        // clicked or dragged a mark
-    if (Math.hypot(e.clientX - d.x, e.clientY - d.y) >= 4) return;     // not a click
+    if (d.cancel || Math.hypot(e.clientX - d.x, e.clientY - d.y) >= 4) return;     // moved the map, not a click
+    var r = stage.getBoundingClientRect();
+    if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
     var p = toPercent(e);
     marks().push({ kind: addKind, x: p.x, y: p.y });
     selected = marks().length - 1;
     render();
-    fields.label.focus();
+    fields.label.focus({ preventScroll: true });
+  }
+  viewport.addEventListener("pointerup", release);
+  viewport.addEventListener("pointercancel", release);
+
+  // ---- Zoom, Details (Low / High) and the layering test: as in the map preview ----
+  // Remembered with the same settings as the preview (mapDetails, mapLayering).
+  var zoom = makeZoom(viewport, canvas, $("[data-mm-zoom-level]"), null);
+  document.querySelectorAll("[data-mm-zoom]").forEach(function (b) {
+    b.addEventListener("click", function () { zoom[b.getAttribute("data-mm-zoom")](); });
   });
-  stage.addEventListener("pointercancel", function () { drag = null; render(); });
+  // The map sits in the square box scaled to fit and centred; the marks go on the map itself.
+  function fitStage() {
+    var iw = image.naturalWidth, ih = image.naturalHeight;
+    if (!iw || !ih) return;
+    var w = iw >= ih ? 100 : iw / ih * 100, h = iw >= ih ? ih / iw * 100 : 100;
+    stage.style.width = w + "%"; stage.style.height = h + "%";
+    stage.style.left = (100 - w) / 2 + "%"; stage.style.top = (100 - h) / 2 + "%";
+  }
+  image.addEventListener("load", fitStage);
+
+  var quality = "normal";
+  try { if (localStorage.getItem("mapDetails") === "high") quality = "high"; } catch (e) {}
+  var qBtns = document.querySelectorAll("[data-mm-quality]");
+  qBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (b.disabled) return;
+      quality = b.getAttribute("data-mm-quality") === "high" ? "high" : "normal";
+      try { localStorage.setItem("mapDetails", quality); } catch (e) {}
+      view();
+    });
+  });
+
+  // The high-detail picture: downloaded once per map (with progress), then shown.
+  var hdCache = {};
+  var hdBox = $("[data-mm-hd-progress]"), hdBar = $("[data-mm-hd-bar]"), hdText = $("[data-mm-hd-text]");
+  function mb(n) { return (n / 1048576).toFixed(1); }
+  function loadHd(url) {
+    if (hdCache[url]) return hdCache[url];
+    var st = hdCache[url] = { loaded: 0, total: 0, src: null, failed: false };
+    fetch(url).then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      st.total = +r.headers.get("content-length") || 0;
+      if (!r.body || !r.body.getReader) return r.blob();
+      var reader = r.body.getReader(), parts = [];
+      return (function pump() {
+        return reader.read().then(function (x) {
+          if (x.done) return new Blob(parts, { type: "image/webp" });
+          parts.push(x.value); st.loaded += x.value.length; hdProgress();
+          return pump();
+        });
+      })();
+    }).then(function (blob) {
+      st.src = URL.createObjectURL(blob);
+      if (mapOpt && mapOpt.getAttribute("data-hd") === url) view();
+    }).catch(function () { st.failed = true; hdProgress(); });
+    return st;
+  }
+  var hdWaiting = null;
+  function hdProgress() {
+    var st = hdWaiting && hdCache[hdWaiting];
+    hdBox.hidden = !st || !!st.src;
+    if (hdBox.hidden) return;
+    if (st.failed) { hdBar.style.width = "0"; hdText.textContent = "The high-detail map couldn't be loaded; showing the normal one."; return; }
+    var pct = st.total ? Math.min(100, Math.round(st.loaded / st.total * 100)) : 0;
+    hdBar.style.width = pct + "%";
+    hdText.textContent = "Loading the high-detail map... " + (st.total ? pct + "% (" + mb(st.loaded) + " / " + mb(st.total) + " MB)" : mb(st.loaded) + " MB");
+  }
+
+  var layerPanel = $("[data-mm-layers]"), layerImgs = stage.querySelectorAll(".mm-layer-img");
+  var tryBox = layerPanel.querySelector("[data-layer-try]"), layerOpts = layerPanel.querySelector(".layer-opts");
+  var layering = { wanted: false, info: {}, on: { empty: true, filled: true, editor: true }, floor: "" };
+  try { layering.wanted = localStorage.getItem("mapLayering") === "1"; } catch (e) {}
+  tryBox.checked = layering.wanted;
+  tryBox.addEventListener("change", function () {
+    layering.wanted = tryBox.checked;
+    try { localStorage.setItem("mapLayering", layering.wanted ? "1" : "0"); } catch (e) {}
+    view();
+  });
+  layerPanel.querySelectorAll("[data-layer-toggle]").forEach(function (c) {
+    c.addEventListener("change", function () { layering.on[c.getAttribute("data-layer-toggle")] = c.checked; view(); });
+  });
+  var floorSel = layerPanel.querySelector("[data-layer-floor]");
+  floorSel.addEventListener("change", function () { layering.floor = floorSel.value; view(); });
+  // A map's layers.json (once): its floors and whether it has the editor layer.
+  function layerMeta(url) {
+    if (layering.info[url]) return layering.info[url];
+    layering.info[url] = "loading";
+    fetch(url).then(function (r) { return r.json(); }).then(function (m) {
+      layering.info[url] = m;
+      if (mapOpt && mapOpt.getAttribute("data-layers") === url) view();
+    }).catch(function () { delete layering.info[url]; });
+    return null;
+  }
+  var floorsFor = null;
+  function layerOptions(url, meta) {
+    if (floorsFor !== url) {
+      floorsFor = url;
+      floorSel.textContent = "";
+      floorSel.appendChild(new Option("All floors", ""));
+      (meta.floors || []).forEach(function (f) { floorSel.appendChild(new Option(f.n + ": " + f.name, String(f.n))); });
+    }
+    if (!(meta.floors || []).some(function (f) { return String(f.n) === layering.floor; })) layering.floor = "";
+    floorSel.value = layering.floor;
+    layerPanel.querySelector('[data-layer-has="editor"]').hidden = (meta.layers || []).indexOf("editor") < 0;
+  }
+  function clearLayers() {
+    layerImgs.forEach(function (im) { im.hidden = true; im.removeAttribute("src"); });
+    image.style.visibility = "";
+  }
+  function setSrc(src) { if (image.getAttribute("src") !== src) image.src = src; }
+
+  // Shows the chosen map as asked: Low / High, layered or not.
+  function view() {
+    if (!mapOpt) return;
+    var normal = mapOpt.getAttribute("data-image"), hd = mapOpt.getAttribute("data-hd"), lay = mapOpt.getAttribute("data-layers");
+    var high = quality === "high" && !!hd;
+    qBtns.forEach(function (b) {
+      var isHigh = b.getAttribute("data-mm-quality") === "high";
+      b.disabled = isHigh && !hd;
+      b.setAttribute("aria-pressed", String(isHigh === high));
+    });
+    var qBox = document.querySelector(".mm-zoom .map-quality");
+    if (qBox) qBox.title = hd ? "" : "There's no high-detail picture for this map yet.";
+    // Low and High zoom just as far (Low gets blurry; that's your choice), so the zoom
+    // stays put when you switch.
+    zoom.setMax(hd ? 10 : 4);
+    var canLayer = high && !!lay;
+    tryBox.disabled = !canLayer;
+    layerPanel.classList.toggle("is-disabled", !canLayer);
+    layerPanel.title = lay ? "" : "No layers for this map yet.";
+    var meta = canLayer && layering.wanted ? layerMeta(lay) : null;
+    layerOpts.hidden = !(layering.wanted && canLayer && meta && meta !== "loading");
+    if (!layerOpts.hidden) layerOptions(lay, meta);
+    // The layers are normal quality; with everything on and all floors that's just the
+    // finished map, so the high-detail picture is shown instead.
+    var defaults = !layering.floor && layering.on.empty && layering.on.filled && layering.on.editor;
+    var layered = !layerOpts.hidden && !defaults;
+    layerPanel.querySelectorAll("[data-layer-toggle]").forEach(function (c) { c.disabled = !!layering.floor; });
+    hdWaiting = null;
+    if (layered) {
+      var base = lay.replace(/layers\.json(\?.*)?$/, ""), floor = layering.floor;
+      setSrc(base + (floor ? "floor-" + floor : "empty") + ".webp");
+      image.style.visibility = floor || layering.on.empty ? "" : "hidden";
+      layerImgs.forEach(function (im) {
+        var key = im.getAttribute("data-layer");
+        var show = !floor && layering.on[key] && (meta.layers || []).indexOf(key) >= 0;
+        im.hidden = !show;
+        if (show) { if (im.getAttribute("src") !== base + key + ".webp") im.src = base + key + ".webp"; } else im.removeAttribute("src");
+      });
+    } else {
+      clearLayers();
+      var st = high ? loadHd(hd) : null;
+      if (st && st.src) setSrc(st.src);
+      else { setSrc(normal); if (st) hdWaiting = hd; }
+    }
+    hdProgress();
+  }
 
   document.addEventListener("keydown", function (e) {
     var t = e.target;
@@ -378,6 +546,9 @@
       if (e.key === "Escape") t.blur();
       return;
     }
+    if (e.key === "+" || e.key === "=") { e.preventDefault(); zoom.in(); return; }
+    if (e.key === "-" || e.key === "_") { e.preventDefault(); zoom.out(); return; }
+    if (e.key === "0") { e.preventDefault(); zoom.reset(); return; }
     var m = marks()[selected];
     if (e.key === "Escape" && selected >= 0) { selected = -1; render(); return; }
     if (!m) return;

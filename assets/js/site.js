@@ -541,6 +541,7 @@ function setUrlParam(key, value, fallback) {
   var progressBox = dialog.querySelector(".map-dialog-progress");
   var hdState = {};      // url -> { loaded, total, ready, failed, pic }
   var hdUrl = null;      // the high-resolution picture of the map on screen (when Quality is High)
+  var hdMap = false;     // the map on screen has a high-detail copy: zoom as far as High allows, on Low too
   function mb(n) { return (n / 1048576).toFixed(1); }
   function preloadHd(url) {
     if (hdState[url]) return;
@@ -591,7 +592,9 @@ function setUrlParam(key, value, fallback) {
     var on = !!(st && st.ready && hdCtx);
     if (hdCanvas) hdCanvas.hidden = !on;
     image.style.visibility = on ? "hidden" : "";
-    zoom.setMax(hdUrl && !(st && st.failed) ? 10 : 4);
+    // Low and High zoom just as far (Low gets blurry; that's the viewer's choice), so the
+    // zoom level and position stay put when switching between them.
+    zoom.setMax(hdMap ? 10 : 4);
     hdProgress();
     hdDraw();
   }
@@ -1016,6 +1019,7 @@ function setUrlParam(key, value, fallback) {
     var layersDefault = !layering.floor && layering.on.empty && layering.on.filled && layering.on.editor;
     var layered = layering.wanted && canLayer && view === "map" && link.getAttribute("data-layers") && !(hd && quality === "high" && layersDefault);
     hdUrl = hd && quality === "high" && !layered ? hd : null;
+    hdMap = !!hd;
     var withImage = !!view;
     fillLoadscreen(view === "loading" ? sc : null);
     dialog.classList.toggle("is-loadscreen", view === "loading");

@@ -1022,8 +1022,21 @@ tr.is-current td { vertical-align: middle; }
 .mm-draft[hidden] { display: none; }
 .mm-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem); gap: 1.25rem; align-items: start; }
 @media (max-width: 860px) { .mm-layout { grid-template-columns: minmax(0, 1fr); } }
-.mm-stage { position: relative; width: 100%; max-width: 760px; border: 1px solid var(--border-soft); background: #000; cursor: crosshair; touch-action: none; user-select: none; }
-.mm-image { display: block; width: 100%; height: auto; }
+/* The map box: a fixed square (the same size for every map), the map fitted inside. */
+.mm-viewport { position: relative; width: min(100%, 80vh); aspect-ratio: 1; overflow: hidden; border: 1px solid var(--border-soft); background: #000; touch-action: none; user-select: none; cursor: grab; }
+.mm-viewport:active { cursor: grabbing; }
+.mm-canvas { position: absolute; inset: 0; transform-origin: 0 0; }
+.mm-stage { position: absolute; cursor: crosshair; }
+.mm-map-img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.mm-layer-img { width: 100%; height: 100%; }
+.mm-hd-progress { position: absolute; left: 0.6rem; right: 0.6rem; bottom: 0.6rem; z-index: 4; display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.6rem; border: 1px solid var(--border-soft); border-radius: 4px; background: rgba(10, 2, 0, 0.85); color: var(--text); font-size: 0.8rem; pointer-events: none; }
+.mm-hd-progress[hidden] { display: none; }
+.mm-hd-bar { flex: 0 0 8rem; height: 0.4rem; border-radius: 2px; background: rgba(255, 255, 255, 0.15); overflow: hidden; }
+.mm-hd-bar span { display: block; height: 100%; width: 0; background: var(--title); }
+.mm-zoom { justify-content: flex-start; width: min(100%, 80vh); }
+.mm-zoom-level { min-width: 3.4rem; text-align: center; }
+.mm-stage-wrap .mm-layer-panel { position: static; width: min(100%, 80vh); max-width: none; margin-top: 0.45rem; }
+.mm-stage-wrap .mm-layer-panel .layer-opts { flex-direction: row; flex-wrap: wrap; gap: 0.3rem 1rem; }
 .mm-marks { inset: 0; }
 .mm-marks .map-mark { cursor: grab; }
 .mm-marks .map-mark:active { cursor: grabbing; }
@@ -1489,4 +1502,5 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-pog-pick .mm-pog-side { position: absolute; left: 1px; top: 1px; padding: 0 2px; border-radius: 2px; background: rgba(0,0,0,0.8); color: #9fd0ff; font-size: 0.55rem; font-weight: 700; }
 .mm-pog-group { grid-column: 1 / -1; margin: 0.2rem 0 0; color: var(--muted); font-size: 0.75rem; }
 .mm-pog-name { margin: 0.3rem 0 0; font-size: 0.85rem; }
-
+.mm-zoom .map-dialog-views { flex-basis: auto; justify-content: flex-start; margin-left: 0.6rem; }
+.mm-stage-wrap .mm-layer-panel .layer-quality { flex-basis: 100%; margin: 0; }
