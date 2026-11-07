@@ -65,6 +65,38 @@ var MapMarks = (function () {
     return pogs[key] || null;
   }
   function kind(k) { return KINDS[k] ? k : "other"; }
+  // Kinds that can say how many there are (count:).
+  var COUNTED = { secret: 1, vehicle: 1, pickup: 1, other: 1 };
+  function countText(mark) { return +mark.count > 0 ? String(+mark.count) : "Infinite"; }
+  // Marks on (nearly) the same spot fan out side by side, overlapping a little, so each
+  // one can be seen and clicked. Works in screen pixels, so call it again after zooming.
+  function spread(layer) {
+    var all = Array.prototype.filter.call(layer.querySelectorAll(".map-mark"), function (m) { return !m.hidden; });
+    var w = layer.clientWidth, h = layer.clientHeight;
+    var z = parseFloat(getComputedStyle(layer).getPropertyValue("--zoom")) || 1;
+    var size = 28, pts = all.map(function (m) {
+      m.style.removeProperty("--dx"); m.style.removeProperty("--dy");
+      return { m: m, x: parseFloat(m.style.left) / 100 * w * z, y: parseFloat(m.style.top) / 100 * h * z };
+    });
+    var used = [];
+    pts.forEach(function (p, i) {
+      if (used[i]) return;
+      var group = [p]; used[i] = true;
+      for (var j = i + 1; j < pts.length; j++) {
+        if (used[j]) continue;
+        if (group.some(function (g) { return Math.hypot(g.x - pts[j].x, g.y - pts[j].y) < size * 0.8; })) { group.push(pts[j]); used[j] = true; }
+      }
+      if (group.length < 2) return;
+      var n = group.length, step = size * 0.62;
+      group.forEach(function (g, k) {
+        var dx, dy;
+        if (n <= 4) { dx = (k - (n - 1) / 2) * step; dy = 0; }
+        else { var a = k / n * Math.PI * 2 - Math.PI / 2, r = step * n / (Math.PI * 2) + step * 0.3; dx = Math.cos(a) * r; dy = Math.sin(a) * r; }
+        g.m.style.setProperty("--dx", dx.toFixed(1) + "px");
+        g.m.style.setProperty("--dy", dy.toFixed(1) + "px");
+      });
+    });
+  }
   function icon(k) {
     return '<svg class="map-mark-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="currentColor">' + KINDS[kind(k)].glyph + "</svg>";
   }
@@ -87,6 +119,12 @@ var MapMarks = (function () {
       b.classList.add("has-icon");
       b.innerHTML = '<img class="map-mark-icon" alt="" src="' + iconUrl(mark.icon) + '">';
     }
+    // How many it gives (count: N); none or 0 = infinite, which needs no badge.
+    if (COUNTED[k] && +mark.count > 0) {
+      var c = document.createElement("span"); c.className = "map-mark-count"; c.textContent = "\u00d7" + (+mark.count);
+      b.appendChild(c);
+    }
+    if (mark.floor) b.setAttribute("data-floor", mark.floor);
     var pi = k === "objective" && mark.pog && pogInfo(mark.pog);
     var nm = mark.label || (pi ? pi.name : "") || (k !== "objective" && mark.icon ? iconName(mark.icon) : "");
     b.setAttribute("aria-label", KINDS[k].label + (nm ? ": " + nm : ""));
@@ -95,7 +133,7 @@ var MapMarks = (function () {
   // Where an image of a mark lives (a full link is used as is).
   function imageUrl(base, name) { return /^(https?:)?\//.test(name) ? name : base + name; }
   return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE,
-           icons: icons, iconName: iconName, iconUrl: iconUrl };
+           icons: icons, iconName: iconName, iconUrl: iconUrl, COUNTED: COUNTED, countText: countText, spread: spread };
 })();
 
 // Debug mode (switch at the bottom of the page, or ?debug=1 / ?debug=0 in the URL):
@@ -415,7 +453,8 @@ function setUrlParam(key, value, fallback) {
     Array.prototype.forEach.call(layerPanel.querySelectorAll("[data-layer-toggle]"), function (c) {
       c.addEventListener("change", function () { layering.on[c.getAttribute("data-layer-toggle")] = c.checked; show(current); });
     });
-    layerPanel.querySelector("[data-layer-floor]").addEventListener("change", function (e) { layering.floor = e.target.value; show(current); });
+    // Picking a floor to look at also shows only that floor's marks.
+    layerPanel.querySelector("[data-layer-floor]").addEventListener("change", function (e) { layering.floor = marksFloor = e.target.value; show(current); });
     // Clicks on the panel aren't map drags.
     layerPanel.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
     layerPanel.addEventListener("dblclick", function (e) { e.stopPropagation(); });
@@ -698,7 +737,7 @@ function setUrlParam(key, value, fallback) {
   var current = 0;
   // The image and its marks sit on one "canvas" that zooms and pans as a whole.
   var canvas = dialog.querySelector(".map-dialog-canvas") || image;
-  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), canvas, dialog.querySelector(".map-dialog-zoom-level"), function () { placePop(); hdDraw(); });
+  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), canvas, dialog.querySelector(".map-dialog-zoom-level"), function () { placePop(); hdDraw(); if (marksLayer) MapMarks.spread(marksLayer); });
 
   // ---- Map marks (_data/map_marks.yml) on the overhead map ----
   // Hover a mark to see its card; click it to keep the card open (needed for
@@ -710,6 +749,7 @@ function setUrlParam(key, value, fallback) {
   var allMarks = {};
   try { allMarks = JSON.parse((document.getElementById("map-marks-data") || {}).textContent || "{}") || {}; } catch (e) {}
   var hiddenKinds = {};      // kinds switched off in the legend (kept while stepping through maps)
+  var marksFloor = "";       // marks of one floor only ("" = all floors); marks without a floor always show
   var pinned = null, hovered = null, popImage = 0;
   function marksFor(link) {
     var key = link.getAttribute("data-marks-key");
@@ -732,6 +772,7 @@ function setUrlParam(key, value, fallback) {
       lsText.style.left = marksLayer.style.left; lsText.style.top = marksLayer.style.top;
       lsText.style.width = marksLayer.style.width; lsText.style.height = marksLayer.style.height;
     }
+    MapMarks.spread(marksLayer);
     placePop();
   }
   function markActive() {
@@ -772,6 +813,13 @@ function setUrlParam(key, value, fallback) {
       head.appendChild(x);
     }
     pop.appendChild(head);
+    var facts = [];
+    if (MapMarks.COUNTED[k]) facts.push("Amount: " + MapMarks.countText(mark));
+    if (mark.floor) facts.push("Floor " + mark.floor);
+    if (facts.length) {
+      var fp = document.createElement("p"); fp.className = "map-mark-pop-facts"; fp.textContent = facts.join(" \u00b7 ");
+      pop.appendChild(fp);
+    }
     if (mark.note) {
       var n = document.createElement("p");
       n.className = "map-mark-pop-note";
@@ -845,7 +893,7 @@ function setUrlParam(key, value, fallback) {
       counts[k] = (counts[k] || 0) + 1;
       var btn = MapMarks.marker(mark);
       btn._mark = mark;
-      btn.hidden = !!hiddenKinds[k];
+      btn.hidden = !!hiddenKinds[k] || !!(marksFloor && mark.floor && String(mark.floor) !== marksFloor);
       // A mark is not a place to start dragging the map from.
       btn.addEventListener("pointerdown", function (e) { e.stopPropagation(); });
       btn.addEventListener("dblclick", function (e) { e.stopPropagation(); });
@@ -883,6 +931,24 @@ function setUrlParam(key, value, fallback) {
         });
         marksBar.appendChild(b);
       });
+      // Which floor's marks to show, when any mark here says its floor.
+      var floors = {};
+      marks.forEach(function (m) { if (m.floor) floors[m.floor] = 1; });
+      var fl = Object.keys(floors).map(Number).sort(function (a, b) { return a - b; });
+      if (fl.length) {
+        var meta = layering.info[link.getAttribute("data-layers")];
+        var names = {};
+        ((meta && meta.floors) || []).forEach(function (f) { names[f.n] = f.name; });
+        var lab = document.createElement("label"); lab.className = "map-mark-floor"; lab.textContent = "Floor ";
+        var sel = document.createElement("select");
+        sel.appendChild(new Option("All floors", ""));
+        fl.forEach(function (n) { sel.appendChild(new Option(n + (names[n] ? ": " + names[n] : ""), String(n))); });
+        if (marksFloor && !floors[marksFloor]) marksFloor = "";
+        sel.value = marksFloor;
+        sel.addEventListener("change", function () { marksFloor = sel.value; showMarks(link, noMarks); });
+        lab.appendChild(sel);
+        marksBar.appendChild(lab);
+      }
       // Keeps its space (visibility) so the box doesn't change height between maps.
       marksBar.style.visibility = marksBar.children.length ? "" : "hidden";
     }

@@ -945,7 +945,8 @@ tr.is-current td { vertical-align: middle; }
   cursor: pointer;
   pointer-events: auto;
   /* Centred on its spot, and the same size on screen at any zoom. */
-  transform: translate(-50%, -50%) scale(calc(1 / var(--zoom, 1)));
+  /* --dx / --dy (screen pixels) fan out marks that share a spot. */
+  transform: translate(-50%, -50%) translate(calc(var(--dx, 0px) / var(--zoom, 1)), calc(var(--dy, 0px) / var(--zoom, 1))) scale(calc(1 / var(--zoom, 1)));
   transition: box-shadow 0.12s;
 }
 .map-mark[hidden] { display: none; }
@@ -1520,3 +1521,18 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-place-pick .mm-place-none { display: flex; align-items: center; justify-content: center; }
 .mm-place-pick .mm-place-none .map-mark-dot { width: 1.6rem; height: 1.6rem; }
 .mm-stage.is-select { cursor: default; }
+/* Marks: how many (count:), floor filter, facts in the card. */
+.map-mark-count { position: absolute; right: -0.55rem; bottom: -0.45rem; min-width: 1rem; padding: 0 0.2rem; border-radius: 999px; background: #000; border: 1px solid #fff; color: #fff; font-size: 0.6rem; font-weight: 700; line-height: 0.95rem; text-align: center; pointer-events: none; }
+.map-mark-floor { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: var(--muted); }
+.map-mark-floor select, .mm-show-floor select { padding: 0.1rem 0.3rem; border: 1px solid var(--border-soft); border-radius: 3px; background: var(--code-bg); color: var(--text); font: inherit; }
+.map-mark-pop-facts { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.8rem; }
+/* Map marker: floor / amount fields, the list's floor filter and drag to reorder. */
+.mm-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.mm-row2 select, .mm-row2 input { width: 100%; box-sizing: border-box; }
+.mm-row2 [hidden] { display: none; }
+.mm-list-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.6rem; margin: 0 0 0.4rem; font-size: 0.85rem; }
+.mm-show-floor { display: inline-flex; align-items: center; gap: 0.3rem; }
+.mm-list li[draggable="true"] { cursor: grab; }
+.mm-list li.is-dragging { opacity: 0.4; }
+.mm-list li.is-drop { box-shadow: 0 -2px 0 var(--title); }
+.mm-list li.is-other-floor { opacity: 0.45; }

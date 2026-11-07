@@ -38,6 +38,8 @@
     var out = { kind: MapMarks.kind(m.kind), x: round(clamp(+m.x || 0)), y: round(clamp(+m.y || 0)) };
     if (out.kind === "objective" && m.pog) out.pog = String(m.pog);
     if (out.kind !== "objective" && m.icon) out.icon = String(m.icon);
+    if (+m.floor > 0) out.floor = Math.round(+m.floor);
+    if (MapMarks.COUNTED[out.kind] && +m.count > 0) out.count = Math.round(+m.count);
     if (m.label && String(m.label).trim()) out.label = String(m.label).trim();
     if (m.note && String(m.note).trim()) out.note = String(m.note).trim();
     var imgs = (Array.isArray(m.images) ? m.images : []).map(function (s) { return String(s).trim(); }).filter(Boolean);
@@ -78,6 +80,8 @@
     "#   pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)",
     "#   icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the",
     "#           GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)",
+    "#   floor:  optional, the floor it's on (1 = the top, as in the layering); without it, every floor",
+    "#   count:  secrets, vehicles, pickups, other: how many it gives; without it (or 0), infinite",
     "#   x, y:   where on the image, in percent (0-100) from the left / top edge",
     "#   label:  optional, a short name shown on hover (e.g. \"GDI start\")",
     "#   note:   optional, a longer text shown under the label",
@@ -104,6 +108,8 @@
         var parts = ["kind: " + m.kind, "x: " + num(m.x), "y: " + num(m.y)];
         if (m.pog) parts.push("pog: " + m.pog);
         if (m.icon) parts.push("icon: " + q(m.icon));
+        if (m.floor) parts.push("floor: " + m.floor);
+        if (m.count) parts.push("count: " + m.count);
         if (m.label) parts.push("label: " + q(m.label));
         if (m.note) parts.push("note: " + q(m.note));
         if (m.images) parts.push("images: [" + m.images.map(q).join(", ") + "]");
@@ -218,6 +224,8 @@
     mapName = opt.value;
     selected = -1;
     mapOpt = opt;
+    if (opt.getAttribute("data-layers")) layerMeta(opt.getAttribute("data-layers"));   // its floors
+    showFloor = "";
     view();
     renderPlace();
     // The map's side: its GDI / Nod logo next to the list.
@@ -246,20 +254,34 @@
   mapSelect.addEventListener("change", function () { setMap(mapSelect.value); });
 
   // ---- Drawing ----
+  var showFloor = "";   // marks of one floor only ("" = all); marks without a floor always show
+  function floorHidden(m) { return !!(showFloor && m.floor && String(m.floor) !== showFloor); }
   function render() {
     var list = marks();
     layer.textContent = "";
     list.forEach(function (m, i) {
       var b = MapMarks.marker(m);
+      b.hidden = floorHidden(m) && i !== selected;
       b.classList.toggle("is-active", i === selected);
       b.title = (m.label || MapMarks.KINDS[MapMarks.kind(m.kind)].label) + " - drag to move";
       b.setAttribute("data-index", i);
       layer.appendChild(b);
     });
-    // The list beside the map.
+    MapMarks.spread(layer);
+    // The list beside the map: top of the list = drawn last (on top), like layers in an
+    // image editor. Drag an item to move it.
     listEl.textContent = "";
-    list.forEach(function (m, i) {
+    list.map(function (m, i) { return i; }).reverse().forEach(function (i) {
+      var m = list[i];
       var li = document.createElement("li");
+      li.draggable = true;
+      li.setAttribute("data-index", i);
+      if (floorHidden(m)) li.classList.add("is-other-floor");
+      li.addEventListener("dragstart", function (e) { dragFrom = i; li.classList.add("is-dragging"); try { e.dataTransfer.setData("text/plain", String(i)); e.dataTransfer.effectAllowed = "move"; } catch (x) {} });
+      li.addEventListener("dragend", function () { dragFrom = -1; li.classList.remove("is-dragging"); });
+      li.addEventListener("dragover", function (e) { if (dragFrom < 0) return; e.preventDefault(); li.classList.add("is-drop"); });
+      li.addEventListener("dragleave", function () { li.classList.remove("is-drop"); });
+      li.addEventListener("drop", function (e) { e.preventDefault(); li.classList.remove("is-drop"); moveMark(dragFrom, i); });
       var b = document.createElement("button");
       b.type = "button";
       b.className = "mm-list-item" + (i === selected ? " is-selected" : "");
@@ -285,11 +307,23 @@
       li.textContent = "None yet.";
       listEl.appendChild(li);
     }
+    fillFloors(showSel, "All floors");
+    showSel.value = showFloor;
     renderEditor();
     optionLabels();
     save();
   }
   function select(i) { selected = i; render(); }
+  var dragFrom = -1;
+  function moveMark(from, to) {
+    var list = marks();
+    if (from < 0 || from === to || !list[from]) return;
+    var sel = list[selected];
+    var m = list.splice(from, 1)[0];
+    list.splice(to, 0, m);
+    selected = sel ? list.indexOf(sel) : -1;
+    render();
+  }
 
   var shown = null;   // the mark the editor shows
   function renderEditor() {
@@ -304,6 +338,10 @@
     if (fresh || document.activeElement !== fields.label) fields.label.value = m.label || "";
     if (fresh || document.activeElement !== fields.note) fields.note.value = m.note || "";
     posEl.textContent = "x " + num(+m.x) + "%, y " + num(+m.y) + "% (from the top left)";
+    fillFloors(floorField, "Every floor (not set)");
+    floorField.value = m.floor ? String(m.floor) : "";
+    countField.hidden = !MapMarks.COUNTED[MapMarks.kind(m.kind)];
+    if (fresh || document.activeElement !== countInput) countInput.value = +m.count > 0 ? String(+m.count) : "";
     renderPogs(m);
     renderIcons(m);
     // Pictures, with a preview: a picked file, or the file on the site.
@@ -408,6 +446,37 @@
     });
   }
 
+  // ---- Floor and amount ----
+  var floorField = $("[data-mm-floor]"), countField = $("[data-mm-countfield]"), countInput = $("[data-mm-amount]"), showSel = $("[data-mm-showfloor]");
+  // The map's floors, from its layers.json (or 1-8 when it has none).
+  function floorList() {
+    var lay = mapOpt && mapOpt.getAttribute("data-layers"), meta = lay && layering.info[lay];
+    if (meta && meta !== "loading" && (meta.floors || []).length) return meta.floors;
+    return [1, 2, 3, 4, 5, 6, 7, 8].map(function (n) { return { n: n, name: "" }; });
+  }
+  function fillFloors(sel, first) {
+    var want = JSON.stringify(floorList()) + first;
+    if (sel._for === want) return;
+    sel._for = want;
+    var keep = sel.value;
+    sel.textContent = "";
+    sel.appendChild(new Option(first, ""));
+    floorList().forEach(function (f) { sel.appendChild(new Option(f.n + (f.name ? ": " + f.name : ""), String(f.n))); });
+    sel.value = keep;
+  }
+  floorField.addEventListener("change", function () {
+    var m = marks()[selected]; if (!m) return;
+    if (floorField.value) m.floor = +floorField.value; else delete m.floor;
+    render();
+  });
+  countInput.addEventListener("input", function () {
+    var m = marks()[selected]; if (!m) return;
+    var v = Math.round(+countInput.value);
+    if (v > 0) m.count = v; else delete m.count;
+    render();
+  });
+  showSel.addEventListener("change", function () { showFloor = showSel.value; render(); });
+
   // ---- Editing the selected mark ----
   ["kind", "label", "note"].forEach(function (f) {
     fields[f].addEventListener("input", function () {
@@ -501,7 +570,7 @@
 
   // ---- Zoom, Details (Low / High) and the layering test: as in the map preview ----
   // Remembered with the same settings as the preview (mapDetails, mapLayering).
-  var zoom = makeZoom(viewport, canvas, $("[data-mm-zoom-level]"), null);
+  var zoom = makeZoom(viewport, canvas, $("[data-mm-zoom-level]"), function () { MapMarks.spread(layer); });
   document.querySelectorAll("[data-mm-zoom]").forEach(function (b) {
     b.addEventListener("click", function () { zoom[b.getAttribute("data-mm-zoom")](); });
   });
@@ -577,14 +646,15 @@
     c.addEventListener("change", function () { layering.on[c.getAttribute("data-layer-toggle")] = c.checked; view(); });
   });
   var floorSel = layerPanel.querySelector("[data-layer-floor]");
-  floorSel.addEventListener("change", function () { layering.floor = floorSel.value; view(); });
+  // Looking at one floor also shows only that floor's marks.
+  floorSel.addEventListener("change", function () { layering.floor = showFloor = floorSel.value; view(); render(); });
   // A map's layers.json (once): its floors and whether it has the editor layer.
   function layerMeta(url) {
     if (layering.info[url]) return layering.info[url];
     layering.info[url] = "loading";
     fetch(url).then(function (r) { return r.json(); }).then(function (m) {
       layering.info[url] = m;
-      if (mapOpt && mapOpt.getAttribute("data-layers") === url) view();
+      if (mapOpt && mapOpt.getAttribute("data-layers") === url) { view(); render(); }
     }).catch(function () { delete layering.info[url]; });
     return null;
   }
@@ -653,6 +723,13 @@
     }
     hdProgress();
   }
+
+  // A click outside the map and the side panel clears the selection.
+  document.addEventListener("pointerdown", function (e) {
+    if (selected < 0) return;
+    if (e.target.closest(".mm-stage-wrap, .mm-side, .mm-toolbar, .mm-place-opts, .mm-draft, .mm-out-actions, .mm-output")) return;
+    selected = -1; render();
+  });
 
   document.addEventListener("keydown", function (e) {
     var t = e.target;

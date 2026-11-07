@@ -117,6 +117,10 @@ back the new text for that file. Logic in assets/js/map-marker.js.
             <button class="btn btn-small mm-delete" type="button" data-mm-delete>Delete</button>
           </div>
           <label class="mm-field"><span class="mm-label">Kind</span><select data-mm-f="kind"></select></label>
+          <div class="mm-row2">
+            <label class="mm-field"><span class="mm-label">Floor <span class="mm-opt">(where it is; 1 = top)</span></span><select data-mm-floor></select></label>
+            <label class="mm-field" data-mm-countfield><span class="mm-label">Amount <span class="mm-opt">(empty or 0 = infinite)</span></span><input type="number" min="0" step="1" placeholder="Infinite" data-mm-amount></label>
+          </div>
           <div class="mm-field" data-mm-pogfield hidden>
             <span class="mm-label">Objective picture <span class="mm-opt">(the game's own; this map's first)</span></span>
             <div class="mm-pog-pick" data-mm-pogs></div>
@@ -148,6 +152,7 @@ back the new text for that file. Logic in assets/js/map-marker.js.
         <p class="mm-empty hint" data-mm-noselect>Click the map to add a mark, or click a mark to edit it.</p>
 
         <h2 class="mm-h">Marks on this map <span class="mm-count" data-mm-count></span></h2>
+        <p class="mm-list-tools"><label class="mm-show-floor">Show <select data-mm-showfloor><option value="">All floors</option></select></label> <span class="hint">Drag to reorder: the top of the list is drawn on top.</span></p>
         <ol class="mm-list" data-mm-list></ol>
       </aside>
     </div>
