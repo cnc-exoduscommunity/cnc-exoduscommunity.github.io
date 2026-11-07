@@ -131,6 +131,13 @@ back the new text for that file. Logic in assets/js/map-marker.js.
             <div class="mm-pog-pick mm-icon-pick" data-mm-icons></div>
             <p class="mm-pog-name" data-mm-iconname></p>
           </div>
+          <div class="mm-field" data-mm-linksfield>
+            <span class="mm-label">Leads to <span class="mm-opt">(e.g. this objective gives that keycard; drawn as a dash-dot line)</span></span>
+            <ul class="mm-links" data-mm-links></ul>
+            <button class="btn btn-small" type="button" data-mm-linkadd>Link to a mark&hellip;</button>
+            <p class="hint" data-mm-linkhint hidden>Click the mark it leads to (Esc to cancel).</p>
+          </div>
+          <label class="mm-field"><span class="mm-label">ID <span class="mm-opt">(for links; made for you when something links here)</span></span><input type="text" data-mm-id maxlength="32" placeholder="e.g. keycard-1"></label>
           <label class="mm-field"><span class="mm-label">Name <span class="mm-opt">(optional, shown on hover)</span></span><input type="text" data-mm-f="label" placeholder="e.g. GDI start" maxlength="80"></label>
           <label class="mm-field"><span class="mm-label">Note <span class="mm-opt">(optional)</span></span><textarea rows="3" data-mm-f="note" placeholder="e.g. Jump on the crates to reach it"></textarea></label>
           <div class="mm-field">

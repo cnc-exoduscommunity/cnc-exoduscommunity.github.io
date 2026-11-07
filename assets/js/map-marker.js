@@ -35,13 +35,18 @@
 
   // Only the fields the site uses, in a fixed order, without empty ones.
   function tidy(m) {
-    var out = { kind: MapMarks.kind(m.kind), x: round(clamp(+m.x || 0)), y: round(clamp(+m.y || 0)) };
+    var out = { kind: MapMarks.kind(m.kind) };
+    if (m.id && String(m.id).trim()) out.id = String(m.id).trim();
+    out.x = round(clamp(+m.x || 0)); out.y = round(clamp(+m.y || 0));
+    if (out.kind === "arrow") { out.x2 = round(clamp(+m.x2 || 0)); out.y2 = round(clamp(+m.y2 || 0)); }
     if (out.kind === "objective" && m.pog) out.pog = String(m.pog);
     if (out.kind !== "objective" && m.icon) out.icon = String(m.icon);
     if (+m.floor > 0) out.floor = Math.round(+m.floor);
     if (MapMarks.COUNTED[out.kind] && +m.count > 0) out.count = Math.round(+m.count);
     if (m.label && String(m.label).trim()) out.label = String(m.label).trim();
     if (m.note && String(m.note).trim()) out.note = String(m.note).trim();
+    var links = (Array.isArray(m.links) ? m.links : []).map(function (s) { return String(s).trim(); }).filter(Boolean);
+    if (links.length && out.kind !== "arrow") out.links = links;
     var imgs = (Array.isArray(m.images) ? m.images : []).map(function (s) { return String(s).trim(); }).filter(Boolean);
     if (imgs.length) out.images = imgs;
     return out;
@@ -76,12 +81,16 @@
     "# there, then copy its text over this whole file.",
     "#",
     "# One entry per map (the map's name, as in _data/maps.yml), with a list of marks:",
-    "#   kind:   objective | spawn | secret | vehicle | pickup | other",
+    "#   kind:   objective | spawn | secret | vehicle | pickup | other | note | arrow",
     "#   pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)",
     "#   icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the",
     "#           GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)",
     "#   floor:  optional, the floor it's on (1 = the top, as in the layering); without it, every floor",
     "#   count:  secrets, vehicles, pickups, other: how many it gives; without it (or 0), infinite",
+    "#   id:     optional, a short name other marks can link to (e.g. keycard-1)",
+    "#   links:  optional, the ids of marks this one leads to, drawn as a dash-dot line",
+    "#           (e.g. an objective that gives a keycard: links: [keycard-1])",
+    "#   x2, y2: arrows only: where the arrow points to (x, y is where it starts)",
     "#   x, y:   where on the image, in percent (0-100) from the left / top edge",
     "#   label:  optional, a short name shown on hover (e.g. \"GDI start\")",
     "#   note:   optional, a longer text shown under the label",
@@ -105,13 +114,17 @@
     if (!keys.length) return HEADER + "\n{}\n";
     return HEADER + "\n\n" + keys.map(function (k) {
       return key(k) + ":\n" + d[k].map(function (m) {
-        var parts = ["kind: " + m.kind, "x: " + num(m.x), "y: " + num(m.y)];
+        var parts = ["kind: " + m.kind];
+        if (m.id) parts.push("id: " + key(m.id));
+        parts.push("x: " + num(m.x), "y: " + num(m.y));
+        if (m.kind === "arrow") parts.push("x2: " + num(m.x2), "y2: " + num(m.y2));
         if (m.pog) parts.push("pog: " + m.pog);
         if (m.icon) parts.push("icon: " + q(m.icon));
         if (m.floor) parts.push("floor: " + m.floor);
         if (m.count) parts.push("count: " + m.count);
         if (m.label) parts.push("label: " + q(m.label));
         if (m.note) parts.push("note: " + q(m.note));
+        if (m.links) parts.push("links: [" + m.links.map(key).join(", ") + "]");
         if (m.images) parts.push("images: [" + m.images.map(q).join(", ") + "]");
         return "  - { " + parts.join(", ") + " }";
       }).join("\n");
@@ -163,6 +176,7 @@
   try { placeChoice = JSON.parse(localStorage.getItem("map-marker-place") || "{}") || {}; } catch (e) {}
   var placeNow = $("[data-mm-placenow]"), placePick = $("[data-mm-placepick]");
   function placeGroups(k) {
+    if (k === "arrow" || k === "note") return [];
     if (k === "objective") {
       var keys = Object.keys(pogData);
       keys.sort(function (a, b) { return (a === mapName ? -1 : 0) - (b === mapName ? -1 : 0); });
@@ -188,7 +202,7 @@
     var keepScroll = placeShownFor === k + "|" + mapName ? placePick.scrollTop : 0;
     placeShownFor = k + "|" + mapName;
     var label = MapMarks.KINDS[k].label;
-    placeNow.textContent = label + (cur ? ": " + placeName(k, cur) : k === "pickup" ? " (pick what it is below)" : " (plain symbol)");
+    placeNow.textContent = label + (k === "arrow" ? " (drag on the map from where it starts to where it points)" : k === "note" ? " (a small dot; write the note after placing it)" : cur ? ": " + placeName(k, cur) : k === "pickup" ? " (pick what it is below)" : " (plain symbol)");
     placePick.textContent = "";
     var none = document.createElement("button");
     none.type = "button"; none.className = "mm-place-none"; none.title = "Plain " + label.toLowerCase() + " symbol";
@@ -260,14 +274,28 @@
     var list = marks();
     layer.textContent = "";
     list.forEach(function (m, i) {
+      if (MapMarks.kind(m.kind) === "arrow") {
+        if (i === selected) ["", "2"].forEach(function (end) {   // handles to move each end
+          var hd = document.createElement("span");
+          hd.className = "mm-handle"; hd.setAttribute("data-end", end); hd.setAttribute("data-index", i);
+          hd.style.left = (end ? m.x2 : m.x) + "%"; hd.style.top = (end ? m.y2 : m.y) + "%";
+          hd.title = end ? "Drag to move the point" : "Drag to move the start";
+          layer.appendChild(hd);
+        });
+        return;
+      }
       var b = MapMarks.marker(m);
       b.hidden = floorHidden(m) && i !== selected;
       b.classList.toggle("is-active", i === selected);
-      b.title = (m.label || MapMarks.KINDS[MapMarks.kind(m.kind)].label) + " - drag to move";
+      b.title = MapMarks.name(m) + (linkPick ? " - click to link to it" : " - drag to move");
       b.setAttribute("data-index", i);
       layer.appendChild(b);
     });
     MapMarks.spread(layer);
+    var svg = MapMarks.lines(layer, list, function (m) { return !floorHidden(m) || list[selected] === m; });
+    var act = svg.querySelector('.map-arrow-hit[data-index="' + selected + '"]');
+    if (act) act.classList.add("is-active");
+    stage.classList.toggle("is-linking", !!linkPick);
     // The list beside the map: top of the list = drawn last (on top), like layers in an
     // image editor. Drag an item to move it.
     listEl.textContent = "";
@@ -289,7 +317,7 @@
       b.innerHTML = '<span class="map-mark-dot map-mark-' + k + '">' + MapMarks.icon(k) + "</span>";
       var t = document.createElement("span");
       t.className = "mm-list-name";
-      t.textContent = m.label || MapMarks.KINDS[k].label;
+      t.textContent = MapMarks.name(m);
       b.appendChild(t);
       var meta = document.createElement("span");
       meta.className = "mm-list-meta";
@@ -344,6 +372,7 @@
     if (fresh || document.activeElement !== countInput) countInput.value = +m.count > 0 ? String(+m.count) : "";
     renderPogs(m);
     renderIcons(m);
+    renderLinks(m);
     // Pictures, with a preview: a picked file, or the file on the site.
     imagesEl.textContent = "";
     (m.images || []).forEach(function (name, i, all) {
@@ -419,7 +448,7 @@
   var iconShownFor = null;
   function renderIcons(m) {
     if (!iconField) return;
-    var show = MapMarks.kind(m.kind) !== "objective";
+    var show = MapMarks.kind(m.kind) !== "objective" && MapMarks.kind(m.kind) !== "arrow";
     iconField.hidden = !show;
     if (!show) return;
     var key = m.icon || "";
@@ -445,6 +474,52 @@
       });
     });
   }
+
+  // ---- Links (this mark leads to another one) and ids ----
+  var linkPick = false;
+  var linksField = $("[data-mm-linksfield]"), linksList = $("[data-mm-links]"), linkBtn = $("[data-mm-linkadd]"), linkHint = $("[data-mm-linkhint]"), idInput = $("[data-mm-id]");
+  function slug(t) { return String(t).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 32) || "mark"; }
+  function ensureId(m) {
+    if (m.id) return m.id;
+    var base = slug(MapMarks.name(m)), id = base, n = 2;
+    while (marks().some(function (o) { return o.id === id; })) id = base + "-" + n++;
+    m.id = id;
+    return id;
+  }
+  function addLink(targetIndex) {
+    var m = marks()[selected], t = marks()[targetIndex];
+    linkPick = false;
+    if (!m || !t || t === m || MapMarks.kind(t.kind) === "arrow") { render(); return; }
+    var id = ensureId(t);
+    m.links = (m.links || []).filter(function (x) { return x !== id; }).concat([id]);
+    render();
+  }
+  function renderLinks(m) {
+    var isArrow = MapMarks.kind(m.kind) === "arrow";
+    linksField.hidden = isArrow;
+    if (document.activeElement !== idInput) idInput.value = m.id || "";
+    if (isArrow) return;
+    linksList.textContent = "";
+    (m.links || []).forEach(function (id) {
+      var t = marks().filter(function (o) { return o.id === id; })[0];
+      var li = document.createElement("li");
+      var nm = document.createElement("span"); nm.textContent = t ? MapMarks.name(t) : id + " (not on this map)"; if (!t) li.classList.add("is-missing");
+      var x = document.createElement("button"); x.type = "button"; x.className = "btn btn-small"; x.innerHTML = "&#10005;"; x.title = "Remove this link"; x.setAttribute("aria-label", "Remove this link");
+      x.addEventListener("click", function () { m.links = m.links.filter(function (v) { return v !== id; }); if (!m.links.length) delete m.links; render(); });
+      li.appendChild(nm); li.appendChild(x); linksList.appendChild(li);
+    });
+    linkBtn.textContent = linkPick ? "Cancel" : "Link to a mark…";
+    linkHint.hidden = !linkPick;
+  }
+  linkBtn.addEventListener("click", function () { linkPick = !linkPick; render(); });
+  idInput.addEventListener("change", function () {
+    var m = marks()[selected]; if (!m) return;
+    var old = m.id, v = idInput.value.trim() ? slug(idInput.value) : "";
+    if (v && marks().some(function (o) { return o !== m && o.id === v; })) { idInput.value = old || ""; return; }
+    if (v) m.id = v; else delete m.id;
+    if (old) marks().forEach(function (o) { if (o.links) { o.links = o.links.map(function (x) { return x === old ? v : x; }).filter(Boolean); if (!o.links.length) delete o.links; } });
+    render();
+  });
 
   // ---- Floor and amount ----
   var floorField = $("[data-mm-floor]"), countField = $("[data-mm-countfield]"), countInput = $("[data-mm-amount]"), showSel = $("[data-mm-showfloor]");
@@ -490,7 +565,10 @@
   $("[data-mm-delete]").addEventListener("click", function () { removeSelected(); });
   function removeSelected() {
     if (selected < 0) return;
-    marks().splice(selected, 1);
+    var gone = marks().splice(selected, 1)[0];
+    if (gone && gone.id) marks().forEach(function (o) {
+      if (o.links) { o.links = o.links.filter(function (id) { return id !== gone.id; }); if (!o.links.length) delete o.links; }
+    });
     selected = -1;
     render();
   }
@@ -527,24 +605,59 @@
   viewport.addEventListener("pointerdown", function () { touching++; if (touching > 1 && drag && drag.index < 0) drag.cancel = true; }, true);
   stage.addEventListener("pointerdown", function (e) {
     if (e.button !== 0) return;
-    var markEl = e.target.closest(".map-mark");
-    if (markEl) {
+    var markEl = e.target.closest(".map-mark"), hit = e.target.closest(".map-arrow-hit"), handle = e.target.closest(".mm-handle");
+    // Picking the mark a link goes to.
+    if (linkPick) {
+      e.stopPropagation(); e.preventDefault();
+      if (markEl) addLink(Number(markEl.getAttribute("data-index")));
+      return;
+    }
+    var p = toPercent(e);
+    if (handle || hit || markEl) {
       e.stopPropagation();                    // a mark: move it, don't move the map
       viewport.setPointerCapture(e.pointerId);
     }
-    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false,
-             index: markEl ? Number(markEl.getAttribute("data-index")) : -1, el: markEl };
+    var index = markEl ? Number(markEl.getAttribute("data-index")) : hit ? Number(hit.getAttribute("data-index")) : handle ? Number(handle.getAttribute("data-index")) : -1;
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, moved: false, index: index, el: markEl, start: p,
+             end: handle ? handle.getAttribute("data-end") : null };
+    if (index >= 0) { var m0 = marks()[index]; drag.orig = { x: +m0.x, y: +m0.y, x2: +m0.x2, y2: +m0.y2 }; }
+    // Place mode with Arrow: drag on the map to draw one.
+    if (index < 0 && mode === "place" && addKind === "arrow") {
+      e.stopPropagation();
+      viewport.setPointerCapture(e.pointerId);
+      drag.draw = true;
+    }
     e.preventDefault();
   });
   stage.addEventListener("dblclick", function (e) { e.stopPropagation(); });   // two clicks are two marks, not a zoom
   viewport.addEventListener("pointermove", function (e) {
-    if (!drag || drag.id !== e.pointerId || drag.index < 0) return;
+    if (!drag || drag.id !== e.pointerId) return;
+    if (!drag.draw && drag.index < 0) return;
     if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) < 4) return;
     drag.moved = true;
-    var p = toPercent(e), m = marks()[drag.index];
+    var p = toPercent(e);
+    if (drag.draw) {                      // the arrow being drawn
+      if (!drag.temp) { drag.temp = { kind: "arrow", x: drag.start.x, y: drag.start.y }; marks().push(drag.temp); selected = marks().length - 1; }
+      drag.temp.x2 = p.x; drag.temp.y2 = p.y;
+      render();
+      return;
+    }
+    var m = marks()[drag.index], o = drag.orig;
+    if (MapMarks.kind(m.kind) === "arrow") {
+      if (drag.end === "") { m.x = p.x; m.y = p.y; }
+      else if (drag.end === "2") { m.x2 = p.x; m.y2 = p.y; }
+      else {                              // the whole arrow
+        var dx = p.x - drag.start.x, dy = p.y - drag.start.y;
+        m.x = round(clamp(o.x + dx)); m.y = round(clamp(o.y + dy)); m.x2 = round(clamp(o.x2 + dx)); m.y2 = round(clamp(o.y2 + dy));
+      }
+      selected = drag.index;
+      render();
+      return;
+    }
     m.x = p.x; m.y = p.y;
     drag.el.style.left = p.x + "%";
     drag.el.style.top = p.y + "%";
+    MapMarks.lines(layer, marks(), function (mm) { return !floorHidden(mm) || marks()[selected] === mm; });
     if (drag.index === selected) posEl.textContent = "x " + num(p.x) + "%, y " + num(p.y) + "% (from the top left)";
   });
   function release(e) {
@@ -552,6 +665,10 @@
     if (!drag || drag.id !== e.pointerId) return;
     var d = drag; drag = null;
     if (e.type === "pointercancel") { render(); return; }
+    if (d.draw) {
+      if (d.temp) { render(); fields.label.focus({ preventScroll: true }); }
+      return;
+    }
     if (d.index >= 0) { selected = d.index; render(); return; }        // clicked or dragged a mark
     if (d.cancel || Math.hypot(e.clientX - d.x, e.clientY - d.y) >= 4) return;     // moved the map, not a click
     if (mode === "select") { if (selected >= 0) { selected = -1; render(); } return; }   // Select: a click on the map only deselects
@@ -559,7 +676,7 @@
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
     var p = toPercent(e);
     var nm = { kind: addKind, x: p.x, y: p.y }, pick = placeChoice[addKind];
-    if (pick) { if (addKind === "objective") nm.pog = pick; else nm.icon = pick; }
+    if (pick && addKind !== "note") { if (addKind === "objective") nm.pog = pick; else nm.icon = pick; }
     marks().push(nm);
     selected = marks().length - 1;
     render();
@@ -741,6 +858,7 @@
     if (e.key === "-" || e.key === "_") { e.preventDefault(); zoom.out(); return; }
     if (e.key === "0") { e.preventDefault(); zoom.reset(); return; }
     var m = marks()[selected];
+    if (e.key === "Escape" && linkPick) { linkPick = false; render(); return; }
     if (e.key === "Escape" && selected >= 0) { selected = -1; render(); return; }
     if (!m) return;
     if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); removeSelected(); return; }
@@ -752,6 +870,7 @@
     else return;
     e.preventDefault();
     m.x = round(clamp(+m.x + dx)); m.y = round(clamp(+m.y + dy));
+    if (MapMarks.kind(m.kind) === "arrow") { m.x2 = round(clamp(+m.x2 + dx)); m.y2 = round(clamp(+m.y2 + dy)); }
     render();
   });
 

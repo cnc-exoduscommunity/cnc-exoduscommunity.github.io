@@ -23,10 +23,14 @@ var MapMarks = (function () {
                glyph: '<circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="8" r="2.2"/>' },
     pickup:  { label: "Pickup", plural: "Pickups",
                glyph: '<path d="M2 4.5h12v9H2z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.1 6h1.8v2h2v1.8h-2v2H7.1v-2h-2V8h2z"/>' },
+    note:    { label: "Note", plural: "Notes",
+               glyph: '<circle cx="8" cy="8" r="3.2"/>' },
+    arrow:   { label: "Arrow", plural: "Arrows",
+               glyph: '<path d="M2 12.6l8.4-8.4H6.6V2.6H13.4v6.8h-1.6V5.6L3.4 14z"/>' },
     other:   { label: "Other", plural: "Other",
                glyph: '<path d="M6.9 2.5h2.2v6.8H6.9z"/><circle cx="8" cy="12.2" r="1.3"/>' }
   };
-  var ORDER = ["objective", "spawn", "secret", "vehicle", "pickup", "other"];
+  var ORDER = ["objective", "spawn", "secret", "vehicle", "pickup", "other", "note", "arrow"];
   // Icons a mark can show instead of its glyph (icon: in map_marks.yml): the GDI / Nod
   // logos and the pickups (_data/pickups.yml), all HUD icons from assets/images/hud/.
   var ICON_BASE = "/assets/images/hud/";
@@ -68,6 +72,59 @@ var MapMarks = (function () {
   // Kinds that can say how many there are (count:).
   var COUNTED = { secret: 1, vehicle: 1, pickup: 1, other: 1 };
   function countText(mark) { return +mark.count > 0 ? String(+mark.count) : "Infinite"; }
+  // A mark's name for lists and cards: its label, else its objective picture's or icon's name, else its kind.
+  function name(mark) {
+    var k = kind(mark.kind);
+    if (mark.label) return mark.label;
+    if (k === "objective" && mark.pog) { var pi = pogInfo(mark.pog); if (pi) return pi.name; }
+    if (k !== "objective" && mark.icon && iconName(mark.icon)) return iconName(mark.icon);
+    return KINDS[k].label;
+  }
+  // Arrows (kind: arrow, from x/y to x2/y2) and links between marks (links: [id, ...], a
+  // dash-dot line from the mark to the one it leads to), drawn in an SVG under the marks.
+  // Sizes are in screen pixels, so call it again after zooming. show(mark) says if a mark is on.
+  var SVGNS = "http://www.w3.org/2000/svg";
+  function lines(layer, marks, show) {
+    var svg = layer.querySelector("svg.map-mark-lines");
+    if (!svg) { svg = document.createElementNS(SVGNS, "svg"); svg.setAttribute("class", "map-mark-lines"); layer.insertBefore(svg, layer.firstChild); }
+    var w = layer.clientWidth, h = layer.clientHeight;
+    var z = parseFloat(getComputedStyle(layer).getPropertyValue("--zoom")) || 1;
+    svg.setAttribute("viewBox", "0 0 " + (w || 1) + " " + (h || 1));
+    svg.textContent = "";
+    var byId = {};
+    marks.forEach(function (m) { if (m.id) byId[m.id] = m; });
+    function el(n, a, parent) { var e = document.createElementNS(SVGNS, n); for (var k in a) e.setAttribute(k, a[k]); (parent || svg).appendChild(e); return e; }
+    function pt(x, y) { return [x / 100 * w, y / 100 * h]; }
+    function head(a, b, size, cls) {
+      var dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, s = size / z;
+      var p = [b, [b[0] - ux * s - uy * s * 0.55, b[1] - uy * s + ux * s * 0.55], [b[0] - ux * s + uy * s * 0.55, b[1] - uy * s - ux * s * 0.55]];
+      el("polygon", { points: p.map(function (q) { return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "), "class": cls });
+    }
+    marks.forEach(function (m) {
+      (Array.isArray(m.links) ? m.links : []).forEach(function (id) {
+        var t = byId[id];
+        if (!t || !show(m) || !show(t)) return;
+        var a = pt(m.x, m.y), b = pt(t.x, t.y), dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), r = 15 / z;
+        if (L < r * 2.2) return;
+        var a2 = [a[0] + dx / L * r, a[1] + dy / L * r], b2 = [b[0] - dx / L * r, b[1] - dy / L * r];
+        var dash = [10, 4, 2, 4].map(function (v) { return (v / z).toFixed(2); }).join(" ");
+        el("line", { x1: a2[0], y1: a2[1], x2: b2[0], y2: b2[1], "class": "map-link-under", "stroke-width": 4 / z });
+        el("line", { x1: a2[0], y1: a2[1], x2: b2[0], y2: b2[1], "class": "map-link-line", "stroke-width": 2 / z, "stroke-dasharray": dash });
+        head(a2, b2, 9, "map-link-head");
+      });
+    });
+    marks.forEach(function (m, i) {
+      if (kind(m.kind) !== "arrow" || !show(m) || typeof m.x2 !== "number") return;
+      var a = pt(m.x, m.y), b = pt(m.x2, m.y2);
+      el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-under", "stroke-width": 6 / z });
+      el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-line", "stroke-width": 3 / z });
+      head(a, b, 13, "map-arrow-head");
+      var hit = el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-hit", "stroke-width": 16 / z, "data-index": i });
+      if (m.label || m.note) el("title", {}, hit).textContent = [m.label, m.note].filter(Boolean).join(" - ");
+    });
+    return svg;
+  }
+
   // Marks on (nearly) the same spot fan out side by side, overlapping a little, so each
   // one can be seen and clicked. Works in screen pixels, so call it again after zooming.
   function spread(layer) {
@@ -133,7 +190,8 @@ var MapMarks = (function () {
   // Where an image of a mark lives (a full link is used as is).
   function imageUrl(base, name) { return /^(https?:)?\//.test(name) ? name : base + name; }
   return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE,
-           icons: icons, iconName: iconName, iconUrl: iconUrl, COUNTED: COUNTED, countText: countText, spread: spread };
+           icons: icons, iconName: iconName, iconUrl: iconUrl, COUNTED: COUNTED, countText: countText, spread: spread,
+           name: name, lines: lines };
 })();
 
 // Debug mode (switch at the bottom of the page, or ?debug=1 / ?debug=0 in the URL):
@@ -737,7 +795,7 @@ function setUrlParam(key, value, fallback) {
   var current = 0;
   // The image and its marks sit on one "canvas" that zooms and pans as a whole.
   var canvas = dialog.querySelector(".map-dialog-canvas") || image;
-  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), canvas, dialog.querySelector(".map-dialog-zoom-level"), function () { placePop(); hdDraw(); if (marksLayer) MapMarks.spread(marksLayer); });
+  var zoom = makeZoom(dialog.querySelector(".map-dialog-viewport"), canvas, dialog.querySelector(".map-dialog-zoom-level"), function () { placePop(); hdDraw(); if (marksLayer) { MapMarks.spread(marksLayer); drawLines(); } });
 
   // ---- Map marks (_data/map_marks.yml) on the overhead map ----
   // Hover a mark to see its card; click it to keep the card open (needed for
@@ -749,6 +807,8 @@ function setUrlParam(key, value, fallback) {
   var allMarks = {};
   try { allMarks = JSON.parse((document.getElementById("map-marks-data") || {}).textContent || "{}") || {}; } catch (e) {}
   var hiddenKinds = {};      // kinds switched off in the legend (kept while stepping through maps)
+  var drawLines = function () {};
+  var shownMarks = [];       // the marks of the map on screen (for the cards' links)   // arrows and links of the marks on screen (set by showMarks)
   var marksFloor = "";       // marks of one floor only ("" = all floors); marks without a floor always show
   var pinned = null, hovered = null, popImage = 0;
   function marksFor(link) {
@@ -773,6 +833,7 @@ function setUrlParam(key, value, fallback) {
       lsText.style.width = marksLayer.style.width; lsText.style.height = marksLayer.style.height;
     }
     MapMarks.spread(marksLayer);
+    drawLines();
     placePop();
   }
   function markActive() {
@@ -816,6 +877,12 @@ function setUrlParam(key, value, fallback) {
     var facts = [];
     if (MapMarks.COUNTED[k]) facts.push("Amount: " + MapMarks.countText(mark));
     if (mark.floor) facts.push("Floor " + mark.floor);
+    // What it leads to (links:) and what leads to it.
+    var here = shownMarks, to = [], from = [];
+    (Array.isArray(mark.links) ? mark.links : []).forEach(function (id) { here.forEach(function (o) { if (o.id === id) to.push(MapMarks.name(o)); }); });
+    if (mark.id) here.forEach(function (o) { if ((o.links || []).indexOf(mark.id) >= 0) from.push(MapMarks.name(o)); });
+    if (to.length) facts.push("Leads to: " + to.join(", "));
+    if (from.length) facts.push("From: " + from.join(", "));
     if (facts.length) {
       var fp = document.createElement("p"); fp.className = "map-mark-pop-facts"; fp.textContent = facts.join(" \u00b7 ");
       pop.appendChild(fp);
@@ -887,10 +954,16 @@ function setUrlParam(key, value, fallback) {
     marksLayer.textContent = "";
     var marks = noMarks ? [] : marksFor(link);
     var counts = {};
+    var visible = function (m) {
+      return !hiddenKinds[MapMarks.kind(m.kind)] && !(marksFloor && m.floor && String(m.floor) !== marksFloor);
+    };
+    drawLines = function () { MapMarks.lines(marksLayer, marks, visible); };
+    shownMarks = marks;
     marks.forEach(function (mark) {
       if (typeof mark.x !== "number" || typeof mark.y !== "number") return;
       var k = MapMarks.kind(mark.kind);
       counts[k] = (counts[k] || 0) + 1;
+      if (k === "arrow") return;             // drawn as a line (drawLines)
       var btn = MapMarks.marker(mark);
       btn._mark = mark;
       btn.hidden = !!hiddenKinds[k] || !!(marksFloor && mark.floor && String(mark.floor) !== marksFloor);

@@ -1527,7 +1527,8 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .map-mark-floor select, .mm-show-floor select { padding: 0.1rem 0.3rem; border: 1px solid var(--border-soft); border-radius: 3px; background: var(--code-bg); color: var(--text); font: inherit; }
 .map-mark-pop-facts { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.8rem; }
 /* Map marker: floor / amount fields, the list's floor filter and drag to reorder. */
-.mm-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.mm-row2 { display: flex; gap: 0.6rem; }
+.mm-row2 > * { flex: 1; min-width: 0; }
 .mm-row2 select, .mm-row2 input { width: 100%; box-sizing: border-box; }
 .mm-row2 [hidden] { display: none; }
 .mm-list-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.6rem; margin: 0 0 0.4rem; font-size: 0.85rem; }
@@ -1536,3 +1537,23 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-list li.is-dragging { opacity: 0.4; }
 .mm-list li.is-drop { box-shadow: 0 -2px 0 var(--title); }
 .mm-list li.is-other-floor { opacity: 0.45; }
+/* Arrows and links between marks (an SVG under the marks). */
+.map-mark-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.map-link-under { stroke: rgba(0, 0, 0, 0.7); stroke-linecap: round; }
+.map-link-line { stroke: #fff; stroke-linecap: round; }
+.map-link-head { fill: #fff; stroke: rgba(0, 0, 0, 0.7); stroke-width: 0.5; }
+.map-arrow-under { stroke: rgba(0, 0, 0, 0.75); stroke-linecap: round; }
+.map-arrow-line { stroke: #ffcf3a; stroke-linecap: round; }
+.map-arrow-head { fill: #ffcf3a; stroke: rgba(0, 0, 0, 0.75); stroke-width: 0.5; }
+.map-arrow-hit { stroke: transparent; pointer-events: stroke; cursor: pointer; }
+.map-arrow-hit.is-active + *, .map-arrow-hit.is-active { stroke: rgba(255, 255, 255, 0.25); }
+.map-mark-note { --mark: #5a6b7a; width: 1.15rem; height: 1.15rem; }
+.map-mark-arrow { --mark: #c98a1a; }
+/* Map marker: arrow handles, links list, link picking. */
+.mm-handle { position: absolute; width: 0.9rem; height: 0.9rem; border: 2px solid #fff; border-radius: 50%; background: #c98a1a; box-shadow: 0 1px 4px rgba(0,0,0,0.8); transform: translate(-50%, -50%) scale(calc(1 / var(--zoom, 1))); cursor: move; pointer-events: auto; z-index: 3; }
+.mm-links { list-style: none; margin: 0 0 0.35rem; padding: 0; display: flex; flex-direction: column; gap: 0.25rem; }
+.mm-links li { display: flex; align-items: center; justify-content: space-between; gap: 0.4rem; padding: 0.15rem 0.2rem 0.15rem 0.5rem; border: 1px solid var(--border-soft); border-radius: 4px; font-size: 0.85rem; }
+.mm-links li.is-missing span { color: #ff3b30; }
+.mm-links .btn { padding: 0.05rem 0.4rem; }
+.mm-stage.is-linking, .mm-stage.is-linking .map-mark { cursor: copy; }
+[data-mm-linksfield][hidden] { display: none; }
