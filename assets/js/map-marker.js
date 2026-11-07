@@ -621,7 +621,7 @@
     // Low and High zoom just as far (Low gets blurry; that's your choice), so the zoom
     // stays put when you switch.
     zoom.setMax(hd ? 10 : 4);
-    var canLayer = high && !!lay;
+    var canLayer = !!lay;   // Low and High each have their own layer pictures
     tryBox.disabled = !canLayer;
     layerPanel.classList.toggle("is-disabled", !canLayer);
     layerPanel.title = lay ? "" : "No layers for this map yet.";
@@ -636,13 +636,14 @@
     hdWaiting = null;
     if (layered) {
       var base = lay.replace(/layers\.json(\?.*)?$/, ""), floor = layering.floor;
-      setSrc(base + (floor ? "floor-" + floor : "empty") + ".webp");
+      var src = function (key) { return base + (high && (meta.hd_layers || []).indexOf(key) >= 0 ? "hd/" : "") + key + ".webp"; };
+      setSrc(src(floor ? "floor-" + floor : "empty"));
       image.style.visibility = floor || layering.on.empty ? "" : "hidden";
       layerImgs.forEach(function (im) {
         var key = im.getAttribute("data-layer");
         var show = !floor && layering.on[key] && (meta.layers || []).indexOf(key) >= 0;
         im.hidden = !show;
-        if (show) { if (im.getAttribute("src") !== base + key + ".webp") im.src = base + key + ".webp"; } else im.removeAttribute("src");
+        if (show) { if (im.getAttribute("src") !== src(key)) im.src = src(key); } else im.removeAttribute("src");
       });
     } else {
       clearLayers();

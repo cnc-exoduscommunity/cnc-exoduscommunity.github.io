@@ -99,13 +99,12 @@ back the new text for that file. Logic in assets/js/map-marker.js.
           </span>
         </div>
         <div class="layer-panel mm-layer-panel" data-mm-layers>
-          <label class="layer-try" title="Shows the map in parts you can switch on and off, or one storey at a time. Needs Details: High."><input type="checkbox" data-layer-try> Try out layering system? <span class="layer-beta">Testing</span></label>
+          <label class="layer-try" title="Shows the map in parts you can switch on and off, or one storey at a time. Follows Details: Low or High."><input type="checkbox" data-layer-try> Try out layering system? <span class="layer-beta">Testing</span></label>
           <div class="layer-opts" hidden>
             <label title="The map itself: ground, cliffs, buildings and props."><input type="checkbox" data-layer-toggle="empty" checked> Map <span class="layer-what">ground, buildings, props</span></label>
             <label title="Things placed on the map: vehicles, defences and the units its spawners make."><input type="checkbox" data-layer-toggle="filled" checked> Units and objects <span class="layer-what">vehicles, defences, spawned units</span></label>
             <label data-layer-has="editor" title="Level-editor helpers: waypaths, zones and so on."><input type="checkbox" data-layer-toggle="editor" checked> Editor <span class="layer-what">waypaths, zones</span></label>
             <label class="layer-floor" title="One storey on its own (map and units together), with everything above and below cut away. 1 is the top.">Floor <select data-layer-floor><option value="">All floors</option></select></label>
-            <p class="layer-quality">Single floors and layers are normal quality only for now.</p>
           </div>
         </div>
         <p class="hint mm-stage-hint">Tip: scroll or pinch to zoom, drag the map to move it (a click adds a mark). Arrow keys nudge the selected mark (hold Shift for bigger steps), Delete removes it, Esc deselects, + / - / 0 zoom.</p>

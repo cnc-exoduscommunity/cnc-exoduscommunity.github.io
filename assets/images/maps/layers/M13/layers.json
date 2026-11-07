@@ -24,5 +24,11 @@
       "n": 2,
       "name": "Level 2 (bottom)"
     }
+  ],
+  "hd_layers": [
+    "empty",
+    "filled",
+    "floor-1",
+    "floor-2"
   ]
 }

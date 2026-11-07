@@ -388,14 +388,17 @@ function setUrlParam(key, value, fallback) {
     var meta = layerOptions(link, applyLayers);
     if (!meta) return;
     var floor = layering.floor;
+    // Details: High uses the big layer pictures (layers/<map>/hd/) where they exist.
+    var big = quality === "high" && !!link.getAttribute("data-hd");
+    function src(key) { return base + (big && (meta.hd_layers || []).indexOf(key) >= 0 ? "hd/" : "") + key + ".webp"; }
     // One storey on its own (it has the map and the units together), or the stack.
-    image.src = base + (floor ? "floor-" + floor : "empty") + ".webp";
+    image.src = src(floor ? "floor-" + floor : "empty");
     image.style.visibility = floor || layering.on.empty ? "" : "hidden";
     Array.prototype.forEach.call(layerImgs, function (im) {
       var key = im.getAttribute("data-layer");
       var show = !floor && layering.on[key] && (meta.layers || []).indexOf(key) >= 0;
       im.hidden = !show;
-      if (show) im.src = base + key + ".webp"; else im.removeAttribute("src");
+      if (show) im.src = src(key); else im.removeAttribute("src");
     });
     Array.prototype.forEach.call(layerPanel.querySelectorAll("[data-layer-toggle]"), function (c) { c.disabled = !!floor; });
   }
@@ -1043,7 +1046,8 @@ function setUrlParam(key, value, fallback) {
     if (qBox) qBox.title = hd ? "" : (view === "map" ? "There's no high-detail picture for this map yet." : "Details is for the map picture.");
     // The layering test needs Details: High.
     var tryBox = layerPanel && layerPanel.querySelector("[data-layer-try]");
-    var canLayer = !!(hd && quality === "high");
+    // The layering test works with Low and High (each has its own layer pictures).
+    var canLayer = !!(view === "map" && link.getAttribute("data-layers"));
     if (tryBox) { tryBox.disabled = !canLayer; layerPanel.classList.toggle("is-disabled", !canLayer); }
     // The high-resolution picture: fetched in the background, drawn on the canvas once it's
     // ready when Quality is High (see hdRefresh).
@@ -1051,7 +1055,8 @@ function setUrlParam(key, value, fallback) {
     // The layering test only has normal-quality pictures; with everything on and all floors
     // it's the same as the finished map, so the high-quality picture is used then.
     var layersDefault = !layering.floor && layering.on.empty && layering.on.filled && layering.on.editor;
-    var layered = layering.wanted && canLayer && view === "map" && link.getAttribute("data-layers") && !(hd && quality === "high" && layersDefault);
+    // With everything on and all floors it's just the finished map, so that's shown instead.
+    var layered = layering.wanted && canLayer && !layersDefault;
     hdUrl = hd && quality === "high" && !layered ? hd : null;
     hdMap = !!hd;
     var withImage = !!view;

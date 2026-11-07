@@ -28,5 +28,12 @@
       "n": 3,
       "name": "Level 3 (bottom)"
     }
+  ],
+  "hd_layers": [
+    "empty",
+    "filled",
+    "floor-1",
+    "floor-2",
+    "floor-3"
   ]
 }
