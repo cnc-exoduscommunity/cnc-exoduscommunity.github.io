@@ -153,11 +153,12 @@ Then open <http://localhost:4000>.
 | :--- | :--------- |
 | `_config.yml` | Site settings: title, URL, header logo, Discord and Steam links, server address, live status source and the "Not sure how to connect?" links. |
 | `index.html` | The home page: Message Of The Day, Index, Map rotation, IRC, Sounds, Gallery, Tools and the Debug panel. |
-| `_data/maps.yml` | The map rotation table, and per map: description, side, objectives, purchase terminal, image credit. |
-| `_data/map_marks.yml` | Marks on the map images (objectives, spawn points, secrets, vehicles, pickups, other), made with the Map marker tool. |
-| `_data/weapons.yml` | Weapons: HUD icon, who carries them, and which maps hand them out (the map preview's **Weapons** card). |
+| `_data/maps.yml` | The map rotation table, and per map: description, side, notes, image credits. |
+| `_data/map_marks.yml` | Everything the Map marker tool edits, per map: purchase terminal, objectives, starting / map / secret weapons, buildings, and the marks on the map image. |
+| `_plugins/map_info.rb` | Copies that game info onto the maps in `_data/maps.yml` and `_data/buildings.yml` when the site is built, so the pages read it from there. |
+| `_data/weapons.yml` | Weapons: HUD icon, hotkey and who carries them (the map preview's **Weapons** card). |
 | `_data/purchase.yml` | The purchase terminal's Characters and Vehicles pages per side, with prices, and per-map changes. |
-| `_data/buildings.yml` | The GDI and Nod buildings on each map (the map preview's **Buildings** list). |
+| `_data/buildings.yml` | Every kind of building, with its name and icon (which buildings each map has is in `_data/map_marks.yml`). |
 | `_data/objective_pogs.yml` | The game's objective pictures per mission (`assets/images/objectives/`), used by objective marks. |
 | `_data/sound_categories.yml` | The Sounds section's categories and totals, written by `tools/convert_sounds.py`. |
 | `_data/sounds.yml` | The in-game `!sounds` commands (empty for now, so "In-game commands" shows as Coming soon). |
@@ -290,30 +291,40 @@ Timed C4), the **Purchase terminal** (folded; Characters and Vehicles open their
 ### Purchase terminal
 
 Each map's preview shows the first page of the purchase terminal for its side (GDI or Nod cards from `assets/images/hud/`),
-with what isn't sold there greyed out. It comes from `terminal:` in `_data/maps.yml`: `full`, `no-vehicles`,
+with what isn't sold there greyed out. It comes from `terminal:` in `_data/map_marks.yml` (set in the Map marker's **Map info**): `full`, `no-vehicles`,
 `vehicles-destroyed` (a stock map whose vehicle building starts destroyed, so the game shows "Destroyed") or `none`
 (no terminal at all). Maps without it don't show the terminal; the debug panel lists them. Beacons are greyed out on
 every map while `server.beacons_for_sale` in `_config.yml` is `false`.
 
-### Map marks
+### Map marks and map info
 
-Spots on a map's overhead image: **objectives**, **spawn points**, **secrets**, **vehicles**, **pickups** and **other**.
-An objective mark can show the game's own objective picture; any other mark can show a HUD icon instead of its symbol (a
-pickup such as a keycard, health or the Data Disc, or the GDI / Nod logo). In the map preview, hovering a mark shows its
-name, note and first picture; clicking it keeps the card open and steps through all its pictures. The chips under the map
-show how many of each kind there are and switch a kind on or off. Rows with marks get a pin icon in the table.
+Spots on a map's overhead image: **objectives**, **spawn points**, **secrets**, **vehicles**, **pickups**, **other**,
+**notes** (small dots) and **arrows**. An objective mark can show the game's own objective picture; any other mark can show
+a HUD icon instead of its symbol (a pickup such as a keycard, health or the Data Disc, or the GDI / Nod logo). Marks can say
+which **floor** they're on, and secrets, vehicles, pickups and other can say **how many** there are (none = infinite, shown
+as ×N otherwise). A mark can **lead to** others (an objective that gives a keycard), drawn as a dash-dot line. Marks on the
+same spot fan out so each can be seen.
 
-To add or change marks, open the **Map marker** tool (Index > Tools, or `/tools/map-marker/`):
+In the map preview, hovering a mark shows its name, amount, floor, what it leads to, note and first picture; clicking it
+keeps the card open and steps through all its pictures. The chips under the map switch a kind on or off, and a **Floor**
+list (also set by the layering floor) shows one floor's marks. Rows with marks get a pin icon in the table.
+
+To change marks or a map's game info, open the **Map marker** tool (Index > Tools, or `/tools/map-marker/`):
 
 1. Pick the map. It has the same zoom, **Details: Low / High** and layering controls as the map preview (scroll or pinch
    to zoom, drag the map to move it, + / − / 0).
 2. **Mode: Place** - pick a kind; the **Placing** box shows what it can be (Pickup shows the pickups, Objective the
-   objective pictures, the rest the GDI / Nod logos, or the plain symbol). Click the map to add one.
-   **Mode: Select** - clicks only pick marks, so nothing is added by accident.
-3. Drag a mark to move it; click it to change its kind, picture or icon, name, note and pictures (pick them from your
-   computer, or type the file name). Arrow keys nudge it, Delete removes it.
-4. Your work is kept in that browser until the site has it, so you can close the page and come back.
-5. Copy the text at the bottom (or download it) over the whole of `_data/map_marks.yml`, put the pictures you added in
+   objective pictures, the rest the GDI / Nod logos, or the plain symbol). Click the map to add one; for an **Arrow**,
+   drag from where it starts to where it points. **Mode: Select** - clicks only pick marks, so nothing is added by accident.
+3. Drag a mark to move it (an arrow's two dots move its ends); click it to change its kind, floor, amount, picture or icon,
+   links (**Link to a mark…**, then click the mark it leads to), name, note and pictures. Arrow keys nudge it, Delete
+   removes it, a click outside the map clears the selection. Drag marks in the list to reorder them: the top of the list is
+   drawn on top.
+4. **Map info** under the map: the **Objectives** (one step per line; objective marks are suggested), **Weapons** (Starting,
+   On the map, Secrets; weapon pickups and secrets with a weapon icon are suggested), the **Purchase terminal** and the
+   **Buildings** (with counts, and which side the players are on).
+5. Your work is kept in that browser until the site has it, so you can close the page and come back.
+6. Copy the text at the bottom (or download it) over the whole of `_data/map_marks.yml`, put the pictures you added in
    `assets/images/marks/` with the same names, and commit.
 
 The file format is described at the top of `_data/map_marks.yml`; it can also be edited by hand.

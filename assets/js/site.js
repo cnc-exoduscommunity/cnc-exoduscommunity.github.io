@@ -1243,6 +1243,13 @@ function setUrlParam(key, value, fallback) {
       box.hidden = !onmap.length;
     });
     if (weaponsNone) weaponsNone.hidden = !!weapons.length;
+    var secretLis = link.closest("tr") ? link.closest("tr").querySelectorAll(".map-secret-weapons li") : [];
+    var cardSecret = dialog.querySelector(".mdw-secret-list");
+    if (cardSecret) {
+      cardSecret.textContent = "";
+      Array.prototype.forEach.call(secretLis, function (li) { cardSecret.appendChild(li.cloneNode(true)); });
+      dialog.querySelector(".mdw-secret-none").hidden = !!secretLis.length;
+    }
     var cardOnmap = dialog.querySelector(".mdw-onmap-list");
     if (cardOnmap) {
       cardOnmap.textContent = "";

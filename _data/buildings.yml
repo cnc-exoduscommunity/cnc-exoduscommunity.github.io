@@ -1,13 +1,7 @@
-# Buildings on each map, from the building objects placed in each map file. Shown at
-# the bottom of the map preview's left card ("Buildings"); maps that aren't listed show
-# no Buildings section.
-#
-# types: every kind of building: its name and its icon in assets/images/hud/ (hud:);
-#        without an icon it shows as a small labelled square (short:).
-# maps:  per map, the GDI and Nod buildings, in this order. "turret*2" = 2 of them.
-#        players: the side the players are on, on co-op maps (shown first, marked).
-# Decoy buildings (invisible stand-ins so the enemy team counts as having a base) are
-# left out. Most co-op progress is run by the server's own scripts, not the map.
+# Every kind of building: its name and its icon in assets/images/hud/ (hud:); without an
+# icon it shows as a small labelled square (short:). Which buildings each map has is in
+# _data/map_marks.yml (buildings:), edited with the Map marker tool. Decoy buildings
+# (invisible stand-ins so the enemy team counts as having a base) are left out.
 
 types:
   g_barracks: { name: "Infantry Barracks", hud: "hud_c&c_g_barracks" }
@@ -30,65 +24,3 @@ types:
   shrine:     { name: "Shrine of Nod", short: "SHR" }
   ship:       { name: "USS M-Zero (the GDI ship acts as the base)", short: "SHIP" }
 
-maps:
-  City:
-    gdi: [g_barracks, g_wf, g_ref, g_pp, agt]
-    nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2]
-  City_Flying:
-    gdi: [g_barracks, g_wf, g_ref, g_pp, agt]
-    nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2]
-  Hourglass:
-    gdi: [g_barracks, g_wf, g_ref, g_pp, agt]
-    nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2]
-  Mesa:
-    gdi: [g_barracks, g_wf, g_ref, g_pp, agt]
-    nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2]
-  Under:
-    gdi: [g_barracks, g_wf, g_ref, g_pp, agt]
-    nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2]
-  Glacier_Flying:
-    gdi: [g_barracks, g_wf, g_ref, g_pp, agt, repairpad, guardtower*3]
-    nod: [n_hon, n_air, n_ref, n_pp, obelisk, repairpad, turret*4]
-  Field:
-    gdi: [g_barracks, g_wf, g_ref, agt]
-    nod: [n_hon, n_air, n_ref, obelisk, turret*2]
-  Volcano:
-    gdi: [g_barracks, g_wf, g_ref, g_pp]
-    nod: [n_hon, n_air, n_ref, n_pp]
-  Walls:
-    gdi: [g_barracks, g_wf, g_ref, g_pp]
-    nod: [n_hon, n_air, n_ref, n_pp]
-  Walls_Flying:
-    gdi: [g_barracks, g_wf, g_ref, g_pp]
-    nod: [n_hon, n_air, n_ref, n_pp]
-  Canyon:
-    gdi: [g_barracks, g_wf, g_ref]
-    nod: [n_hon, n_air, n_ref]
-  Complex:
-    gdi: [g_barracks, g_wf, g_ref]
-    nod: [n_hon, n_air, n_ref]
-  Islands:
-    gdi: [g_barracks, g_wf, g_ref]
-    nod: [n_hon, n_air, n_ref]
-  Skirmish00:
-    gdi: [g_barracks, g_wf, g_ref, g_pp, agt]
-    nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2]
-  M00_Tutorial:
-    gdi: [g_barracks, g_wf, g_ref, g_pp]
-    note: "Training versions; no Nod buildings."
-  Coop_B01_B6:
-    players: gdi
-    gdi: [ship]
-    nod: [shrine]
-  Coop_B02_B10:
-    players: gdi
-    gdi: [g_barracks, g_ref]
-    nod: [n_hon, n_ref, n_pp, n_comm, obelisk]
-  Coop_Tropics_B1:
-    players: nod
-    nod: [n_hon, n_air, n_ref, obelisk, repairbay, silo]
-    gdi: [g_barracks, g_wf, g_ref, agt, repairbay, silo]
-  ttm1:
-    gdi: [g_ref, g_barracks]
-    nod: [helipad, n_pp]
-    note: "The map file doesn't say which side the players are on; the server decides."

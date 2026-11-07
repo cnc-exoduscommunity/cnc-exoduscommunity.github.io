@@ -22,10 +22,22 @@
   var siteData = {};
   try { siteData = JSON.parse($("#map-marks-data").textContent || "{}") || {}; } catch (e) {}
   if (typeof siteData !== "object" || Array.isArray(siteData)) siteData = {};
-  var data = clone(siteData);
+  // The map info (terminal, objectives, weapons, buildings) of each map, from the same file.
+  var INFO_FIELDS = ["terminal", "objectives", "weapons", "map_weapons", "secret_weapons", "buildings"];
+  var siteInfo = {};
+  try {
+    var rawInfo = JSON.parse(($("#map-info-data") || {}).textContent || "{}") || {};
+    Object.keys(rawInfo).forEach(function (k) {
+      var e = {}, r = rawInfo[k] || {};
+      INFO_FIELDS.forEach(function (f) { if (r[f] != null) e[f] = r[f]; });
+      if (Object.keys(e).length) siteInfo[k] = e;
+    });
+  } catch (e) {}
+  var data = clone(siteData), info = clone(siteInfo);
   try {
     var draft = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
-    if (draft && typeof draft === "object" && !Array.isArray(draft)) data = draft;
+    if (draft && draft.v === 2) { data = draft.marks || {}; info = draft.info || {}; }
+    else if (draft && typeof draft === "object" && !Array.isArray(draft)) data = draft;   // older drafts: marks only
   } catch (e) {}
   var localFiles = {};   // pictures picked in this visit: file name -> preview URL
 
@@ -59,12 +71,25 @@
     return out;
   }
   function same(a, b) { return JSON.stringify(sortKeys(tidyAll(a))) === JSON.stringify(sortKeys(tidyAll(b))); }
+  function tidyInfo(d) {
+    var out = {};
+    Object.keys(d).sort().forEach(function (k) {
+      var e = {}, r = d[k] || {};
+      if (r.terminal) e.terminal = r.terminal;
+      ["objectives", "weapons", "map_weapons", "secret_weapons"].forEach(function (f) { if (Array.isArray(r[f]) && r[f].length) e[f] = r[f]; });
+      var b = r.buildings;
+      if (b && ((b.gdi && b.gdi.length) || (b.nod && b.nod.length) || b.players || b.note)) e.buildings = b;
+      if (Object.keys(e).length) out[k] = e;
+    });
+    return out;
+  }
+  function sameInfo(a, b) { return JSON.stringify(tidyInfo(a)) === JSON.stringify(tidyInfo(b)); }
   function sortKeys(o) { var r = {}; Object.keys(o).sort().forEach(function (k) { r[k] = o[k]; }); return r; }
 
   function save() {
-    var changed = !same(data, siteData);
+    var changed = !same(data, siteData) || !sameInfo(info, siteInfo);
     try {
-      if (changed) localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+      if (changed) localStorage.setItem(DRAFT_KEY, JSON.stringify({ v: 2, marks: data, info: info }));
       else localStorage.removeItem(DRAFT_KEY);
     } catch (e) {}
     var box = $("[data-mm-draft]");
@@ -76,58 +101,86 @@
 
   // ---- YAML out ----
   var HEADER = [
-    "# Map marks: spots shown on a map's overhead image in the map preview.",
-    "# Made with the Map marker tool (/tools/map-marker/ on the site): place the marks",
-    "# there, then copy its text over this whole file.",
+    "# Everything the Map marker tool (/tools/map-marker/ on the site) edits, per map: its",
+    "# game info and the marks on its overhead image. Edit it there, then copy its text over",
+    "# this whole file (it can also be edited by hand).",
     "#",
-    "# One entry per map (the map's name, as in _data/maps.yml), with a list of marks:",
-    "#   kind:   objective | spawn | secret | vehicle | pickup | other | note | arrow",
-    "#   pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)",
-    "#   icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the",
-    "#           GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)",
-    "#   floor:  optional, the floor it's on (1 = the top, as in the layering); without it, every floor",
-    "#   count:  secrets, vehicles, pickups, other: how many it gives; without it (or 0), infinite",
-    "#   id:     optional, a short name other marks can link to (e.g. keycard-1)",
-    "#   links:  optional, the ids of marks this one leads to, drawn as a dash-dot line",
-    "#           (e.g. an objective that gives a keycard: links: [keycard-1])",
-    "#   x2, y2: arrows only: where the arrow points to (x, y is where it starts)",
-    "#   x, y:   where on the image, in percent (0-100) from the left / top edge",
-    "#   label:  optional, a short name shown on hover (e.g. \"GDI start\")",
-    "#   note:   optional, a longer text shown under the label",
-    "#   images: optional, pictures shown on hover / click, in this order; files in",
-    "#           assets/images/marks/ (e.g. Islands_secret_1.webp)",
+    "# One entry per map (the map's name, as in _data/maps.yml):",
+    "#   terminal:        what the purchase terminal sells: full | no-vehicles |",
+    "#                    vehicles-destroyed (a stock map whose vehicle building starts destroyed) |",
+    "#                    none (no terminal). Leave it out when it's not known.",
+    "#   objectives:      what the map tells you to do (top left in game), one line per step.",
+    "#                    \"Optional: ...\" is shown without a number; \"?\" is a step not written down yet.",
+    "#   weapons:         the starting weapons (names as in _data/weapons.yml)",
+    "#   map_weapons:     weapons lying around on the map",
+    "#   secret_weapons:  hidden weapons",
+    "#   buildings:       { players: gdi|nod (co-op maps: the players' side), gdi: [...], nod: [...],",
+    "#                    note: \"...\" }, kinds from _data/buildings.yml, \"turret*2\" = 2 of them",
+    "#   marks:           spots on the overhead image, one per line:",
+    "#     kind:   objective | spawn | secret | vehicle | pickup | other | note | arrow",
+    "#     id:     optional, a short name other marks can link to (e.g. keycard-1)",
+    "#     x, y:   where on the image, in percent (0-100) from the left / top edge",
+    "#     x2, y2: arrows only: where the arrow points to (x, y is where it starts)",
+    "#     pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)",
+    "#     icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the",
+    "#             GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)",
+    "#     floor:  optional, the floor it's on (1 = the top, as in the layering); without it, every floor",
+    "#     count:  secrets, vehicles, pickups, other: how many it gives; without it (or 0), infinite",
+    "#     label:  optional, a short name shown on hover (e.g. \"GDI start\")",
+    "#     note:   optional, a longer text shown under the label",
+    "#     links:  optional, the ids of marks this one leads to, drawn as a dash-dot line",
+    "#             (e.g. an objective that gives a keycard: links: [keycard-1])",
+    "#     images: optional, pictures shown on hover / click, in this order; files in",
+    "#             assets/images/marks/ (e.g. Islands_secret_1.webp)",
     "#",
-    "# Example:",
-    "#   Islands:",
-    "#     - { kind: spawn, x: 18.5, y: 72.0, label: \"GDI start\" }",
-    "#     - { kind: secret, x: 61.2, y: 33.4, label: \"Hidden crate\", images: [\"Islands_crate_1.webp\"] }"
+    "# The site build (_plugins/map_info.rb) copies the game info onto the maps in",
+    "# _data/maps.yml and _data/buildings.yml, so the pages read it from there as before."
   ].join("\n");
   function q(s) { return JSON.stringify(String(s)); }   // a JSON string is a valid YAML string
   function key(s) { return /^[A-Za-z0-9_.-]+$/.test(s) ? s : q(s); }
   function num(n) { return n.toFixed(1); }
+  function plain(s) { return /^[A-Za-z0-9_.*-]+$/.test(String(s)) ? String(s) : q(s); }
+  function markLine(m) {
+    var parts = ["kind: " + m.kind];
+    if (m.id) parts.push("id: " + plain(m.id));
+    parts.push("x: " + num(m.x), "y: " + num(m.y));
+    if (m.kind === "arrow") parts.push("x2: " + num(m.x2), "y2: " + num(m.y2));
+    if (m.pog) parts.push("pog: " + m.pog);
+    if (m.icon) parts.push("icon: " + q(m.icon));
+    if (m.floor) parts.push("floor: " + m.floor);
+    if (m.count) parts.push("count: " + m.count);
+    if (m.label) parts.push("label: " + q(m.label));
+    if (m.note) parts.push("note: " + q(m.note));
+    if (m.links) parts.push("links: [" + m.links.map(plain).join(", ") + "]");
+    if (m.images) parts.push("images: [" + m.images.map(q).join(", ") + "]");
+    return "    - { " + parts.join(", ") + " }";
+  }
   function yaml() {
-    var d = tidyAll(data);
+    var d = tidyAll(data), inf = tidyInfo(info);
     // Rotation order first (as in the tool's list), then anything else.
-    var order = Array.prototype.map.call(mapSelect.options, function (o) { return o.value; });
-    var keys = order.filter(function (k) { return d[k]; })
-      .concat(Object.keys(d).filter(function (k) { return order.indexOf(k) < 0; }).sort());
+    var order = [];
+    try { order = JSON.parse(($("#map-order-data") || {}).textContent || "[]") || []; } catch (e) {}
+    if (!order.length) order = Array.prototype.map.call(mapSelect.options, function (o) { return o.value; });
+    var all = {};
+    Object.keys(d).concat(Object.keys(inf)).forEach(function (k) { all[k] = 1; });
+    var keys = order.filter(function (k) { return all[k]; })
+      .concat(Object.keys(all).filter(function (k) { return order.indexOf(k) < 0; }).sort());
     if (!keys.length) return HEADER + "\n{}\n";
     return HEADER + "\n\n" + keys.map(function (k) {
-      return key(k) + ":\n" + d[k].map(function (m) {
-        var parts = ["kind: " + m.kind];
-        if (m.id) parts.push("id: " + key(m.id));
-        parts.push("x: " + num(m.x), "y: " + num(m.y));
-        if (m.kind === "arrow") parts.push("x2: " + num(m.x2), "y2: " + num(m.y2));
-        if (m.pog) parts.push("pog: " + m.pog);
-        if (m.icon) parts.push("icon: " + q(m.icon));
-        if (m.floor) parts.push("floor: " + m.floor);
-        if (m.count) parts.push("count: " + m.count);
-        if (m.label) parts.push("label: " + q(m.label));
-        if (m.note) parts.push("note: " + q(m.note));
-        if (m.links) parts.push("links: [" + m.links.map(key).join(", ") + "]");
-        if (m.images) parts.push("images: [" + m.images.map(q).join(", ") + "]");
-        return "  - { " + parts.join(", ") + " }";
-      }).join("\n");
+      var e = inf[k] || {}, out = [plain(k) + ":"];
+      if (e.terminal) out.push("  terminal: " + e.terminal);
+      if (e.objectives) { out.push("  objectives:"); e.objectives.forEach(function (t) { out.push("    - " + q(t)); }); }
+      ["weapons", "map_weapons", "secret_weapons"].forEach(function (f) { if (e[f]) out.push("  " + f + ": [" + e[f].map(q).join(", ") + "]"); });
+      var b = e.buildings;
+      if (b) {
+        var p = [];
+        if (b.players) p.push("players: " + b.players);
+        ["gdi", "nod"].forEach(function (sd) { if (b[sd]) p.push(sd + ": [" + b[sd].map(plain).join(", ") + "]"); });
+        if (b.note) p.push("note: " + q(b.note));
+        out.push("  buildings: { " + p.join(", ") + " }");
+      }
+      if (d[k]) { out.push("  marks:"); d[k].forEach(function (m) { out.push(markLine(m)); }); }
+      return out.join("\n");
     }).join("\n\n") + "\n";
   }
   function writeOutput() { output.value = yaml(); }
@@ -338,6 +391,7 @@
     fillFloors(showSel, "All floors");
     showSel.value = showFloor;
     renderEditor();
+    if (typeof renderInfo === "function" && infoBox) renderInfo();
     optionLabels();
     save();
   }
@@ -874,6 +928,147 @@
     render();
   });
 
+  // ---- Map info: objectives, weapons, purchase terminal, buildings ----
+  var weaponList = [], buildingTypes = {};
+  try { weaponList = JSON.parse(($("#weapons-data") || {}).textContent || "[]") || []; } catch (e) {}
+  try { buildingTypes = JSON.parse(($("#building-types-data") || {}).textContent || "{}") || {}; } catch (e) {}
+  var infoBox = $("[data-mm-info]"), objText = $("[data-mm-objectives]"), objSuggest = $("[data-mm-obj-suggest]");
+  var iTab = "objectives";
+  try { iTab = localStorage.getItem("map-marker-itab") || "objectives"; } catch (e) {}
+  infoBox.querySelectorAll("[data-mm-itab]").forEach(function (t) {
+    t.addEventListener("click", function () { iTab = t.getAttribute("data-mm-itab"); try { localStorage.setItem("map-marker-itab", iTab); } catch (e) {} renderInfo(); });
+  });
+  function mi() { return info[mapName] || (info[mapName] = {}); }
+  function setField(f, v) {
+    var e = mi();
+    if (v == null || v === "" || (Array.isArray(v) && !v.length)) delete e[f]; else e[f] = v;
+    if (!Object.keys(e).length) delete info[mapName];
+    save(); renderInfo();
+  }
+  function weaponByHud(hud) { return weaponList.filter(function (w) { return w.hud === hud; })[0]; }
+  // A small chip with a remove button (and optional - / + for counts).
+  function chip(text, onRemove, onMinus, onPlus, title) {
+    var li = document.createElement("li"); li.className = "mm-chip"; if (title) li.title = title;
+    var t = document.createElement("span"); t.textContent = text; li.appendChild(t);
+    [[onMinus, "−", "One less"], [onPlus, "+", "One more"], [onRemove, "✕", "Remove"]].forEach(function (b) {
+      if (!b[0]) return;
+      var x = document.createElement("button"); x.type = "button"; x.className = "mm-chip-btn"; x.textContent = b[1]; x.title = b[2]; x.setAttribute("aria-label", b[2]);
+      x.addEventListener("click", b[0]); li.appendChild(x);
+    });
+    return li;
+  }
+  function suggestions(box, label, items, add) {
+    box.textContent = "";
+    if (!items.length) return;
+    var p = document.createElement("p"); p.className = "hint"; p.textContent = label; box.appendChild(p);
+    items.forEach(function (it) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "btn btn-small mm-suggest-btn"; b.textContent = "+ " + it;
+      b.addEventListener("click", function () { add([it]); }); box.appendChild(b);
+    });
+    if (items.length > 1) {
+      var all = document.createElement("button"); all.type = "button"; all.className = "btn btn-small mm-suggest-btn"; all.textContent = "Add all";
+      all.addEventListener("click", function () { add(items); }); box.appendChild(all);
+    }
+  }
+  function fillAdd(sel, first, opts) {
+    var want = first + JSON.stringify(opts);
+    if (sel._for === want) { sel.value = ""; return; }
+    sel._for = want; sel.textContent = "";
+    sel.appendChild(new Option(first, ""));
+    opts.forEach(function (o) { sel.appendChild(new Option(o[1], o[0])); });
+  }
+  function parseB(list) { return (list || []).map(function (s) { var m = /^(.*?)\*(\d+)$/.exec(s); return m ? { k: m[1], n: +m[2] } : { k: s, n: 1 }; }); }
+  function joinB(items) { return items.map(function (it) { return it.n > 1 ? it.k + "*" + it.n : it.k; }); }
+  function renderInfo() {
+    if (!mapName) return;
+    var e = info[mapName] || {};
+    $("[data-mm-info-map]").textContent = "(" + mapName + ")";
+    infoBox.querySelectorAll("[data-mm-itab]").forEach(function (t) { t.setAttribute("aria-selected", String(t.getAttribute("data-mm-itab") === iTab)); });
+    infoBox.querySelectorAll("[data-mm-ipanel]").forEach(function (pn) { pn.hidden = pn.getAttribute("data-mm-ipanel") !== iTab; });
+    // Objectives: the text, and the objective pictures placed on the map that aren't in it yet.
+    var steps = e.objectives || [];
+    if (document.activeElement !== objText || objText._map !== mapName) { objText.value = steps.join("\n"); objText._map = mapName; }
+    var have = steps.join("\n").toLowerCase(), seen = {};
+    var fromMarks = marks().filter(function (m) { return MapMarks.kind(m.kind) === "objective"; }).map(MapMarks.name)
+      .filter(function (n) { var k = n.toLowerCase(); if (seen[k] || have.indexOf(k) >= 0 || k === "objective") return false; seen[k] = 1; return true; });
+    suggestions(objSuggest, "From the objective marks on the map:", fromMarks, function (add) { setField("objectives", steps.concat(add)); });
+    // Weapons: three lists; the weapon pickups (On the map) and secrets with a weapon icon (Secrets) are suggested.
+    var names = weaponList.map(function (w) { return w.name; });
+    infoBox.querySelectorAll("[data-mm-wlist]").forEach(function (col) {
+      var f = col.getAttribute("data-mm-wlist"), list = e[f] || [], ul = col.querySelector(".mm-chips");
+      ul.textContent = "";
+      list.forEach(function (w, i) { ul.appendChild(chip(w, function () { setField(f, list.filter(function (_, j) { return j !== i; })); })); });
+      fillAdd(col.querySelector(".mm-add"), "Add a weapon…", names.filter(function (n) { return list.indexOf(n) < 0; }).map(function (n) { return [n, n]; }));
+      var sg = col.querySelector(".mm-suggest");
+      if (sg) {
+        var want = f === "map_weapons" ? "pickup" : "secret", found = [];
+        marks().forEach(function (m) {
+          if (MapMarks.kind(m.kind) !== want || !m.icon) return;
+          var w = weaponByHud(m.icon);
+          if (w && list.indexOf(w.name) < 0 && found.indexOf(w.name) < 0) found.push(w.name);
+        });
+        suggestions(sg, "From your " + (want === "pickup" ? "pickup" : "secret") + " marks:", found, function (add) { setField(f, list.concat(add)); });
+      }
+    });
+    // Purchase terminal.
+    infoBox.querySelectorAll('[data-mm-terminal] input').forEach(function (r) { r.checked = r.value === (e.terminal || ""); });
+    // Buildings.
+    var b = e.buildings || {};
+    $("[data-mm-players]").value = b.players || "";
+    var bn = $("[data-mm-bnote]"); if (document.activeElement !== bn) bn.value = b.note || "";
+    infoBox.querySelectorAll("[data-mm-blist]").forEach(function (col) {
+      var sd = col.getAttribute("data-mm-blist"), items = parseB(b[sd]), ul = col.querySelector(".mm-chips");
+      ul.textContent = "";
+      items.forEach(function (it, i) {
+        var t = buildingTypes[it.k], nm = (t ? t.name : it.k) + (it.n > 1 ? " ×" + it.n : "");
+        ul.appendChild(chip(nm,
+          function () { items.splice(i, 1); setB(sd, items); },
+          it.n > 1 ? function () { it.n--; setB(sd, items); } : null,
+          function () { it.n++; setB(sd, items); }, it.k));
+      });
+      fillAdd(col.querySelector(".mm-add"), "Add a building…", Object.keys(buildingTypes)
+        .filter(function (k) { return !items.some(function (it) { return it.k === k; }); })
+        .map(function (k) { return [k, buildingTypes[k].name + " (" + k + ")"]; }));
+    });
+  }
+  function setB(sd, items) {
+    var b = clone((info[mapName] || {}).buildings || {});
+    var v = joinB(items);
+    if (v.length) b[sd] = v; else delete b[sd];
+    setField("buildings", Object.keys(b).length ? b : null);
+  }
+  objText.addEventListener("input", function () {
+    var lines = objText.value.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
+    var e = mi();
+    if (lines.length) e.objectives = lines; else delete e.objectives;
+    if (!Object.keys(e).length) delete info[mapName];
+    save();
+  });
+  objText.addEventListener("blur", renderInfo);
+  infoBox.querySelectorAll("[data-mm-wlist]").forEach(function (col) {
+    var f = col.getAttribute("data-mm-wlist"), sel = col.querySelector(".mm-add");
+    sel.addEventListener("change", function () { if (sel.value) setField(f, ((info[mapName] || {})[f] || []).concat([sel.value])); });
+  });
+  infoBox.querySelectorAll("[data-mm-blist]").forEach(function (col) {
+    var sd = col.getAttribute("data-mm-blist"), sel = col.querySelector(".mm-add");
+    sel.addEventListener("change", function () {
+      if (!sel.value) return;
+      var items = parseB(((info[mapName] || {}).buildings || {})[sd]);
+      items.push({ k: sel.value, n: 1 }); setB(sd, items);
+    });
+  });
+  infoBox.querySelectorAll('[data-mm-terminal] input').forEach(function (r) { r.addEventListener("change", function () { setField("terminal", r.value); }); });
+  $("[data-mm-players]").addEventListener("change", function (ev) {
+    var b = clone((info[mapName] || {}).buildings || {});
+    if (ev.target.value) b.players = ev.target.value; else delete b.players;
+    setField("buildings", Object.keys(b).length ? b : null);
+  });
+  $("[data-mm-bnote]").addEventListener("change", function (ev) {
+    var b = clone((info[mapName] || {}).buildings || {});
+    if (ev.target.value.trim()) b.note = ev.target.value.trim(); else delete b.note;
+    setField("buildings", Object.keys(b).length ? b : null);
+  });
+
   // ---- Output ----
   $("[data-mm-copy]").addEventListener("click", function () {
     var done = function () { $("[data-mm-copied]").textContent = "Copied."; setTimeout(function () { $("[data-mm-copied]").textContent = ""; }, 2500); };
@@ -891,8 +1086,10 @@
   $("[data-mm-discard]").addEventListener("click", function () {
     if (!window.confirm("Throw away the changes kept in this browser and start again from the site's marks?")) return;
     data = clone(siteData);
+    info = clone(siteInfo);
     selected = -1;
     render();
+    renderInfo();
   });
 
   // Start on ?map=Name, else the last map used, else the first.

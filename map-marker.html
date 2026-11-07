@@ -164,8 +164,49 @@ back the new text for that file. Logic in assets/js/map-marker.js.
       </aside>
     </div>
 
+    {%- comment %} The map's game info: objectives, weapons, purchase terminal, buildings (saved in _data/map_marks.yml too). {% endcomment %}
+    <section class="mm-info" data-mm-info>
+      <h2 class="mm-h">Map info <span class="mm-count" data-mm-info-map></span></h2>
+      <div class="mm-tabs" role="tablist">
+        <button class="mm-tab" type="button" role="tab" data-mm-itab="objectives" aria-selected="true">Objectives</button>
+        <button class="mm-tab" type="button" role="tab" data-mm-itab="weapons" aria-selected="false">Weapons</button>
+        <button class="mm-tab" type="button" role="tab" data-mm-itab="terminal" aria-selected="false">Purchase terminal</button>
+        <button class="mm-tab" type="button" role="tab" data-mm-itab="buildings" aria-selected="false">Buildings</button>
+      </div>
+      <div class="mm-ipanel" data-mm-ipanel="objectives">
+        <p class="hint">One step per line, as the map shows them (top left in game). Start a line with <code>Optional:</code> to show it without a number, or write just <code>?</code> for a step not written down yet.</p>
+        <textarea class="mm-objectives" rows="8" spellcheck="true" data-mm-objectives placeholder="Destroy the Nod base."></textarea>
+        <div class="mm-suggest" data-mm-obj-suggest></div>
+      </div>
+      <div class="mm-ipanel" data-mm-ipanel="weapons" hidden>
+        <div class="mm-wcols">
+          <div class="mm-wcol" data-mm-wlist="weapons"><h3 class="mm-h3">Starting</h3><p class="hint">Besides the Pistol and Timed C4 everyone has.</p><ul class="mm-chips"></ul><select class="mm-add"></select></div>
+          <div class="mm-wcol" data-mm-wlist="map_weapons"><h3 class="mm-h3">On the map</h3><p class="hint">Lying around to pick up.</p><ul class="mm-chips"></ul><select class="mm-add"></select><div class="mm-suggest"></div></div>
+          <div class="mm-wcol" data-mm-wlist="secret_weapons"><h3 class="mm-h3">Secrets</h3><p class="hint">Hidden ones.</p><ul class="mm-chips"></ul><select class="mm-add"></select><div class="mm-suggest"></div></div>
+        </div>
+      </div>
+      <div class="mm-ipanel" data-mm-ipanel="terminal" hidden>
+        <div class="mm-radios" data-mm-terminal>
+          <label><input type="radio" name="mm-terminal" value="full"> <strong>Full</strong> <span class="hint">infantry, characters and vehicles</span></label>
+          <label><input type="radio" name="mm-terminal" value="no-vehicles"> <strong>No vehicles</strong> <span class="hint">the Vehicles button is greyed out</span></label>
+          <label><input type="radio" name="mm-terminal" value="vehicles-destroyed"> <strong>Vehicles destroyed</strong> <span class="hint">a stock map whose vehicle building starts destroyed</span></label>
+          <label><input type="radio" name="mm-terminal" value="none"> <strong>None</strong> <span class="hint">no purchase terminal at all</span></label>
+          <label><input type="radio" name="mm-terminal" value=""> <strong>Not known yet</strong> <span class="hint">the preview doesn't show a terminal</span></label>
+        </div>
+      </div>
+      <div class="mm-ipanel" data-mm-ipanel="buildings" hidden>
+        <label class="mm-field mm-inline"><span class="mm-label">Players are</span>
+          <select data-mm-players><option value="">Not a co-op base map / not set</option><option value="gdi">GDI</option><option value="nod">Nod</option></select></label>
+        <div class="mm-wcols mm-bcols">
+          <div class="mm-wcol" data-mm-blist="gdi"><h3 class="mm-h3">GDI</h3><ul class="mm-chips"></ul><select class="mm-add"></select></div>
+          <div class="mm-wcol" data-mm-blist="nod"><h3 class="mm-h3">Nod</h3><ul class="mm-chips"></ul><select class="mm-add"></select></div>
+        </div>
+        <label class="mm-field"><span class="mm-label">Note <span class="mm-opt">(optional)</span></span><input type="text" data-mm-bnote maxlength="200"></label>
+      </div>
+    </section>
+
     <h2 class="mm-h mm-out-title">Text for <code>_data/map_marks.yml</code></h2>
-    <p>Replace everything in <code>_data/map_marks.yml</code> with this (it has the marks of every map, not just this one), then commit it together with any new pictures in <code>assets/images/marks/</code>.</p>
+    <p>Replace everything in <code>_data/map_marks.yml</code> with this (it has the marks and map info of every map, not just this one), then commit it together with any new pictures in <code>assets/images/marks/</code>.</p>
     <div class="mm-out-actions">
       <button class="btn btn-small" type="button" data-mm-copy>Copy</button>
       <button class="btn btn-small" type="button" data-mm-download>Download map_marks.yml</button>
@@ -176,6 +217,10 @@ back the new text for that file. Logic in assets/js/map-marker.js.
 </section>
 
 <script type="application/json" id="map-marks-data">{{ site.data.map_marks | jsonify }}</script>
+<script type="application/json" id="map-order-data">{{ site.data.maps | map: "name" | jsonify }}</script>
+<script type="application/json" id="map-info-data">{{ site.data.map_info | jsonify }}</script>
+<script type="application/json" id="weapons-data">{{ site.data.weapons | jsonify }}</script>
+<script type="application/json" id="building-types-data">{{ site.data.buildings.types | jsonify }}</script>
 <script type="application/json" id="objective-pogs-data">{{ site.data.objective_pogs | jsonify }}</script>
 <script type="application/json" id="pickups-data">{{ site.data.pickups | jsonify }}</script>
 <script>window.MAP_MARKS_BASE = {{ '/assets/images/marks/' | relative_url | jsonify }};</script>

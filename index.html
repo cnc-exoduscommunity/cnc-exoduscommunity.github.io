@@ -186,7 +186,7 @@ sections:
           {%- if site.data.map_marks[map.name].size > 0 %}{% assign marks_key = map.name %}{% elsif site.data.map_marks[img_name].size > 0 %}{% assign marks_key = img_name %}{% endif %}
           {%- assign credit = nil %}
           {%- if map.image_credit %}{% assign credit = site.data.credits[map.image_credit] %}{% endif %}
-          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map.terminal %} data-terminal="{{ map.terminal | escape }}"{% endif %}{% if map.scalable_difficulty %} data-scalable="1"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons or map.terminal %} class="has-preview"{% endif %}>
+          <tr data-map="{{ map.name | escape }}"{% if map.faction %} data-faction="{{ map.faction | escape }}"{% endif %}{% if map.terminal %} data-terminal="{{ map.terminal | escape }}"{% endif %}{% if map.scalable_difficulty %} data-scalable="1"{% endif %}{% if map_img or ingame_img or map.objectives or map.weapons or map.map_weapons or map.secret_weapons or map.terminal %} class="has-preview"{% endif %}>
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons or map.terminal -%}
@@ -220,6 +220,13 @@ sections:
             {%- if map.map_weapons %}
             <ul class="map-onmap-weapons" hidden>
               {%- for weapon in map.map_weapons %}
+              {%- include weapon-item.html name=weapon %}
+              {%- endfor %}
+            </ul>
+            {%- endif %}
+            {%- if map.secret_weapons %}
+            <ul class="map-secret-weapons" hidden>
+              {%- for weapon in map.secret_weapons %}
               {%- include weapon-item.html name=weapon %}
               {%- endfor %}
             </ul>
@@ -319,7 +326,8 @@ sections:
                 <p class="map-dialog-side-none mdw-onmap-none">No weapons lying around on this map listed yet.</p>
               </div>
               <div class="mdw-panel" data-wpanel="secrets" role="tabpanel" hidden>
-                <p class="map-dialog-side-none">No secret weapons listed for this map yet.</p>
+                <ul class="map-dialog-weapons mdw-secret-list"></ul>
+                <p class="map-dialog-side-none mdw-secret-none">No secret weapons listed for this map yet.</p>
               </div>
             </div>
           </section>
@@ -536,7 +544,7 @@ sections:
       <li>
         <a class="tool-card" href="{{ '/tools/map-marker/' | relative_url }}">
           <span class="tool-card-icon">{% include marks-icon.svg %}</span>
-          <span class="tool-card-text"><span class="tool-card-title">Map marker</span><span class="tool-card-desc">Mark spawn points, secrets, vehicles and other spots on the map images, with pictures. Gives you the text for <code>_data/map_marks.yml</code>.</span></span>
+          <span class="tool-card-text"><span class="tool-card-title">Map marker</span><span class="tool-card-desc">Mark objectives, spawns, secrets, pickups, links and arrows on the maps, and edit each map's objectives, weapons, purchase terminal and buildings. Gives you the text for <code>_data/map_marks.yml</code>.</span></span>
         </a>
       </li>
     </ul>
@@ -560,7 +568,7 @@ A checklist of what each map has and what's still missing. {% endcomment %}
             <th title="In-game photo">{% include photo-icon.svg %}<span class="debug-th">Photo</span></th>
             <th title="Marks on the map">{% include marks-icon.svg %}<span class="debug-th">Marks</span></th>
             <th title="Objectives">{% include objectives-icon.svg %}<span class="debug-th">Objectives</span></th>
-            <th title="Purchase terminal (terminal: in _data/maps.yml)">{% include hud-icon.html file="hud_cnc_g_equipbuy" class="debug-th-pic" decorative="1" %}<span class="debug-th">Terminal</span></th>
+            <th title="Purchase terminal (terminal: in _data/map_marks.yml, Map marker)">{% include hud-icon.html file="hud_cnc_g_equipbuy" class="debug-th-pic" decorative="1" %}<span class="debug-th">Terminal</span></th>
             <th>Faction</th>
             <th class="debug-name">Map</th>
           </tr>
@@ -579,12 +587,12 @@ A checklist of what each map has and what's still missing. {% endcomment %}
           {%- endfor %}
           {%- assign marks_n = site.data.map_marks[map.name].size | default: site.data.map_marks[img_name].size | default: 0 %}
           <tr>
-            <td>{% if map.weapons or map.map_weapons %}{% assign n_weapons = n_weapons | plus: 1 %}<span class="debug-yes" title="{{ map.weapons.size | default: 0 }} starting, {{ map.map_weapons.size | default: 0 }} on the map">&#10004;</span>{% else %}<span class="debug-no" title="weapons / map_weapons in _data/maps.yml">&#10008;</span>{% endif %}</td>
+            <td>{% if map.weapons or map.map_weapons %}{% assign n_weapons = n_weapons | plus: 1 %}<span class="debug-yes" title="{{ map.weapons.size | default: 0 }} starting, {{ map.map_weapons.size | default: 0 }} on the map">&#10004;</span>{% else %}<span class="debug-no" title="weapons / map_weapons in _data/map_marks.yml (Map marker)">&#10008;</span>{% endif %}</td>
             <td>{% if map_img %}{% assign n_map = n_map | plus: 1 %}<span class="debug-yes" title="{{ map_img }}">&#10004;</span>{% else %}<span class="debug-no" title="assets/images/maps/{{ img_name }}.webp">&#10008;</span>{% endif %}</td>
             <td>{% if ingame_img %}{% assign n_photo = n_photo | plus: 1 %}<span class="debug-yes" title="{{ ingame_img }}">&#10004;</span>{% else %}<span class="debug-no" title="assets/images/ingame/{{ img_name }}.webp">&#10008;</span>{% endif %}</td>
             <td>{% if marks_n > 0 and map_img %}{% assign n_marks = n_marks | plus: 1 %}<span class="debug-yes" title="{{ marks_n }} marks">&#10004;</span>{% else %}<span class="debug-no" title="{% if map_img %}Map marker tool / _data/map_marks.yml{% else %}needs a map image first{% endif %}">&#10008;</span>{% endif %}</td>
-            <td>{% if map.objectives %}{% assign n_obj = n_obj | plus: 1 %}<span class="debug-yes" title="{{ map.objectives.size }} steps">&#10004;</span>{% else %}<span class="debug-no" title="objectives in _data/maps.yml">&#10008;</span>{% endif %}</td>
-            <td>{% if map.terminal %}{% assign n_terminal = n_terminal | plus: 1 %}<span class="debug-yes debug-term" title="terminal: {{ map.terminal }}">{% case map.terminal %}{% when "full" %}Full{% when "no-vehicles" %}No vehicles{% when "vehicles-destroyed" %}Vehicles destroyed{% when "none" %}None{% else %}{{ map.terminal }}{% endcase %}</span>{% else %}<span class="debug-no" title="terminal in _data/maps.yml">&#10008;</span>{% endif %}</td>
+            <td>{% if map.objectives %}{% assign n_obj = n_obj | plus: 1 %}<span class="debug-yes" title="{{ map.objectives.size }} steps">&#10004;</span>{% else %}<span class="debug-no" title="objectives in _data/map_marks.yml (Map marker)">&#10008;</span>{% endif %}</td>
+            <td>{% if map.terminal %}{% assign n_terminal = n_terminal | plus: 1 %}<span class="debug-yes debug-term" title="terminal: {{ map.terminal }}">{% case map.terminal %}{% when "full" %}Full{% when "no-vehicles" %}No vehicles{% when "vehicles-destroyed" %}Vehicles destroyed{% when "none" %}None{% else %}{{ map.terminal }}{% endcase %}</span>{% else %}<span class="debug-no" title="terminal in _data/map_marks.yml (Map marker)">&#10008;</span>{% endif %}</td>
             <td>{% if map.faction %}{% assign n_faction = n_faction | plus: 1 %}{% assign faction = map.faction | downcase %}<span class="team-badge team-{% if faction == 'gdi' %}gdi{% elsif faction == 'nod' %}nod{% else %}other{% endif %}">{% if faction == 'nod' %}Nod{% else %}{{ map.faction }}{% endif %}</span>{% else %}<span class="debug-no" title="faction in _data/maps.yml">&#10008;</span>{% endif %}</td>
             <td class="debug-name"><code>{{ map.name }}</code>{% if map.images_from %} <span class="muted">(images from <code>{{ map.images_from }}</code>)</span>{% endif %}</td>
           </tr>

@@ -1,244 +1,119 @@
 # Map rotation, in the order the server plays them (in game: !rotation).
+# The game info of each map (purchase terminal, objectives, weapons, buildings) and its
+# marks are in _data/map_marks.yml, edited with the Map marker tool (/tools/map-marker/).
 # name: the map file name. description: the map's name or what it is.
 # note: optional extra detail, shown smaller under/after the description. `text` shows as a code box.
 # images_from: use another map's images (e.g. Skirmish00 is played on Under).
 # faction: GDI or Nod - the side players are on. Leave it out to show "-".
-# objectives: what the map tells you to do (top left in game), one line per step.
-#   Leave it out to show "-". The words GDI and Nod are shown as faction badges.
-#   A step starting with "Optional:" is shown without a number.
-#   A step that is just "?" is one not written down yet (keeps the numbers right).
-# scalable_difficulty: true when the map has scalable difficulty (shown as a tag).
-# weapons: the starting weapons on that map, one per line (shown in the map preview).
-# map_weapons: weapons lying around on the map to pick up, one per line.
 # image_credit: key from _data/credits.yml, shown under the map's preview.
 # ingame_credit: the same for the in-game photo (assets/images/ingame/<name>.webp); default fandom.
 # ingame_date: when that photo was taken (dd-mm-yyyy hh:mm), shown after its credit.
 #
-# terminal: what the purchase terminal sells on that map (shown in the map preview):
-#   full               - infantry, characters and vehicles
-#   no-vehicles        - no vehicles (the Vehicles button is greyed out)
-#   vehicles-destroyed - a stock map where the vehicle building starts destroyed
-#                        (the game shows "Destroyed" under Vehicles)
-#   none               - no purchase terminal at all
-#   Leave it out when it's not known yet. Beacons are never sold on this server
-#   (server.beacons_for_sale in _config.yml).
-#
 # A map gets a clickable preview when assets/images/maps/<name>.webp
 # (or .png / .jpg) exists, e.g. assets/images/maps/M01.webp.
 - name: ttm1
-  terminal: no-vehicles
   description: Custom map
   image_credit: renegadeviewer
   faction: GDI
 - name: City
-  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
   faction: GDI
 - name: Complex
-  terminal: vehicles-destroyed
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: GDI
 - name: Walls
-  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
   faction: GDI
-  objectives:
-    - "The enemy has taken the field. Liberate it by destroying the Nod vehicles occupying it."
-    - "This will also free our troops trapped inside the hill."
-    - "Good. Now get rid of that Nod base!"
-    - "Now find the beacon on the metal pedestal at the rear of the Nod base and finish this."
-    - "Destroy all Nod vehicles to unlock the pedestal."
 - name: Mesa
-  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
   faction: GDI
-  objectives:
-    - Destroy all vehicles besieging our base as well as the 2 MCT's inside the tiberium cave.
-    - This will unlock the vehicle side path to get out of the GDI base.
-    - Destroy all enemy vehicles on the side path as well as the MCT to be able to cross the bridge.
-    - Cross the bridge and destroy the enemy vehicles and the 2 MCT's.
-    - Destroy the obelisk. The obelisk is the only building that can be destroyed from outside.
-    - Destroy the Nod base and all Nod vehicles inside it to trigger the boss fight.
-    - Kane has come (in person) to deal with you. Kill him and those who protect him.
-    - Ion the pedestal.
-  weapons:
-    - Maintenance Tool
-    - Grenade Launcher
 - name: Canyon
-  terminal: vehicles-destroyed
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
-  weapons:
-    - Maintenance Tool
-    - Laser Rifle
-  objectives:
-    - "Our base has been overrun. Eliminate GDI (non-rocket) officers and Dead 6 to regain control."
-    - "Find the 6 mini consoles and the GDI Gun Emplacement inside the tunnels and destroy them."
-    - "Head back to base for some vehicles. They will aid you in taking the field/GDI base."
-    - "Destroy all enemy vehicles in the field to access the GDI base."
-    - "Destroy all enemy buildings. There is no required order. Buildings have to be killed by MCT."
-    - "Although destroying the GDI barracks does unlock GDI tunnel access."
-    - "Destroy all enemy vehicles & Guard Towers to unlock access to the GDI WF."
 - name: Under
-  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
   faction: Nod
-  objectives:
-    - "Reclaim the field for Kane. This will also free the trapped Nod bots."
-    - "Push through the enemy forces and destroy the GDI base."
-    - "Pick up the beacon in the center of the GDI base and end this."
 - name: Coop_B01_B6
-  terminal: full
   description: Custom co-op map
   faction: GDI
 - name: Coop_B02_B10
-  terminal: full
   description: Custom co-op map
   image_credit: renegadeviewer
   faction: GDI
 - name: Coop_Tropics_B1
-  terminal: full
   description: Custom co-op map
   image_credit: renegadeviewer
   faction: Nod
-  objectives:
-    - Destroy the GDI Base.
 - name: Volcano
-  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
-  objectives:
-    - Our base has been overrun. Eliminate GDI (non-rocket) officers and Dead 6 to regain control.
-    - Head for the field and destroy GDI vehicles and consoles to open the tunnel entrance there.
-    - Find the 5 mini consoles inside the tunnels and destroy them.
-    - Head back to base and go across the Tiberium field. Destroy the mammoth tank and console.
-    - This will unlock vehicles back at the destroyed airstrip.
-    - Now destroy that GDI base. The vehicles will come in handy here.
-    - Destroy all GDI vehicles inside the GDI base in order to gain access to the GDI WF.
 - name: Islands
-  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
   faction: Nod
-  objectives:
-    - GDI has taken the field. Destroy all enemy vehicles and the mini console to reclaim it.
-    - Well done. Now destroy the GDI base.
-    - Base destroyed. Good Job. Now find that beacon in the tunnels and make Kane proud.
-    - Destroy all GDI vehicles inside the GDI base in order to unlock the pedestal.
-    - "Optional: Destroying GDI Guard Towers will allow Nod stealth units easy access."
 - name: Hourglass
-  terminal: full
   description: Original multiplayer map, changed to allow co-op
   image_credit: cncnz
   faction: Nod
-  objectives:
-    - Break the GDI siege by destroying enemy vehicles.
-    - Now move out to the sides and destroy vehicles there to unlock the hill.
-    - Destroy the Advanced Guard tower to unlock the side paths into GDI base.
-    - Now destroy that GDI base from the inside!
-    - Destroy all GDI vehicles inside the GDI base in order to gain access to the GDI WF.
-    - Locke has been detected in the tunnels. Kill him and anyone who tries to protect him.
-    - Now nuke the pedestal to end this. In the name of Kane.
-  weapons:
-    - Maintenance Tool
-    - Laser Rifle
-    - Rocket Launcher
 - name: Skirmish00
-  terminal: full
   description: Multiplayer Practice / Offline Skirmish mode
   note: "Played on the map `Under`"
   image_credit: renegadeviewer
   faction: GDI
 - name: M00_Tutorial
-  terminal: no-vehicles
   description: Tutorial
   note: Campaign training level
   faction: Nod
   image_credit: vgmaps
 - name: M13
-  terminal: no-vehicles
   description: "Mission 1: The Scorpion Hunters"
   note: The first mission's file is numbered 13
   faction: GDI
   image_credit: renegadeviewer
-  objectives:
-    - "Fight your way through Nod occupied territory to reach the Nod base."
-    - "Two Medium Tanks spawn on map load and will be destroyed by Nod if you do not act swiftly."
-    - "Once at the Nod base destroy all enemy forces and the Nod obelisk."
-    - "Move out to the pedestal to trigger the boss fight."
-    - "Boss defeated! Pedestal has been unlocked."
 - name: M01
-  terminal: none
   description: "Mission 2: Rescue and Retribution"
   faction: GDI
   image_credit: renegadeviewer
   scalable_difficulty: true
 - name: M02
-  terminal: no-vehicles
   description: "Mission 3: Armored Assault"
   ingame_credit: ryanturner
   ingame_date: "01-08-2025 21:22"
   faction: GDI
   image_credit: renegadeviewer
 - name: M03
-  terminal: no-vehicles
   description: "Mission 4: The Plot Erupts"
   ingame_credit: ryanturner
   ingame_date: "04-08-2025 15:35"
   faction: GDI
   image_credit: vgmaps
 - name: M04
-  terminal: no-vehicles
   description: "Mission 5: Stowaway"
   ingame_credit: ryanturner
   ingame_date: "08-08-2025 14:09"
   faction: GDI
   image_credit: renegadeviewer
 - name: M05
-  terminal: no-vehicles
   description: "Mission 6: Deadly Reunion"
   ingame_credit: ryanturner
   ingame_date: "08-08-2025 14:24"
   note: "The night version"
   faction: GDI
   image_credit: renegadeviewer
-  objectives:
-    - "Free the nearby civillians and destroy the Nod vehicles to clear the area."
-    - "To free civillians kill their guards (stationary Nod troops near civillians) and then poke them."
-    - "Move down the road and head for the square. Destroy the Nod vehicles here and free the civillians."
-    - "Free civillians by killing their guards and any nearby vehicles. Then poke them."
-    - "Move through the house and across the bridge and then find and destroy the Nod MCT."
-    - "Destroy the Nod defenses on the way."
-    - "Keep following the road. Destroy any Nod vehicles and MCT's on the way."
-    - "Free the civillian inside the house after destroying the Nod defenses and guards."
-    - "Continue towards the inn. Destroy any Nod vehicles and MCT's along the way."
-    - "Keep following the road."
-    - "Free all the civillians in the inn. To free them kill their guards."
-    - "Continue down the road. Destroy any Nod vehicles and defences you encounter."
-    - "Destroy Nod vehicles and the 2 Nod MCT's around the church in order to access the church."
-    - "Head inside the church and kill the boss."
-    - "Free the civillians."
-    - "Follow the road to the end. Destroy the MCT inside the house."
-    - "Now ion the pedestal."
 - name: M06
-  terminal: no-vehicles
   description: "Mission 7: The Grip of the Black Hand"
   ingame_credit: ryanturner
   ingame_date: "11-08-2025 22:12"
   faction: GDI
   image_credit: renegadeviewer
-  weapons:
-    - Maintenance Tool
-    - Grenade Launcher
 - name: M07
-  terminal: no-vehicles
   description: "Mission 8: Obelisk of Oppression"
   ingame_credit: ryanturner
   ingame_date: "11-08-2025 22:13"
@@ -246,28 +121,24 @@
   faction: GDI
   image_credit: renegadeviewer
 - name: M08
-  terminal: no-vehicles
   description: "Mission 9: Evolution of Evil"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 14:50"
   faction: GDI
   image_credit: renegadeviewer
 - name: M09
-  terminal: no-vehicles
   description: "Mission 10: All Brains, No Brawn"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 14:53"
   faction: GDI
   image_credit: renegadeviewer
 - name: M10
-  terminal: no-vehicles
   description: "Mission 11: Tomorrow's Technology Today"
   ingame_credit: ryanturner
   ingame_date: "13-08-2025 17:14"
   faction: GDI
   image_credit: renegadeviewer
 - name: M11
-  terminal: no-vehicles
   description: "Mission 12: Stomping on Holy Ground"
   ingame_credit: ryanturner
   ingame_date: "16-08-2025 15:00"

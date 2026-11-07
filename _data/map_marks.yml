@@ -1,192 +1,371 @@
-# Map marks: spots shown on a map's overhead image in the map preview.
-# Made with the Map marker tool (/tools/map-marker/ on the site): place the marks
-# there, then copy its text over this whole file.
+# Everything the Map marker tool (/tools/map-marker/ on the site) edits, per map: its
+# game info and the marks on its overhead image. Edit it there, then copy its text over
+# this whole file (it can also be edited by hand).
 #
-# One entry per map (the map's name, as in _data/maps.yml), with a list of marks:
-#   kind:   objective | spawn | secret | vehicle | pickup | other
-#   pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)
-#   icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the
-#           GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)
-#   x, y:   where on the image, in percent (0-100) from the left / top edge
-#   label:  optional, a short name shown on hover (e.g. "GDI start")
-#   note:   optional, a longer text shown under the label
-#   images: optional, pictures shown on hover / click, in this order; files in
-#           assets/images/marks/ (e.g. Islands_secret_1.webp)
+# One entry per map (the map's name, as in _data/maps.yml):
+#   terminal:        what the purchase terminal sells: full | no-vehicles |
+#                    vehicles-destroyed (a stock map whose vehicle building starts destroyed) |
+#                    none (no terminal). Leave it out when it's not known.
+#   objectives:      what the map tells you to do (top left in game), one line per step.
+#                    "Optional: ..." is shown without a number; "?" is a step not written down yet.
+#   weapons:         the starting weapons (names as in _data/weapons.yml)
+#   map_weapons:     weapons lying around on the map
+#   secret_weapons:  hidden weapons
+#   buildings:       { players: gdi|nod (co-op maps: the players' side), gdi: [...], nod: [...],
+#                    note: "..." }, kinds from _data/buildings.yml, "turret*2" = 2 of them
+#   marks:           spots on the overhead image, one per line:
+#     kind:   objective | spawn | secret | vehicle | pickup | other | note | arrow
+#     id:     optional, a short name other marks can link to (e.g. keycard-1)
+#     x, y:   where on the image, in percent (0-100) from the left / top edge
+#     x2, y2: arrows only: where the arrow points to (x, y is where it starts)
+#     pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)
+#     icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the
+#             GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)
+#     floor:  optional, the floor it's on (1 = the top, as in the layering); without it, every floor
+#     count:  secrets, vehicles, pickups, other: how many it gives; without it (or 0), infinite
+#     label:  optional, a short name shown on hover (e.g. "GDI start")
+#     note:   optional, a longer text shown under the label
+#     links:  optional, the ids of marks this one leads to, drawn as a dash-dot line
+#             (e.g. an objective that gives a keycard: links: [keycard-1])
+#     images: optional, pictures shown on hover / click, in this order; files in
+#             assets/images/marks/ (e.g. Islands_secret_1.webp)
 #
-# Example:
-#   Islands:
-#     - { kind: spawn, x: 18.5, y: 72.0, label: "GDI start" }
-#     - { kind: secret, x: 61.2, y: 33.4, label: "Hidden crate", images: ["Islands_crate_1.webp"] }
+# The site build (_plugins/map_info.rb) copies the game info onto the maps in
+# _data/maps.yml and _data/buildings.yml, so the pages read it from there as before.
 
 ttm1:
-  - { kind: spawn, x: 9.6, y: 52.8, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 9.2, y: 54.0 }
+  terminal: no-vehicles
+  buildings: { gdi: [g_ref, g_barracks], nod: [helipad, n_pp], note: "The map file doesn't say which side the players are on; the server decides." }
+  marks:
+    - { kind: spawn, x: 9.6, y: 52.8, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 9.2, y: 54.0 }
 
 City:
-  - { kind: spawn, x: 41.9, y: 6.9 }
-  - { kind: spawn, x: 58.7, y: 7.3 }
-  - { kind: spawn, x: 61.1, y: 19.0 }
-  - { kind: spawn, x: 40.5, y: 17.8 }
-  - { kind: spawn, x: 49.6, y: 25.2 }
-  - { kind: spawn, x: 50.2, y: 19.9, icon: "hud_c&c_gdilogo" }
-  - { kind: objective, x: 49.7, y: 36.8, pog: m08_2_02 }
-  - { kind: objective, x: 50.2, y: 61.2, pog: m08_2_02 }
-  - { kind: objective, x: 40.6, y: 72.8, pog: m08_2_02 }
-  - { kind: objective, x: 49.4, y: 68.8, pog: m08_2_02 }
-  - { kind: objective, x: 57.6, y: 73.0, pog: m08_2_02 }
-  - { kind: objective, x: 42.6, y: 88.9, pog: m08_2_02 }
-  - { kind: objective, x: 59.8, y: 89.6, pog: m08_2_02 }
+  terminal: full
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
+  marks:
+    - { kind: spawn, x: 41.9, y: 6.9 }
+    - { kind: spawn, x: 58.7, y: 7.3 }
+    - { kind: spawn, x: 61.1, y: 19.0 }
+    - { kind: spawn, x: 40.5, y: 17.8 }
+    - { kind: spawn, x: 49.6, y: 25.2 }
+    - { kind: spawn, x: 50.2, y: 19.9, icon: "hud_c&c_gdilogo" }
+    - { kind: objective, x: 49.7, y: 36.8, pog: m08_2_02 }
+    - { kind: objective, x: 50.2, y: 61.2, pog: m08_2_02 }
+    - { kind: objective, x: 40.6, y: 72.8, pog: m08_2_02 }
+    - { kind: objective, x: 49.4, y: 68.8, pog: m08_2_02 }
+    - { kind: objective, x: 57.6, y: 73.0, pog: m08_2_02 }
+    - { kind: objective, x: 42.6, y: 88.9, pog: m08_2_02 }
+    - { kind: objective, x: 59.8, y: 89.6, pog: m08_2_02 }
 
 Complex:
-  - { kind: spawn, x: 78.0, y: 43.3 }
-  - { kind: spawn, x: 79.5, y: 64.3 }
-  - { kind: spawn, x: 70.4, y: 60.5 }
-  - { kind: spawn, x: 74.9, y: 50.8, icon: "hud_c&c_gdilogo" }
+  terminal: vehicles-destroyed
+  buildings: { gdi: [g_barracks, g_wf, g_ref], nod: [n_hon, n_air, n_ref] }
+  marks:
+    - { kind: spawn, x: 78.0, y: 43.3 }
+    - { kind: spawn, x: 79.5, y: 64.3 }
+    - { kind: spawn, x: 70.4, y: 60.5 }
+    - { kind: spawn, x: 74.9, y: 50.8, icon: "hud_c&c_gdilogo" }
 
 Walls:
-  - { kind: spawn, x: 49.0, y: 24.8, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 41.5, y: 27.9, icon: "hud_ionbeaken" }
-  - { kind: spawn, x: 41.8, y: 21.6 }
-  - { kind: spawn, x: 56.7, y: 21.9 }
-  - { kind: spawn, x: 58.3, y: 28.0 }
-  - { kind: pickup, x: 48.5, y: 77.4, icon: "hud_ionbeaken" }
+  terminal: full
+  objectives:
+    - "The enemy has taken the field. Liberate it by destroying the Nod vehicles occupying it."
+    - "This will also free our troops trapped inside the hill."
+    - "Good. Now get rid of that Nod base!"
+    - "Now find the beacon on the metal pedestal at the rear of the Nod base and finish this."
+    - "Destroy all Nod vehicles to unlock the pedestal."
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp], nod: [n_hon, n_air, n_ref, n_pp] }
+  marks:
+    - { kind: spawn, x: 49.0, y: 24.8, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 41.5, y: 27.9, icon: "hud_ionbeaken" }
+    - { kind: spawn, x: 41.8, y: 21.6 }
+    - { kind: spawn, x: 56.7, y: 21.9 }
+    - { kind: spawn, x: 58.3, y: 28.0 }
+    - { kind: pickup, x: 48.5, y: 77.4, icon: "hud_ionbeaken" }
 
 Mesa:
-  - { kind: pickup, x: 86.5, y: 80.0, icon: "hud_ionbeaken" }
-  - { kind: objective, x: 52.1, y: 29.7, pog: m08_2_02 }
-  - { kind: objective, x: 32.1, y: 50.4, pog: m08_2_02 }
-  - { kind: objective, x: 28.5, y: 32.5, pog: m08_2_02 }
-  - { kind: objective, x: 88.3, y: 80.1, pog: m08_2_02 }
-  - { kind: spawn, x: 64.5, y: 35.6 }
-  - { kind: spawn, x: 81.4, y: 37.2 }
-  - { kind: spawn, x: 81.1, y: 49.6 }
-  - { kind: spawn, x: 67.6, y: 48.7 }
-  - { kind: spawn, x: 74.0, y: 39.8 }
-  - { kind: spawn, x: 74.7, y: 43.5, icon: "hud_c&c_gdilogo" }
+  terminal: full
+  objectives:
+    - "Destroy all vehicles besieging our base as well as the 2 MCT's inside the tiberium cave."
+    - "This will unlock the vehicle side path to get out of the GDI base."
+    - "Destroy all enemy vehicles on the side path as well as the MCT to be able to cross the bridge."
+    - "Cross the bridge and destroy the enemy vehicles and the 2 MCT's."
+    - "Destroy the obelisk. The obelisk is the only building that can be destroyed from outside."
+    - "Destroy the Nod base and all Nod vehicles inside it to trigger the boss fight."
+    - "Kane has come (in person) to deal with you. Kill him and those who protect him."
+    - "Ion the pedestal."
+  weapons: ["Maintenance Tool", "Grenade Launcher"]
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
+  marks:
+    - { kind: pickup, x: 86.5, y: 80.0, icon: "hud_ionbeaken" }
+    - { kind: objective, x: 52.1, y: 29.7, pog: m08_2_02 }
+    - { kind: objective, x: 32.1, y: 50.4, pog: m08_2_02 }
+    - { kind: objective, x: 28.5, y: 32.5, pog: m08_2_02 }
+    - { kind: objective, x: 88.3, y: 80.1, pog: m08_2_02 }
+    - { kind: spawn, x: 64.5, y: 35.6 }
+    - { kind: spawn, x: 81.4, y: 37.2 }
+    - { kind: spawn, x: 81.1, y: 49.6 }
+    - { kind: spawn, x: 67.6, y: 48.7 }
+    - { kind: spawn, x: 74.0, y: 39.8 }
+    - { kind: spawn, x: 74.7, y: 43.5, icon: "hud_c&c_gdilogo" }
 
 Canyon:
-  - { kind: spawn, x: 25.0, y: 32.2, icon: "hud_c&c_nodlogo" }
-  - { kind: spawn, x: 13.3, y: 21.2 }
-  - { kind: spawn, x: 33.8, y: 41.5 }
+  terminal: vehicles-destroyed
+  objectives:
+    - "Our base has been overrun. Eliminate GDI (non-rocket) officers and Dead 6 to regain control."
+    - "Find the 6 mini consoles and the GDI Gun Emplacement inside the tunnels and destroy them."
+    - "Head back to base for some vehicles. They will aid you in taking the field/GDI base."
+    - "Destroy all enemy vehicles in the field to access the GDI base."
+    - "Destroy all enemy buildings. There is no required order. Buildings have to be killed by MCT."
+    - "Although destroying the GDI barracks does unlock GDI tunnel access."
+    - "Destroy all enemy vehicles & Guard Towers to unlock access to the GDI WF."
+  weapons: ["Maintenance Tool", "Laser Rifle"]
+  buildings: { gdi: [g_barracks, g_wf, g_ref], nod: [n_hon, n_air, n_ref] }
+  marks:
+    - { kind: spawn, x: 25.0, y: 32.2, icon: "hud_c&c_nodlogo" }
+    - { kind: spawn, x: 13.3, y: 21.2 }
+    - { kind: spawn, x: 33.8, y: 41.5 }
 
 Under:
-  - { kind: spawn, x: 49.4, y: 43.8, icon: "hud_c&c_nodlogo" }
-  - { kind: spawn, x: 48.1, y: 46.1 }
-  - { kind: spawn, x: 51.5, y: 44.7 }
-  - { kind: spawn, x: 54.9, y: 43.6 }
-  - { kind: spawn, x: 51.7, y: 55.0 }
+  terminal: full
+  objectives:
+    - "Reclaim the field for Kane. This will also free the trapped Nod bots."
+    - "Push through the enemy forces and destroy the GDI base."
+    - "Pick up the beacon in the center of the GDI base and end this."
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
+  marks:
+    - { kind: spawn, x: 49.4, y: 43.8, icon: "hud_c&c_nodlogo" }
+    - { kind: spawn, x: 48.1, y: 46.1 }
+    - { kind: spawn, x: 51.5, y: 44.7 }
+    - { kind: spawn, x: 54.9, y: 43.6 }
+    - { kind: spawn, x: 51.7, y: 55.0 }
+
+Coop_B01_B6:
+  terminal: full
+  buildings: { players: gdi, gdi: [ship], nod: [shrine] }
 
 Coop_B02_B10:
-  - { kind: spawn, x: 23.2, y: 38.6, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 23.3, y: 39.7 }
+  terminal: full
+  buildings: { players: gdi, gdi: [g_barracks, g_ref], nod: [n_hon, n_ref, n_pp, n_comm, obelisk] }
+  marks:
+    - { kind: spawn, x: 23.2, y: 38.6, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 23.3, y: 39.7 }
 
 Coop_Tropics_B1:
-  - { kind: spawn, x: 51.4, y: 60.0, icon: "hud_c&c_nodlogo" }
-  - { kind: spawn, x: 50.3, y: 59.3 }
-  - { kind: spawn, x: 53.1, y: 59.2 }
-  - { kind: spawn, x: 51.9, y: 57.9 }
-  - { kind: spawn, x: 53.1, y: 62.8 }
+  terminal: full
+  objectives:
+    - "Destroy the GDI Base."
+  buildings: { players: nod, gdi: [g_barracks, g_wf, g_ref, agt, repairbay, silo], nod: [n_hon, n_air, n_ref, obelisk, repairbay, silo] }
+  marks:
+    - { kind: spawn, x: 51.4, y: 60.0, icon: "hud_c&c_nodlogo" }
+    - { kind: spawn, x: 50.3, y: 59.3 }
+    - { kind: spawn, x: 53.1, y: 59.2 }
+    - { kind: spawn, x: 51.9, y: 57.9 }
+    - { kind: spawn, x: 53.1, y: 62.8 }
+
+Volcano:
+  terminal: full
+  objectives:
+    - "Our base has been overrun. Eliminate GDI (non-rocket) officers and Dead 6 to regain control."
+    - "Head for the field and destroy GDI vehicles and consoles to open the tunnel entrance there."
+    - "Find the 5 mini consoles inside the tunnels and destroy them."
+    - "Head back to base and go across the Tiberium field. Destroy the mammoth tank and console."
+    - "This will unlock vehicles back at the destroyed airstrip."
+    - "Now destroy that GDI base. The vehicles will come in handy here."
+    - "Destroy all GDI vehicles inside the GDI base in order to gain access to the GDI WF."
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp], nod: [n_hon, n_air, n_ref, n_pp] }
 
 Islands:
-  - { kind: spawn, x: 55.9, y: 39.8 }
-  - { kind: spawn, x: 65.1, y: 39.6 }
-  - { kind: spawn, x: 60.3, y: 28.2 }
-  - { kind: spawn, x: 61.8, y: 37.4, icon: "hud_c&c_nodlogo" }
+  terminal: full
+  objectives:
+    - "GDI has taken the field. Destroy all enemy vehicles and the mini console to reclaim it."
+    - "Well done. Now destroy the GDI base."
+    - "Base destroyed. Good Job. Now find that beacon in the tunnels and make Kane proud."
+    - "Destroy all GDI vehicles inside the GDI base in order to unlock the pedestal."
+    - "Optional: Destroying GDI Guard Towers will allow Nod stealth units easy access."
+  buildings: { gdi: [g_barracks, g_wf, g_ref], nod: [n_hon, n_air, n_ref] }
+  marks:
+    - { kind: spawn, x: 55.9, y: 39.8 }
+    - { kind: spawn, x: 65.1, y: 39.6 }
+    - { kind: spawn, x: 60.3, y: 28.2 }
+    - { kind: spawn, x: 61.8, y: 37.4, icon: "hud_c&c_nodlogo" }
+
+Hourglass:
+  terminal: full
+  objectives:
+    - "Break the GDI siege by destroying enemy vehicles."
+    - "Now move out to the sides and destroy vehicles there to unlock the hill."
+    - "Destroy the Advanced Guard tower to unlock the side paths into GDI base."
+    - "Now destroy that GDI base from the inside!"
+    - "Destroy all GDI vehicles inside the GDI base in order to gain access to the GDI WF."
+    - "Locke has been detected in the tunnels. Kill him and anyone who tries to protect him."
+    - "Now nuke the pedestal to end this. In the name of Kane."
+  weapons: ["Maintenance Tool", "Laser Rifle", "Rocket Launcher"]
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
 
 Skirmish00:
-  - { kind: spawn, x: 61.9, y: 25.3, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 60.0, y: 28.7 }
-  - { kind: spawn, x: 58.9, y: 34.1 }
-  - { kind: spawn, x: 63.6, y: 34.8 }
-  - { kind: spawn, x: 59.6, y: 23.1 }
-  - { kind: spawn, x: 64.5, y: 28.7 }
+  terminal: full
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
+  marks:
+    - { kind: spawn, x: 61.9, y: 25.3, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 60.0, y: 28.7 }
+    - { kind: spawn, x: 58.9, y: 34.1 }
+    - { kind: spawn, x: 63.6, y: 34.8 }
+    - { kind: spawn, x: 59.6, y: 23.1 }
+    - { kind: spawn, x: 64.5, y: 28.7 }
 
 M00_Tutorial:
-  - { kind: spawn, x: 32.6, y: 83.6, icon: "hud_c&c_nodlogo" }
-  - { kind: spawn, x: 26.6, y: 76.4 }
-  - { kind: objective, x: 22.5, y: 79.9, pog: m01_1_04 }
+  terminal: no-vehicles
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp], note: "Training versions; no Nod buildings." }
+  marks:
+    - { kind: spawn, x: 32.6, y: 83.6, icon: "hud_c&c_nodlogo" }
+    - { kind: spawn, x: 26.6, y: 76.4 }
+    - { kind: objective, x: 22.5, y: 79.9, pog: m01_1_04 }
 
 M13:
-  - { kind: spawn, x: 69.6, y: 37.9 }
-  - { kind: spawn, x: 69.3, y: 38.8, icon: "hud_hemedal" }
+  terminal: no-vehicles
+  objectives:
+    - "Fight your way through Nod occupied territory to reach the Nod base."
+    - "Two Medium Tanks spawn on map load and will be destroyed by Nod if you do not act swiftly."
+    - "Once at the Nod base destroy all enemy forces and the Nod obelisk."
+    - "Move out to the pedestal to trigger the boss fight."
+    - "Boss defeated! Pedestal has been unlocked."
+  marks:
+    - { kind: spawn, x: 69.6, y: 37.9 }
+    - { kind: spawn, x: 69.3, y: 38.8, icon: "hud_hemedal" }
 
 M01:
-  - { kind: spawn, x: 47.2, y: 34.0, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 43.1, y: 33.8 }
-  - { kind: objective, x: 50.6, y: 41.8, pog: m01_2_08 }
-  - { kind: objective, x: 45.6, y: 47.6, pog: m01_2_05 }
-  - { kind: objective, x: 50.9, y: 48.0, pog: m01_2_01 }
-  - { kind: objective, x: 58.7, y: 48.5, pog: m01_2_02 }
-  - { kind: objective, x: 55.4, y: 52.2, pog: m01_2_04 }
-  - { kind: objective, x: 62.0, y: 68.7, pog: m01_2_06 }
-  - { kind: objective, x: 72.8, y: 87.9, pog: m01_1_01 }
-  - { kind: objective, x: 72.6, y: 85.9, pog: m01_1_02 }
-  - { kind: objective, x: 73.8, y: 89.4, pog: m01_1_03 }
-  - { kind: objective, x: 75.3, y: 88.3, pog: m01_1_04 }
-  - { kind: objective, x: 63.3, y: 88.3, pog: m01_1_04 }
+  terminal: none
+  marks:
+    - { kind: spawn, x: 47.2, y: 34.0, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 43.1, y: 33.8 }
+    - { kind: objective, x: 50.6, y: 41.8, pog: m01_2_08 }
+    - { kind: objective, x: 45.6, y: 47.6, pog: m01_2_05 }
+    - { kind: objective, x: 50.9, y: 48.0, pog: m01_2_01 }
+    - { kind: objective, x: 58.7, y: 48.5, pog: m01_2_02 }
+    - { kind: objective, x: 55.4, y: 52.2, pog: m01_2_04 }
+    - { kind: objective, x: 62.0, y: 68.7, pog: m01_2_06 }
+    - { kind: objective, x: 72.8, y: 87.9, pog: m01_1_01 }
+    - { kind: objective, x: 72.6, y: 85.9, pog: m01_1_02 }
+    - { kind: objective, x: 73.8, y: 89.4, pog: m01_1_03 }
+    - { kind: objective, x: 75.3, y: 88.3, pog: m01_1_04 }
+    - { kind: objective, x: 63.3, y: 88.3, pog: m01_1_04 }
 
 M02:
-  - { kind: spawn, x: 87.4, y: 15.9 }
-  - { kind: spawn, x: 88.2, y: 14.8, icon: "hud_c&c_gdilogo" }
-  - { kind: objective, x: 13.3, y: 47.8, pog: m02_1_04 }
-  - { kind: objective, x: 79.5, y: 10.7, pog: m02_2_02 }
-  - { kind: objective, x: 59.7, y: 53.4, pog: m02_2_10 }
-  - { kind: objective, x: 54.3, y: 72.5, pog: m02_2_10 }
-  - { kind: objective, x: 39.3, y: 83.8, pog: m02_2_10 }
-  - { kind: objective, x: 41.4, y: 77.3, pog: m02_2_10 }
-  - { kind: objective, x: 22.8, y: 80.3, pog: m02_2_13 }
-  - { kind: objective, x: 27.9, y: 74.4, pog: m02_1_03 }
-  - { kind: objective, x: 57.0, y: 62.2, pog: m02_2_03 }
-  - { kind: objective, x: 59.1, y: 59.5, pog: m02_2_03 }
-  - { kind: objective, x: 62.8, y: 70.3, pog: m02_2_07 }
-  - { kind: objective, x: 10.4, y: 59.4, pog: m02_2_14 }
+  terminal: no-vehicles
+  marks:
+    - { kind: spawn, x: 87.4, y: 15.9 }
+    - { kind: spawn, x: 88.2, y: 14.8, icon: "hud_c&c_gdilogo" }
+    - { kind: objective, x: 13.3, y: 47.8, pog: m02_1_04 }
+    - { kind: objective, x: 79.5, y: 10.7, pog: m02_2_02 }
+    - { kind: objective, x: 59.7, y: 53.4, pog: m02_2_10 }
+    - { kind: objective, x: 54.3, y: 72.5, pog: m02_2_10 }
+    - { kind: objective, x: 39.3, y: 83.8, pog: m02_2_10 }
+    - { kind: objective, x: 41.4, y: 77.3, pog: m02_2_10 }
+    - { kind: objective, x: 22.8, y: 80.3, pog: m02_2_13 }
+    - { kind: objective, x: 27.9, y: 74.4, pog: m02_1_03 }
+    - { kind: objective, x: 57.0, y: 62.2, pog: m02_2_03 }
+    - { kind: objective, x: 59.1, y: 59.5, pog: m02_2_03 }
+    - { kind: objective, x: 62.8, y: 70.3, pog: m02_2_07 }
+    - { kind: objective, x: 10.4, y: 59.4, pog: m02_2_14 }
 
 M03:
-  - { kind: spawn, x: 52.4, y: 86.0, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 51.7, y: 79.8 }
-  - { kind: objective, x: 47.0, y: 43.3, pog: m03_1_01 }
-  - { kind: objective, x: 86.3, y: 42.3, pog: m03_2_01 }
-  - { kind: objective, x: 82.0, y: 47.1, pog: m03_2_02 }
-  - { kind: objective, x: 77.7, y: 42.9, pog: m03_2_02 }
-  - { kind: objective, x: 88.6, y: 60.0, pog: m03_2_02 }
-  - { kind: objective, x: 79.1, y: 68.1, pog: m03_2_02 }
-  - { kind: objective, x: 3.2, y: 39.5, pog: m03_1_04 }
-  - { kind: objective, x: 48.1, y: 45.5, pog: m03_1_03 }
+  terminal: no-vehicles
+  marks:
+    - { kind: spawn, x: 52.4, y: 86.0, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 51.7, y: 79.8 }
+    - { kind: objective, x: 47.0, y: 43.3, pog: m03_1_01 }
+    - { kind: objective, x: 86.3, y: 42.3, pog: m03_2_01 }
+    - { kind: objective, x: 82.0, y: 47.1, pog: m03_2_02 }
+    - { kind: objective, x: 77.7, y: 42.9, pog: m03_2_02 }
+    - { kind: objective, x: 88.6, y: 60.0, pog: m03_2_02 }
+    - { kind: objective, x: 79.1, y: 68.1, pog: m03_2_02 }
+    - { kind: objective, x: 3.2, y: 39.5, pog: m03_1_04 }
+    - { kind: objective, x: 48.1, y: 45.5, pog: m03_1_03 }
+
+M04:
+  terminal: no-vehicles
 
 M05:
-  - { kind: spawn, x: 78.7, y: 23.6 }
-  - { kind: spawn, x: 77.4, y: 24.3, icon: "hud_c&c_gdilogo" }
-  - { kind: objective, x: 89.1, y: 18.8, pog: m05_2_01 }
-  - { kind: objective, x: 58.6, y: 8.5, pog: m05_2_01 }
-  - { kind: objective, x: 23.0, y: 22.2, pog: m05_2_01 }
-  - { kind: objective, x: 86.9, y: 37.7, pog: m05_2_01 }
+  terminal: no-vehicles
+  objectives:
+    - "Free the nearby civillians and destroy the Nod vehicles to clear the area."
+    - "To free civillians kill their guards (stationary Nod troops near civillians) and then poke them."
+    - "Move down the road and head for the square. Destroy the Nod vehicles here and free the civillians."
+    - "Free civillians by killing their guards and any nearby vehicles. Then poke them."
+    - "Move through the house and across the bridge and then find and destroy the Nod MCT."
+    - "Destroy the Nod defenses on the way."
+    - "Keep following the road. Destroy any Nod vehicles and MCT's on the way."
+    - "Free the civillian inside the house after destroying the Nod defenses and guards."
+    - "Continue towards the inn. Destroy any Nod vehicles and MCT's along the way."
+    - "Keep following the road."
+    - "Free all the civillians in the inn. To free them kill their guards."
+    - "Continue down the road. Destroy any Nod vehicles and defences you encounter."
+    - "Destroy Nod vehicles and the 2 Nod MCT's around the church in order to access the church."
+    - "Head inside the church and kill the boss."
+    - "Free the civillians."
+    - "Follow the road to the end. Destroy the MCT inside the house."
+    - "Now ion the pedestal."
+  marks:
+    - { kind: spawn, x: 78.7, y: 23.6 }
+    - { kind: spawn, x: 77.4, y: 24.3, icon: "hud_c&c_gdilogo" }
+    - { kind: objective, x: 89.1, y: 18.8, pog: m05_2_01 }
+    - { kind: objective, x: 58.6, y: 8.5, pog: m05_2_01 }
+    - { kind: objective, x: 23.0, y: 22.2, pog: m05_2_01 }
+    - { kind: objective, x: 86.9, y: 37.7, pog: m05_2_01 }
 
 M06:
-  - { kind: spawn, x: 81.1, y: 7.1, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 80.6, y: 10.4 }
+  terminal: no-vehicles
+  weapons: ["Maintenance Tool", "Grenade Launcher"]
+  marks:
+    - { kind: spawn, x: 81.1, y: 7.1, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 80.6, y: 10.4 }
 
 M07:
-  - { kind: spawn, x: 41.6, y: 61.0 }
-  - { kind: spawn, x: 38.9, y: 60.9, icon: "hud_c&c_gdilogo" }
+  terminal: no-vehicles
+  marks:
+    - { kind: spawn, x: 41.6, y: 61.0 }
+    - { kind: spawn, x: 38.9, y: 60.9, icon: "hud_c&c_gdilogo" }
 
 M08:
-  - { kind: spawn, x: 77.4, y: 26.0, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 80.3, y: 26.0 }
+  terminal: no-vehicles
+  marks:
+    - { kind: spawn, x: 77.4, y: 26.0, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 80.3, y: 26.0 }
 
 M09:
-  - { kind: spawn, x: 88.4, y: 74.5, icon: "hud_c&c_gdilogo" }
-  - { kind: spawn, x: 97.3, y: 80.1 }
-  - { kind: spawn, x: 97.8, y: 77.7 }
-  - { kind: spawn, x: 98.0, y: 71.0 }
-  - { kind: spawn, x: 97.5, y: 69.2 }
-  - { kind: spawn, x: 84.6, y: 71.5 }
+  terminal: no-vehicles
+  marks:
+    - { kind: spawn, x: 88.4, y: 74.5, icon: "hud_c&c_gdilogo" }
+    - { kind: spawn, x: 97.3, y: 80.1 }
+    - { kind: spawn, x: 97.8, y: 77.7 }
+    - { kind: spawn, x: 98.0, y: 71.0 }
+    - { kind: spawn, x: 97.5, y: 69.2 }
+    - { kind: spawn, x: 84.6, y: 71.5 }
 
 M10:
-  - { kind: spawn, x: 30.0, y: 8.8 }
-  - { kind: spawn, x: 27.1, y: 10.6, icon: "hud_c&c_gdilogo" }
-  - { kind: objective, x: 41.5, y: 36.9, pog: m10_2_01 }
-  - { kind: objective, x: 49.0, y: 50.5, pog: m10_2_03 }
+  terminal: no-vehicles
+  marks:
+    - { kind: spawn, x: 30.0, y: 8.8 }
+    - { kind: spawn, x: 27.1, y: 10.6, icon: "hud_c&c_gdilogo" }
+    - { kind: objective, x: 41.5, y: 36.9, pog: m10_2_01 }
+    - { kind: objective, x: 49.0, y: 50.5, pog: m10_2_03 }
 
 M11:
-  - { kind: spawn, x: 56.4, y: 76.1 }
-  - { kind: spawn, x: 56.8, y: 74.3, icon: "hud_c&c_gdilogo" }
+  terminal: no-vehicles
+  marks:
+    - { kind: spawn, x: 56.4, y: 76.1 }
+    - { kind: spawn, x: 56.8, y: 74.3, icon: "hud_c&c_gdilogo" }
+
+City_Flying:
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
+
+Field:
+  buildings: { gdi: [g_barracks, g_wf, g_ref, agt], nod: [n_hon, n_air, n_ref, obelisk, turret*2] }
+
+Glacier_Flying:
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt, repairpad, guardtower*3], nod: [n_hon, n_air, n_ref, n_pp, obelisk, repairpad, turret*4] }
+
+Walls_Flying:
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp], nod: [n_hon, n_air, n_ref, n_pp] }

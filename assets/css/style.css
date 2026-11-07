@@ -1557,3 +1557,24 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-links .btn { padding: 0.05rem 0.4rem; }
 .mm-stage.is-linking, .mm-stage.is-linking .map-mark { cursor: copy; }
 [data-mm-linksfield][hidden] { display: none; }
+/* Map marker: Map info (objectives, weapons, purchase terminal, buildings). */
+.mm-info { margin: 1.5rem 0 0.5rem; padding: 0.8rem 1rem 1rem; border: 1px solid var(--border-soft); border-radius: 6px; background: rgba(0, 0, 0, 0.18); }
+.mm-tabs { display: flex; flex-wrap: wrap; gap: 0.3rem; margin: 0.4rem 0 0.7rem; border-bottom: 1px solid var(--border-soft); }
+.mm-tab { padding: 0.35rem 0.8rem; border: 1px solid transparent; border-bottom: 0; border-radius: 4px 4px 0 0; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+.mm-tab[aria-selected="true"] { border-color: var(--border-soft); background: var(--bar); color: var(--title); }
+.mm-ipanel { min-height: 14rem; }
+.mm-objectives { width: 100%; box-sizing: border-box; font: inherit; padding: 0.5rem; border: 1px solid var(--border-soft); border-radius: 4px; background: var(--code-bg); color: var(--text); }
+.mm-wcols { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+.mm-h3 { margin: 0 0 0.2rem; font-size: 1rem; color: var(--title); }
+.mm-wcol .hint { margin: 0 0 0.4rem; }
+.mm-chips { list-style: none; margin: 0 0 0.45rem; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.mm-chip { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.1rem 0.2rem 0.1rem 0.6rem; border: 1px solid var(--border-soft); border-radius: 999px; background: var(--btn-bg); font-size: 0.85rem; }
+.mm-chip-btn { padding: 0 0.35rem; border: 0; border-radius: 999px; background: none; color: var(--muted); font: inherit; cursor: pointer; }
+.mm-chip-btn:hover { background: var(--bar); color: var(--title); }
+.mm-add { max-width: 100%; padding: 0.2rem 0.4rem; border: 1px solid var(--border-soft); border-radius: 4px; background: var(--code-bg); color: var(--text); font: inherit; }
+.mm-suggest { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.3rem; align-items: center; }
+.mm-suggest .hint { flex-basis: 100%; margin: 0; }
+.mm-radios { display: flex; flex-direction: column; gap: 0.45rem; }
+.mm-radios label { display: flex; align-items: baseline; gap: 0.45rem; cursor: pointer; }
+.mm-inline { flex-direction: row; align-items: center; gap: 0.5rem; }
+.mm-bcols { margin-top: 0.6rem; }
