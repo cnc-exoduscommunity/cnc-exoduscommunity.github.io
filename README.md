@@ -255,7 +255,10 @@ python tools/convert_maps.py "06_11_2026_*"        # a pattern converts several
 ```
 
 It writes the normal picture (`assets/images/maps/<map>.webp`, 1600 px), the high-detail one (`hd/`, 9104 px) and the
-layering pictures (`layers/<map>/`), all cut to the same box so they line up. "C&C_" is left off the name. A map with no
+layering pictures in both sizes (`layers/<map>/` and `layers/<map>/hd/`), all cut to the same box so they line up.
+The full-size layers take a few minutes per map; to make only those, for maps converted already, run
+`python tools/convert_maps.py --hd-layers [--budget SECONDS] <export folders>` (it skips files that exist, so it can be
+stopped and run again). "C&C_" is left off the name. A map with no
 units has no `World/`; the script then uses `Empty/` (e.g. `Empty/all_ttm1_92BB640B.png`), which is the same picture.
 Needs Python 3 and Pillow (`pip install pillow`); a 16384 px export takes about a minute and 1 GB of memory.
 Add `image_credit: renegadeviewer` to the map in `_data/maps.yml`.
@@ -276,8 +279,9 @@ top, from `_data/loadscreens.yml` (positions on the game's 640x480 grid).
 one (with a progress bar) so the details stay readable when zoomed in. Both zoom up to 1000% and keep the zoom when you
 switch, so seeing the blurry version is the viewer's choice. The choice is remembered per browser.
 
-**Try out layering system?** (needs Details: High, off by default): shows the map in parts you can switch on and off
-(Map, Units and objects, Editor) or one floor at a time. The layer pictures are normal quality for now.
+**Try out layering system?** (off by default): shows the map in parts you can switch on and off (Map, Units and
+objects, Editor) or one floor at a time. It follows Details: Low uses the 1600 px layer pictures, High the full-size ones
+in `layers/<map>/hd/`.
 
 Under the map, the left card has the map's **Weapons** (Starting / Map / Secrets tabs; everyone starts with the Pistol and
 Timed C4), the **Purchase terminal** (folded; Characters and Vehicles open their pages, hover a card for details) and the
