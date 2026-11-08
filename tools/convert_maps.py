@@ -43,6 +43,13 @@ HD_Q = 82
 MARGIN = 0.02         # extra room around the visible part, as a share of its size
 
 
+
+def map_name(folder):
+    """The map file name from an export folder: "<date>-C&C_Mesa" (older exports) or
+    "<date>/11_C&C_Mesa" (one folder per export, numbered map folders)."""
+    base = os.path.basename(os.path.normpath(folder))
+    return re.sub(r"^\d+_", "", base) if "-" not in base else re.sub(r"^.*?-", "", base, count=1)
+
 def one(folder, sub):
     """The all_*.png in a sub folder, or None."""
     found = sorted(glob.glob(os.path.join(folder, sub, "all_*.png")))
@@ -81,7 +88,7 @@ def read_layers(folder):
 
 
 def convert(folder, layers=True):
-    name = re.sub(r"^.*?-", "", os.path.basename(os.path.normpath(folder)), count=1)
+    name = map_name(folder)
     site_name = re.sub(r"^C&C_", "", name)
     # World is the finished map; a map with no units has only Empty (the same picture).
     world = one(folder, "World") or one(folder, "Empty")
@@ -96,10 +103,15 @@ def convert(folder, layers=True):
     box = box or (0, 0, w, h)
     mx, my = round((box[2] - box[0]) * MARGIN), round((box[3] - box[1]) * MARGIN)
     box = (max(0, box[0] - mx), max(0, box[1] - my), min(w, box[2] + mx), min(h, box[3] + my))
-    im = im.crop(box)
-    save(fit(im, HD_MAX), os.path.join(OUT_MAPS, "hd", site_name + ".webp"), HD_Q)
-    save(fit(im, NORMAL_MAX), os.path.join(OUT_MAPS, site_name + ".webp"), NORMAL_Q)
+    # Resize straight from the box (no cropped copy: a 16384 px picture is 1 GB already),
+    # then make the normal picture from the high-quality one.
+    bw, bh = box[2] - box[0], box[3] - box[1]
+    k = min(1.0, HD_MAX / max(bw, bh))
+    hd = im.resize((max(1, round(bw * k)), max(1, round(bh * k))), Image.LANCZOS, box=box, reducing_gap=3.0) if k < 1 else im.crop(box)
     del im
+    save(hd, os.path.join(OUT_MAPS, "hd", site_name + ".webp"), HD_Q)
+    save(fit(hd, NORMAL_MAX), os.path.join(OUT_MAPS, site_name + ".webp"), NORMAL_Q)
+    del hd
     if not layers:
         return
     out = os.path.join(OUT_MAPS, "layers", site_name)
@@ -147,7 +159,7 @@ def hd_layers(folder, budget=None, started=None):
     it stopped early because the time budget (seconds) ran out."""
     import time
     started = started or time.time()
-    name = re.sub(r"^.*?-", "", os.path.basename(os.path.normpath(folder)), count=1)
+    name = map_name(folder)
     site_name = re.sub(r"^C&C_", "", name)
     out = os.path.join(OUT_MAPS, "layers", site_name)
     meta_path = os.path.join(out, "layers.json")

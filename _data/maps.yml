@@ -21,7 +21,7 @@
   faction: GDI
 - name: Complex
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: GDI
 - name: Walls
   description: Original multiplayer map, changed to allow co-op
@@ -33,7 +33,7 @@
   faction: GDI
 - name: Canyon
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: Nod
 - name: Under
   description: Original multiplayer map, changed to allow co-op
@@ -41,6 +41,7 @@
   faction: Nod
 - name: Coop_B01_B6
   description: Custom co-op map
+  image_credit: renegadeviewer
   faction: GDI
 - name: Coop_B02_B10
   description: Custom co-op map
@@ -52,7 +53,7 @@
   faction: Nod
 - name: Volcano
   description: Original multiplayer map, changed to allow co-op
-  image_credit: cncnz
+  image_credit: renegadeviewer
   faction: Nod
 - name: Islands
   description: Original multiplayer map, changed to allow co-op
@@ -71,7 +72,7 @@
   description: Tutorial
   note: Campaign training level
   faction: Nod
-  image_credit: vgmaps
+  image_credit: renegadeviewer
 - name: M13
   description: "Mission 1: The Scorpion Hunters"
   note: The first mission's file is numbered 13

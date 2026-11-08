@@ -32,7 +32,7 @@ The maps the server cycles through, in order. In game, type `!rotation` to see t
 | [Mesa](assets/images/maps/Mesa.webp) | Original multiplayer map, changed to allow co-op |
 | [Canyon](assets/images/maps/Canyon.webp) | Original multiplayer map, changed to allow co-op |
 | [Under](assets/images/maps/Under.webp) | Original multiplayer map, changed to allow co-op |
-| Coop_B01_B6 | Custom co-op map |
+| [Coop_B01_B6](assets/images/maps/Coop_B01_B6.webp) | Custom co-op map |
 | [Coop_B02_B10](assets/images/maps/Coop_B02_B10.webp) | Custom co-op map |
 | [Coop_Tropics_B1](assets/images/maps/Coop_Tropics_B1.webp) | Custom co-op map |
 | [Volcano](assets/images/maps/Volcano.webp) | Original multiplayer map, changed to allow co-op |

@@ -17,8 +17,15 @@ OUT = os.path.join(SITE, "assets", "marks")
 KEEP = ("kind", "name", "icon", "pog", "count", "team", "type", "action", "text", "preset")
 
 
+
+def map_name(folder):
+    """The map file name from an export folder: "<date>-C&C_Mesa" (older exports) or
+    "<date>/11_C&C_Mesa" (one folder per export, numbered map folders)."""
+    base = os.path.basename(os.path.normpath(folder))
+    return re.sub(r"^\d+_", "", base) if "-" not in base else re.sub(r"^.*?-", "", base, count=1)
+
 def convert(folder):
-    name = re.sub(r"^.*?-", "", os.path.basename(os.path.normpath(folder)), count=1)
+    name = map_name(folder)
     site_name = re.sub(r"^C&C_", "", name)
     txt = open(os.path.join(folder, "layers.txt"), encoding="utf-8", errors="replace").read()
     size = re.search(r"Picture size: (\d+)x(\d+)", txt)
