@@ -1,0 +1,39 @@
+{
+  "map": "Hourglass",
+  "box": [
+    0,
+    0,
+    10135,
+    16384
+  ],
+  "source_size": [
+    10135,
+    16384
+  ],
+  "m_per_px": 0.032,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3 (bottom)"
+    }
+  ],
+  "hd_layers": [
+    "empty",
+    "filled",
+    "floor-1",
+    "floor-2",
+    "floor-3"
+  ]
+}
