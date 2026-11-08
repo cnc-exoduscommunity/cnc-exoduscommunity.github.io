@@ -287,6 +287,38 @@
   // ---- Map ----
   var mapName = null, selected = -1, mapOpt = null;
   var teleFrom = -1;   // a teleport entrance placed, waiting for its exit
+  // The game's own marks for the map (assets/marks/<map>.json, made by tools/convert_marks.py),
+  // shown greyed out as a guide; click one to make it a real mark.
+  var guide = { on: false, data: {}, base: window.MAP_GUIDE_BASE || "/assets/marks/" };
+  try { guide.on = localStorage.getItem("map-marker-guide") === "1"; } catch (e) {}
+  function guideList() { var g = guide.data[mapName]; return Array.isArray(g) ? g : []; }
+  function loadGuide(name) {
+    if (guide.data[name] !== undefined) return;
+    guide.data[name] = "loading";
+    fetch(guide.base + encodeURIComponent(name) + ".json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+      .then(function (g) { guide.data[name] = g; if (name === mapName) render(); })
+      .catch(function () { guide.data[name] = []; if (name === mapName) render(); });
+  }
+  // A guide mark already made into a real one (same kind and picture, about the same spot).
+  function adopted(g) {
+    return marks().some(function (m) {
+      return MapMarks.kind(m.kind) === g.kind && Math.abs(m.x - g.x) < 0.6 && Math.abs(m.y - g.y) < 0.6 &&
+        (g.kind === "objective" ? (m.pog || "") === (g.pog || "") : (m.icon || "") === (g.icon || ""));
+    });
+  }
+  function adoptGuide(i) {
+    var g = guideList()[i];
+    if (!g) return;
+    var m = { kind: MapMarks.kind(g.kind), x: Math.round(g.x * 10) / 10, y: Math.round(g.y * 10) / 10 };
+    if (m.kind === "objective" && g.pog) m.pog = g.pog;
+    else if (g.icon) m.icon = g.icon;
+    if (g.floor) m.floor = g.floor;
+    if (g.count > 0 && MapMarks.COUNTED[m.kind]) m.count = g.count;
+    if (g.name && !(m.kind === "objective" && g.pog)) m.label = g.name;
+    marks().push(m);
+    selected = marks().length - 1;
+    render();
+  }
   function marks() { return data[mapName] || (data[mapName] = []); }
   function setMap(name) {
     var opt = Array.prototype.find.call(mapSelect.options, function (o) { return o.value === name; }) || mapSelect.options[0];
@@ -296,6 +328,7 @@
     selected = -1;
     mapOpt = opt;
     teleFrom = -1;
+    if (guide.on) loadGuide(opt.value);
     if (opt.getAttribute("data-layers")) layerMeta(opt.getAttribute("data-layers"));   // its floors
     showFloor = "";
     view();
@@ -331,6 +364,20 @@
   function render() {
     var list = marks();
     layer.textContent = "";
+    var gl = guide.on ? guideList() : [], shownGuide = 0;
+    gl.forEach(function (g, i) {
+      if (adopted(g) || floorHidden(g)) return;
+      var b = MapMarks.marker(g);
+      b.classList.add("is-ghost");
+      b.removeAttribute("data-index");
+      b.setAttribute("data-ghost", i);
+      b.title = (g.type ? g.type + " objective: " : "") + (g.name || MapMarks.KINDS[MapMarks.kind(g.kind)].label) +
+        (g.count > 0 ? " (\u00d7" + g.count + ")" : "") + (g.text ? "\n" + g.text : "") + "\n(from the game files - click to add it)";
+      layer.appendChild(b);
+      shownGuide++;
+    });
+    var gc = $("[data-mm-guide-count]");
+    if (gc) gc.textContent = guide.on ? (guide.data[mapName] === "loading" ? "(loading)" : gl.length ? "(" + shownGuide + " of " + gl.length + " left)" : "(none for this map yet)") : "";
     list.forEach(function (m, i) {
       if (MapMarks.LINES[MapMarks.kind(m.kind)]) {
         if (i === selected) ["", "2"].forEach(function (end) {   // handles to move each end
@@ -582,6 +629,16 @@
     render();
   });
 
+  // ---- The game's own marks as a guide ----
+  var guideBox = $("[data-mm-guide]");
+  guideBox.checked = guide.on;
+  guideBox.addEventListener("change", function () {
+    guide.on = guideBox.checked;
+    try { localStorage.setItem("map-marker-guide", guide.on ? "1" : "0"); } catch (e) {}
+    if (guide.on && mapName) loadGuide(mapName);
+    render();
+  });
+
   // ---- Line style (visible / invisible wall) ----
   var styleField = $("[data-mm-stylefield]"), styleSel = $("[data-mm-style]");
   styleSel.addEventListener("change", function () {
@@ -674,7 +731,13 @@
   viewport.addEventListener("pointerdown", function () { touching++; if (touching > 1 && drag && drag.index < 0) drag.cancel = true; }, true);
   stage.addEventListener("pointerdown", function (e) {
     if (e.button !== 0) return;
-    var markEl = e.target.closest(".map-mark"), hit = e.target.closest(".map-arrow-hit"), handle = e.target.closest(".mm-handle");
+    var ghost = e.target.closest(".map-mark.is-ghost");
+    if (ghost && !linkPick) {
+      e.stopPropagation(); e.preventDefault();
+      adoptGuide(Number(ghost.getAttribute("data-ghost")));
+      return;
+    }
+    var markEl = e.target.closest(".map-mark:not(.is-ghost)"), hit = e.target.closest(".map-arrow-hit"), handle = e.target.closest(".mm-handle");
     // Picking the mark a link goes to.
     if (linkPick) {
       e.stopPropagation(); e.preventDefault();

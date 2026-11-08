@@ -1585,3 +1585,9 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .map-wall-line { stroke: #f2f2f2; stroke-linecap: round; }
 .map-wall-line.is-invisible { stroke: #ff4d4d; stroke-linecap: butt; }
 [data-mm-stylefield][hidden] { display: none; }
+/* Map marker: the game's own marks as a guide (greyed out; click to make one real). */
+.map-mark.is-ghost { opacity: 0.55; filter: grayscale(1); border-style: dashed; cursor: copy; box-shadow: none; }
+.map-mark.is-ghost:hover { opacity: 0.95; filter: none; }
+.mm-guide { display: flex; align-items: center; gap: 0.4rem; width: min(100%, 80vh); margin-top: 0.45rem; font-size: 0.9rem; cursor: pointer; }
+.mm-guide input { accent-color: var(--border); margin: 0; }
+.mm-guide-count { color: var(--muted); font-size: 0.8rem; }

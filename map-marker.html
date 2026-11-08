@@ -98,6 +98,7 @@ back the new text for that file. Logic in assets/js/map-marker.js.
             </span>
           </span>
         </div>
+        <label class="mm-guide" title="The objectives, spawns, secrets, vehicles and pickups the game files place on this map (single player), greyed out. Click one to make it a real mark."><input type="checkbox" data-mm-guide> Show the game's own marks as a guide <span class="mm-guide-count" data-mm-guide-count></span></label>
         <div class="layer-panel mm-layer-panel" data-mm-layers>
           <label class="layer-try" title="Shows the map in parts you can switch on and off, or one storey at a time. Follows Details: Low or High."><input type="checkbox" data-layer-try> Try out layering system? <span class="layer-beta">Testing</span></label>
           <div class="layer-opts" hidden>
@@ -225,5 +226,5 @@ back the new text for that file. Logic in assets/js/map-marker.js.
 <script type="application/json" id="building-types-data">{{ site.data.buildings.types | jsonify }}</script>
 <script type="application/json" id="objective-pogs-data">{{ site.data.objective_pogs | jsonify }}</script>
 <script type="application/json" id="pickups-data">{{ site.data.pickups | jsonify }}</script>
-<script>window.MAP_MARKS_BASE = {{ '/assets/images/marks/' | relative_url | jsonify }};</script>
+<script>window.MAP_MARKS_BASE = {{ '/assets/images/marks/' | relative_url | jsonify }}; window.MAP_GUIDE_BASE = {{ '/assets/marks/' | relative_url | jsonify }};</script>
 <script src="{{ '/assets/js/map-marker.js' | relative_url }}" defer></script>
