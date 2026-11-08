@@ -298,8 +298,8 @@ every map while `server.beacons_for_sale` in `_config.yml` is `false`.
 
 ### Map marks and map info
 
-Spots on a map's overhead image: **objectives**, **spawn points**, **secrets**, **vehicles**, **pickups**, **other**,
-**notes** (small dots) and **arrows**. An objective mark can show the game's own objective picture; any other mark can show
+Spots on a map's overhead image: **objectives**, **spawn points**, **secrets**, **vehicles**, **pickups**, **teleports**,
+**other**, **notes** (small dots), **lines** (walls: solid white = visible, dashed red = invisible) and **arrows**. An objective mark can show the game's own objective picture; any other mark can show
 a HUD icon instead of its symbol (a pickup such as a keycard, health or the Data Disc, or the GDI / Nod logo). Marks can say
 which **floor** they're on, and secrets, vehicles, pickups and other can say **how many** there are (none = infinite, shown
 as ×N otherwise). A mark can **lead to** others (an objective that gives a keycard), drawn as a dash-dot line. Marks on the
@@ -314,8 +314,8 @@ To change marks or a map's game info, open the **Map marker** tool (Index > Tool
 1. Pick the map. It has the same zoom, **Details: Low / High** and layering controls as the map preview (scroll or pinch
    to zoom, drag the map to move it, + / − / 0).
 2. **Mode: Place** - pick a kind; the **Placing** box shows what it can be (Pickup shows the pickups, Objective the
-   objective pictures, the rest the GDI / Nod logos, or the plain symbol). Click the map to add one; for an **Arrow**,
-   drag from where it starts to where it points. **Mode: Select** - clicks only pick marks, so nothing is added by accident.
+   objective pictures, the rest the GDI / Nod logos, or the plain symbol). Click the map to add one; for an **Arrow** or a
+   **Line**, drag from one end to the other. A **Teleport** takes two clicks, the entrance then the exit, and links them. **Mode: Select** - clicks only pick marks, so nothing is added by accident.
 3. Drag a mark to move it (an arrow's two dots move its ends); click it to change its kind, floor, amount, picture or icon,
    links (**Link to a mark…**, then click the mark it leads to), name, note and pictures. Arrow keys nudge it, Delete
    removes it, a click outside the map clears the selection. Drag marks in the list to reorder them: the top of the list is

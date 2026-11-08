@@ -50,7 +50,8 @@
     var out = { kind: MapMarks.kind(m.kind) };
     if (m.id && String(m.id).trim()) out.id = String(m.id).trim();
     out.x = round(clamp(+m.x || 0)); out.y = round(clamp(+m.y || 0));
-    if (out.kind === "arrow") { out.x2 = round(clamp(+m.x2 || 0)); out.y2 = round(clamp(+m.y2 || 0)); }
+    if (MapMarks.LINES[out.kind]) { out.x2 = round(clamp(+m.x2 || 0)); out.y2 = round(clamp(+m.y2 || 0)); }
+    if (out.kind === "line" && m.style === "invisible") out.style = "invisible";
     if (out.kind === "objective" && m.pog) out.pog = String(m.pog);
     if (out.kind !== "objective" && m.icon) out.icon = String(m.icon);
     if (+m.floor > 0) out.floor = Math.round(+m.floor);
@@ -58,7 +59,7 @@
     if (m.label && String(m.label).trim()) out.label = String(m.label).trim();
     if (m.note && String(m.note).trim()) out.note = String(m.note).trim();
     var links = (Array.isArray(m.links) ? m.links : []).map(function (s) { return String(s).trim(); }).filter(Boolean);
-    if (links.length && out.kind !== "arrow") out.links = links;
+    if (links.length && !MapMarks.LINES[out.kind]) out.links = links;
     var imgs = (Array.isArray(m.images) ? m.images : []).map(function (s) { return String(s).trim(); }).filter(Boolean);
     if (imgs.length) out.images = imgs;
     return out;
@@ -117,10 +118,11 @@
     "#   buildings:       { players: gdi|nod (co-op maps: the players' side), gdi: [...], nod: [...],",
     "#                    note: \"...\" }, kinds from _data/buildings.yml, \"turret*2\" = 2 of them",
     "#   marks:           spots on the overhead image, one per line:",
-    "#     kind:   objective | spawn | secret | vehicle | pickup | other | note | arrow",
+    "#     kind:   objective | spawn | secret | vehicle | pickup | teleport | other | note | line | arrow",
     "#     id:     optional, a short name other marks can link to (e.g. keycard-1)",
     "#     x, y:   where on the image, in percent (0-100) from the left / top edge",
-    "#     x2, y2: arrows only: where the arrow points to (x, y is where it starts)",
+    "#     x2, y2: arrows and lines: where it ends (x, y is where it starts)",
+    "#     style:  lines only: invisible for an invisible wall (dashed red); without it, a visible wall",
     "#     pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)",
     "#     icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the",
     "#             GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)",
@@ -144,7 +146,8 @@
     var parts = ["kind: " + m.kind];
     if (m.id) parts.push("id: " + plain(m.id));
     parts.push("x: " + num(m.x), "y: " + num(m.y));
-    if (m.kind === "arrow") parts.push("x2: " + num(m.x2), "y2: " + num(m.y2));
+    if (MapMarks.LINES[m.kind]) parts.push("x2: " + num(m.x2), "y2: " + num(m.y2));
+    if (m.style) parts.push("style: " + m.style);
     if (m.pog) parts.push("pog: " + m.pog);
     if (m.icon) parts.push("icon: " + q(m.icon));
     if (m.floor) parts.push("floor: " + m.floor);
@@ -195,7 +198,7 @@
     b.setAttribute("data-kind", k);
     b.innerHTML = '<span class="map-mark-dot map-mark-' + k + '">' + MapMarks.icon(k) + "</span>";
     b.appendChild(document.createTextNode(MapMarks.KINDS[k].label));
-    b.addEventListener("click", function () { addKind = k; if (mode !== "place") setMode("place"); markKinds(); renderPlace(); });
+    b.addEventListener("click", function () { addKind = k; teleFrom = -1; if (mode !== "place") setMode("place"); markKinds(); renderPlace(); });
     kindsBox.appendChild(b);
     var o = document.createElement("option");
     o.value = k; o.textContent = MapMarks.KINDS[k].label;
@@ -229,7 +232,7 @@
   try { placeChoice = JSON.parse(localStorage.getItem("map-marker-place") || "{}") || {}; } catch (e) {}
   var placeNow = $("[data-mm-placenow]"), placePick = $("[data-mm-placepick]");
   function placeGroups(k) {
-    if (k === "arrow" || k === "note") return [];
+    if (MapMarks.LINES[k] || k === "note" || k === "teleport") return [];
     if (k === "objective") {
       var keys = Object.keys(pogData);
       keys.sort(function (a, b) { return (a === mapName ? -1 : 0) - (b === mapName ? -1 : 0); });
@@ -255,7 +258,7 @@
     var keepScroll = placeShownFor === k + "|" + mapName ? placePick.scrollTop : 0;
     placeShownFor = k + "|" + mapName;
     var label = MapMarks.KINDS[k].label;
-    placeNow.textContent = label + (k === "arrow" ? " (drag on the map from where it starts to where it points)" : k === "note" ? " (a small dot; write the note after placing it)" : cur ? ": " + placeName(k, cur) : k === "pickup" ? " (pick what it is below)" : " (plain symbol)");
+    placeNow.textContent = label + (k === "line" ? " (drag on the map from one end of the wall to the other; pick visible or invisible after)" : k === "teleport" ? (teleFrom >= 0 ? " - now click where it takes you (the exit)" : " (click the entrance, then the exit; they're linked for you)") : k === "arrow" ? " (drag on the map from where it starts to where it points)" : k === "note" ? " (a small dot; write the note after placing it)" : cur ? ": " + placeName(k, cur) : k === "pickup" ? " (pick what it is below)" : " (plain symbol)");
     placePick.textContent = "";
     var none = document.createElement("button");
     none.type = "button"; none.className = "mm-place-none"; none.title = "Plain " + label.toLowerCase() + " symbol";
@@ -283,6 +286,7 @@
 
   // ---- Map ----
   var mapName = null, selected = -1, mapOpt = null;
+  var teleFrom = -1;   // a teleport entrance placed, waiting for its exit
   function marks() { return data[mapName] || (data[mapName] = []); }
   function setMap(name) {
     var opt = Array.prototype.find.call(mapSelect.options, function (o) { return o.value === name; }) || mapSelect.options[0];
@@ -291,6 +295,7 @@
     mapName = opt.value;
     selected = -1;
     mapOpt = opt;
+    teleFrom = -1;
     if (opt.getAttribute("data-layers")) layerMeta(opt.getAttribute("data-layers"));   // its floors
     showFloor = "";
     view();
@@ -327,7 +332,7 @@
     var list = marks();
     layer.textContent = "";
     list.forEach(function (m, i) {
-      if (MapMarks.kind(m.kind) === "arrow") {
+      if (MapMarks.LINES[MapMarks.kind(m.kind)]) {
         if (i === selected) ["", "2"].forEach(function (end) {   // handles to move each end
           var hd = document.createElement("span");
           hd.className = "mm-handle"; hd.setAttribute("data-end", end); hd.setAttribute("data-index", i);
@@ -502,7 +507,7 @@
   var iconShownFor = null;
   function renderIcons(m) {
     if (!iconField) return;
-    var show = MapMarks.kind(m.kind) !== "objective" && MapMarks.kind(m.kind) !== "arrow";
+    var show = MapMarks.kind(m.kind) !== "objective" && !MapMarks.LINES[MapMarks.kind(m.kind)];
     iconField.hidden = !show;
     if (!show) return;
     var key = m.icon || "";
@@ -543,13 +548,15 @@
   function addLink(targetIndex) {
     var m = marks()[selected], t = marks()[targetIndex];
     linkPick = false;
-    if (!m || !t || t === m || MapMarks.kind(t.kind) === "arrow") { render(); return; }
+    if (!m || !t || t === m || MapMarks.LINES[MapMarks.kind(t.kind)]) { render(); return; }
     var id = ensureId(t);
     m.links = (m.links || []).filter(function (x) { return x !== id; }).concat([id]);
     render();
   }
   function renderLinks(m) {
-    var isArrow = MapMarks.kind(m.kind) === "arrow";
+    var isArrow = !!MapMarks.LINES[MapMarks.kind(m.kind)];
+    styleField.hidden = MapMarks.kind(m.kind) !== "line";
+    styleSel.value = m.style === "invisible" ? "invisible" : "visible";
     linksField.hidden = isArrow;
     if (document.activeElement !== idInput) idInput.value = m.id || "";
     if (isArrow) return;
@@ -572,6 +579,14 @@
     if (v && marks().some(function (o) { return o !== m && o.id === v; })) { idInput.value = old || ""; return; }
     if (v) m.id = v; else delete m.id;
     if (old) marks().forEach(function (o) { if (o.links) { o.links = o.links.map(function (x) { return x === old ? v : x; }).filter(Boolean); if (!o.links.length) delete o.links; } });
+    render();
+  });
+
+  // ---- Line style (visible / invisible wall) ----
+  var styleField = $("[data-mm-stylefield]"), styleSel = $("[data-mm-style]");
+  styleSel.addEventListener("change", function () {
+    var m = marks()[selected]; if (!m) return;
+    if (styleSel.value === "invisible") m.style = "invisible"; else delete m.style;
     render();
   });
 
@@ -676,7 +691,7 @@
              end: handle ? handle.getAttribute("data-end") : null };
     if (index >= 0) { var m0 = marks()[index]; drag.orig = { x: +m0.x, y: +m0.y, x2: +m0.x2, y2: +m0.y2 }; }
     // Place mode with Arrow: drag on the map to draw one.
-    if (index < 0 && mode === "place" && addKind === "arrow") {
+    if (index < 0 && mode === "place" && MapMarks.LINES[addKind]) {
       e.stopPropagation();
       viewport.setPointerCapture(e.pointerId);
       drag.draw = true;
@@ -691,13 +706,13 @@
     drag.moved = true;
     var p = toPercent(e);
     if (drag.draw) {                      // the arrow being drawn
-      if (!drag.temp) { drag.temp = { kind: "arrow", x: drag.start.x, y: drag.start.y }; marks().push(drag.temp); selected = marks().length - 1; }
+      if (!drag.temp) { drag.temp = { kind: addKind, x: drag.start.x, y: drag.start.y }; marks().push(drag.temp); selected = marks().length - 1; }
       drag.temp.x2 = p.x; drag.temp.y2 = p.y;
       render();
       return;
     }
     var m = marks()[drag.index], o = drag.orig;
-    if (MapMarks.kind(m.kind) === "arrow") {
+    if (MapMarks.LINES[MapMarks.kind(m.kind)]) {
       if (drag.end === "") { m.x = p.x; m.y = p.y; }
       else if (drag.end === "2") { m.x2 = p.x; m.y2 = p.y; }
       else {                              // the whole arrow
@@ -730,9 +745,23 @@
     if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) return;
     var p = toPercent(e);
     var nm = { kind: addKind, x: p.x, y: p.y }, pick = placeChoice[addKind];
-    if (pick && addKind !== "note") { if (addKind === "objective") nm.pog = pick; else nm.icon = pick; }
+    if (pick && addKind !== "note" && addKind !== "teleport") { if (addKind === "objective") nm.pog = pick; else nm.icon = pick; }
     marks().push(nm);
     selected = marks().length - 1;
+    // Teleports come in pairs: the first click is the entrance, the next one the exit,
+    // and the entrance is linked to the exit.
+    if (addKind === "teleport") {
+      var from = marks()[teleFrom];
+      if (teleFrom >= 0 && from && MapMarks.kind(from.kind) === "teleport") {
+        nm.label = nm.label || "Teleport exit";
+        from.links = (from.links || []).concat([ensureId(nm)]);
+        teleFrom = -1;
+      } else {
+        nm.label = "Teleport entrance";
+        teleFrom = selected;
+      }
+      renderPlace();
+    }
     render();
     fields.label.focus({ preventScroll: true });
   }
@@ -924,7 +953,7 @@
     else return;
     e.preventDefault();
     m.x = round(clamp(+m.x + dx)); m.y = round(clamp(+m.y + dy));
-    if (MapMarks.kind(m.kind) === "arrow") { m.x2 = round(clamp(+m.x2 + dx)); m.y2 = round(clamp(+m.y2 + dy)); }
+    if (MapMarks.LINES[MapMarks.kind(m.kind)]) { m.x2 = round(clamp(+m.x2 + dx)); m.y2 = round(clamp(+m.y2 + dy)); }
     render();
   });
 

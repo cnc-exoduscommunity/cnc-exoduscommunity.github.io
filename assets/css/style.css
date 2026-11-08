@@ -1578,3 +1578,10 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-radios label { display: flex; align-items: baseline; gap: 0.45rem; cursor: pointer; }
 .mm-inline { flex-direction: row; align-items: center; gap: 0.5rem; }
 .mm-bcols { margin-top: 0.6rem; }
+/* Teleports and walls (kind: line). */
+.map-mark-teleport { --mark: #16a3b5; }
+.map-mark-line { --mark: #e8e8e8; color: #333; }
+.map-wall-under { stroke: rgba(0, 0, 0, 0.75); stroke-linecap: round; }
+.map-wall-line { stroke: #f2f2f2; stroke-linecap: round; }
+.map-wall-line.is-invisible { stroke: #ff4d4d; stroke-linecap: butt; }
+[data-mm-stylefield][hidden] { display: none; }

@@ -25,12 +25,20 @@ var MapMarks = (function () {
                glyph: '<path d="M2 4.5h12v9H2z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.1 6h1.8v2h2v1.8h-2v2H7.1v-2h-2V8h2z"/>' },
     note:    { label: "Note", plural: "Notes",
                glyph: '<circle cx="8" cy="8" r="3.2"/>' },
+    teleport: { label: "Teleport", plural: "Teleports",
+               glyph: '<path d="M8 1.6a6.4 6.4 0 1 0 6.4 6.4h-1.8A4.6 4.6 0 1 1 8 3.4z"/><path d="M8 5.2a2.8 2.8 0 1 0 2.8 2.8H9.2A1.2 1.2 0 1 1 8 6.8z"/><path d="M10.6 1.4l3.6 1.4-2.4 3z"/>' },
+    line:    { label: "Line", plural: "Lines",
+               glyph: '<path d="M2.2 12.6L12.6 2.2l1.2 1.2L3.4 13.8z"/>' },
     arrow:   { label: "Arrow", plural: "Arrows",
                glyph: '<path d="M2 12.6l8.4-8.4H6.6V2.6H13.4v6.8h-1.6V5.6L3.4 14z"/>' },
     other:   { label: "Other", plural: "Other",
                glyph: '<path d="M6.9 2.5h2.2v6.8H6.9z"/><circle cx="8" cy="12.2" r="1.3"/>' }
   };
-  var ORDER = ["objective", "spawn", "secret", "vehicle", "pickup", "other", "note", "arrow"];
+  var ORDER = ["objective", "spawn", "secret", "vehicle", "pickup", "teleport", "other", "note", "line", "arrow"];
+  // Kinds drawn as a line from x/y to x2/y2 instead of a badge.
+  var LINES = { arrow: 1, line: 1 };
+  // Styles of a line (style:): a visible wall (default) or an invisible one.
+  var LINE_STYLES = { visible: "Visible wall", invisible: "Invisible wall" };
   // Icons a mark can show instead of its glyph (icon: in map_marks.yml): the GDI / Nod
   // logos and the pickups (_data/pickups.yml), all HUD icons from assets/images/hud/.
   var ICON_BASE = "/assets/images/hud/";
@@ -114,13 +122,23 @@ var MapMarks = (function () {
       });
     });
     marks.forEach(function (m, i) {
-      if (kind(m.kind) !== "arrow" || !show(m) || typeof m.x2 !== "number") return;
+      var k = kind(m.kind);
+      if (!LINES[k] || !show(m) || typeof m.x2 !== "number") return;
       var a = pt(m.x, m.y), b = pt(m.x2, m.y2);
-      el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-under", "stroke-width": 6 / z });
-      el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-line", "stroke-width": 3 / z });
-      head(a, b, 13, "map-arrow-head");
+      if (k === "arrow") {
+        el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-under", "stroke-width": 6 / z });
+        el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-line", "stroke-width": 3 / z });
+        head(a, b, 13, "map-arrow-head");
+      } else {                            // a wall: solid (visible) or dashed (invisible), no head
+        var inv = m.style === "invisible";
+        el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-wall-under", "stroke-width": 6 / z });
+        var ln = { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-wall-line" + (inv ? " is-invisible" : ""), "stroke-width": 3 / z };
+        if (inv) ln["stroke-dasharray"] = (7 / z).toFixed(2) + " " + (5 / z).toFixed(2);
+        el("line", ln);
+      }
       var hit = el("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], "class": "map-arrow-hit", "stroke-width": 16 / z, "data-index": i });
-      if (m.label || m.note) el("title", {}, hit).textContent = [m.label, m.note].filter(Boolean).join(" - ");
+      var tip = [m.label || (k === "line" ? LINE_STYLES[m.style === "invisible" ? "invisible" : "visible"] : ""), m.note].filter(Boolean).join(" - ");
+      if (tip) el("title", {}, hit).textContent = tip;
     });
     return svg;
   }
@@ -191,7 +209,7 @@ var MapMarks = (function () {
   function imageUrl(base, name) { return /^(https?:)?\//.test(name) ? name : base + name; }
   return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE,
            icons: icons, iconName: iconName, iconUrl: iconUrl, COUNTED: COUNTED, countText: countText, spread: spread,
-           name: name, lines: lines };
+           name: name, lines: lines, LINES: LINES, LINE_STYLES: LINE_STYLES };
 })();
 
 // Debug mode (switch at the bottom of the page, or ?debug=1 / ?debug=0 in the URL):
@@ -963,7 +981,7 @@ function setUrlParam(key, value, fallback) {
       if (typeof mark.x !== "number" || typeof mark.y !== "number") return;
       var k = MapMarks.kind(mark.kind);
       counts[k] = (counts[k] || 0) + 1;
-      if (k === "arrow") return;             // drawn as a line (drawLines)
+      if (MapMarks.LINES[k]) return;         // drawn as a line (drawLines)
       var btn = MapMarks.marker(mark);
       btn._mark = mark;
       btn.hidden = !!hiddenKinds[k] || !!(marksFloor && mark.floor && String(mark.floor) !== marksFloor);

@@ -14,10 +14,11 @@
 #   buildings:       { players: gdi|nod (co-op maps: the players' side), gdi: [...], nod: [...],
 #                    note: "..." }, kinds from _data/buildings.yml, "turret*2" = 2 of them
 #   marks:           spots on the overhead image, one per line:
-#     kind:   objective | spawn | secret | vehicle | pickup | other | note | arrow
+#     kind:   objective | spawn | secret | vehicle | pickup | teleport | other | note | line | arrow
 #     id:     optional, a short name other marks can link to (e.g. keycard-1)
 #     x, y:   where on the image, in percent (0-100) from the left / top edge
-#     x2, y2: arrows only: where the arrow points to (x, y is where it starts)
+#     x2, y2: arrows and lines: where it ends (x, y is where it starts)
+#     style:  lines only: invisible for an invisible wall (dashed red); without it, a visible wall
 #     pog:    objectives only: the game's objective picture (e.g. m01_1_02, see _data/objective_pogs.yml)
 #     icon:   other kinds, optional: a HUD icon shown instead of the symbol: a pickup or the
 #             GDI / Nod logo (e.g. hud_cd_rom, hud_health3, hud_c&c_gdilogo; see _data/pickups.yml)

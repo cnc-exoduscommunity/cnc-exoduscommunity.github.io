@@ -117,6 +117,8 @@ back the new text for that file. Logic in assets/js/map-marker.js.
             <button class="btn btn-small mm-delete" type="button" data-mm-delete>Delete</button>
           </div>
           <label class="mm-field"><span class="mm-label">Kind</span><select data-mm-f="kind"></select></label>
+          <label class="mm-field" data-mm-stylefield hidden><span class="mm-label">Line</span>
+            <select data-mm-style><option value="visible">Visible wall (solid)</option><option value="invisible">Invisible wall (dashed red)</option></select></label>
           <div class="mm-row2">
             <label class="mm-field"><span class="mm-label">Floor <span class="mm-opt">(where it is; 1 = top)</span></span><select data-mm-floor></select></label>
             <label class="mm-field" data-mm-countfield><span class="mm-label">Amount <span class="mm-opt">(empty or 0 = infinite)</span></span><input type="number" min="0" step="1" placeholder="Infinite" data-mm-amount></label>
