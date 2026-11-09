@@ -295,7 +295,7 @@
   function loadGuide(name) {
     if (guide.data[name] !== undefined) return;
     guide.data[name] = "loading";
-    fetch(guide.base + encodeURIComponent(name) + ".json").then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    fetch(guide.base + encodeURIComponent(name) + ".json" + (window.ASSET_V ? "?v=" + window.ASSET_V : "")).then(function (r) { if (!r.ok) throw 0; return r.json(); })
       .then(function (g) { guide.data[name] = g; if (name === mapName) render(); })
       .catch(function () { guide.data[name] = []; if (name === mapName) render(); });
   }

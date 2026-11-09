@@ -487,7 +487,7 @@ sections:
     <section class="sound-part" id="sounds-game">
       <h3 class="sound-part-title">In-game sounds <span class="sound-total">{{ sc.total }} sounds · {{ sc.minutes }} min</span></h3>
       <p>Every sound in the game and the co-op maps, viewed and extracted from the game files with <a href="{{ site.data.credits.renegadeviewer.url }}">{{ site.data.credits.renegadeviewer.name }}</a> (a fan-made tool; not associated with EA or Exodus). Pick a sound to hear it; the lines spoken in it are shown with who says them.</p>
-      <div class="snd" data-sounds="{{ '/assets/sounds/index.json' | relative_url }}" data-base="{{ '/assets/sounds/' | relative_url }}">
+      <div class="snd" data-sounds="{{ '/assets/sounds/index.json' | relative_url }}?v={{ site.time | date: '%s' }}" data-base="{{ '/assets/sounds/' | relative_url }}">
         <div class="snd-side">
           <input class="snd-search" type="search" placeholder="Search names, lines, speakers... (e.g. havoc, mammoth)" aria-label="Search sounds">
           <div class="snd-cats" role="group" aria-label="Categories">
