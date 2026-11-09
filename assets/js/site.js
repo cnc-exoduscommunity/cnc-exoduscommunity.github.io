@@ -1173,6 +1173,11 @@ function setUrlParam(key, value, fallback) {
   var newTag = document.createElement("span");
   newTag.className = "badge-pulse badge-new map-dialog-new";
   newTag.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>New';
+  // "Next" when the map on screen comes up after the one being played (see markCurrentMap).
+  var nextTag = document.createElement("span");
+  nextTag.className = "badge-pulse badge-next map-dialog-new";
+  nextTag.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>Next';
+  nextTag.title = "Comes up after the map being played now";
   function updateNowPlaying() {
     var row = links[current] && links[current].closest("tr");
     var playing = !!(row && row.classList.contains("is-current"));
@@ -1188,6 +1193,7 @@ function setUrlParam(key, value, fallback) {
       if (isNew) { newTag.title = "New on the server since " + ordinalDate(isNew); headline.appendChild(newTag); } else if (newTag.parentNode) newTag.remove();
       if (players) headline.appendChild(playersTag); else if (playersTag.parentNode) playersTag.remove();
       headline.appendChild(nowBadge);
+      if (row && row.classList.contains("is-next") && !playing) headline.appendChild(nextTag); else if (nextTag.parentNode) nextTag.remove();
     }
   }
   document.addEventListener("currentmapchange", updateNowPlaying);
@@ -1791,6 +1797,13 @@ function makeZoom(viewport, img, label, onChange) {
       if (link) { a.href = link.getAttribute("href"); a.title = "Open the map preview"; a.addEventListener("click", function (e) { e.preventDefault(); link.click(); }); }
       dd.appendChild(a);
     });
+    if (next.length) {
+      var nb = document.createElement("span");
+      nb.className = "badge-pulse badge-next live-next-badge";
+      nb.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>Next';
+      nb.title = "Comes up after the map being played now";
+      dd.appendChild(nb);
+    }
     wrap.hidden = !next.length;
   }
 
