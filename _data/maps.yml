@@ -19,8 +19,7 @@
   image_credit: renegadeviewer
   faction: GDI
 - name: Glacier_Flying
-  description: "AOW map, modified for Co-Op by SarahDX"
-  note: "New stealth mechanics, random paradrops and a new way for the bots to pick targets. In the rotation twice for at least a week."
+  description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
   faction: Nod
   new: "09-11-2026"
