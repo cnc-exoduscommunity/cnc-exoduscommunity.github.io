@@ -130,9 +130,9 @@ Open <http://localhost:4000>.
 
 | Option  | What it does |
 | :------ | :----------- |
-| *(none)* / `build` | Builds and serves the site. |
+| *(none)* / `build` | Builds and serves the site, showing every step (verbose). |
 | `clean` | Deletes the previous build and cache first. Only needed if something still looks wrong. |
-| `verbose` | Shows everything Jekyll does (each file it reads and writes, how long each step takes) and the full error trace when something breaks. `--verbose` / `-v` work too, and it can be combined: `serve clean verbose`. |
+| `quiet` | Only the short messages. By default the script shows everything Jekyll does (each file it reads and writes, how long each step takes) and the full error trace when something breaks. `--quiet` / `-q` work too, and it can be combined: `serve clean quiet`. |
 
 Set `JEKYLL_HOST=0.0.0.0` before running to open the site from other devices on your network,
 or `JEKYLL_PORT` to use a port other than 4000.

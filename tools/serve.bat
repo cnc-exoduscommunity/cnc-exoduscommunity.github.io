@@ -1,9 +1,10 @@
 @echo off
 rem Builds and serves the site locally. Open http://localhost:4000 when it is ready.
-rem   serve            build and serve (reuses the previous build)
+rem   serve            build and serve (reuses the previous build), showing everything
+rem                    Jekyll does (each file it reads and writes, timings, full errors)
 rem   serve clean      throw away the previous build first
-rem   serve verbose    show everything Jekyll does (each file it reads and writes, timings)
-rem   serve clean verbose   both; --clean, --verbose and -v work too
+rem   serve quiet      only the short messages (--quiet and -q work too)
+rem   serve clean quiet   both
 
 rem The script lives in tools; the site is one folder up.
 cd /d "%~dp0.."
@@ -14,7 +15,7 @@ rem before running to let other devices on the network open it.
 if not defined JEKYLL_HOST set JEKYLL_HOST=127.0.0.1
 
 set JEKYLL_CLEAN=0
-set JEKYLL_EXTRA=
+set JEKYLL_EXTRA=--verbose --trace
 :args
 if "%~1"=="" goto args_done
 set "OPT=%~1"
@@ -24,7 +25,10 @@ if /i "%OPT%"=="--clean" set JEKYLL_CLEAN=1& goto next_arg
 if /i "%OPT%"=="verbose" set JEKYLL_EXTRA=--verbose --trace& goto next_arg
 if /i "%OPT%"=="--verbose" set JEKYLL_EXTRA=--verbose --trace& goto next_arg
 if /i "%OPT%"=="-v" set JEKYLL_EXTRA=--verbose --trace& goto next_arg
-echo Unknown option "%~1". Use: serve, serve clean, serve verbose (or both)
+if /i "%OPT%"=="quiet" set JEKYLL_EXTRA=& goto next_arg
+if /i "%OPT%"=="--quiet" set JEKYLL_EXTRA=& goto next_arg
+if /i "%OPT%"=="-q" set JEKYLL_EXTRA=& goto next_arg
+echo Unknown option "%~1". Use: serve, serve clean, serve quiet (or both)
 exit /b 1
 :next_arg
 shift
@@ -37,7 +41,7 @@ if not exist "_config.yml" (
     exit /b 1
 )
 echo Site root: %cd%
-if defined JEKYLL_EXTRA echo Verbose: Jekyll shows every step and the full error trace.
+if defined JEKYLL_EXTRA echo Verbose: Jekyll shows every step and the full error trace (serve quiet for less).
 echo.
 
 if "%JEKYLL_CLEAN%"=="1" (

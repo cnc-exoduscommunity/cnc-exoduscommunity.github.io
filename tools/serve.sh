@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Builds and serves the site locally. Open http://localhost:4000 when it is ready.
-#   ./serve.sh            build and serve (reuses the previous build)
+#   ./serve.sh            build and serve (reuses the previous build), showing everything
+#                         Jekyll does (each file it reads and writes, timings, full errors)
 #   ./serve.sh clean      throw away the previous build first
-#   ./serve.sh verbose    show everything Jekyll does (each file it reads and writes, timings)
-#   ./serve.sh clean verbose   both; --clean, --verbose and -v work too
+#   ./serve.sh quiet      only the short messages (--quiet and -q work too)
+#   ./serve.sh clean quiet   both
 
 # The script lives in tools; the site is one folder up.
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
@@ -14,14 +15,15 @@ JEKYLL_PORT="${JEKYLL_PORT:-4000}"
 JEKYLL_HOST="${JEKYLL_HOST:-127.0.0.1}"
 
 JEKYLL_CLEAN=0
-JEKYLL_EXTRA=()
+JEKYLL_EXTRA=(--verbose --trace)
 for arg in "$@"; do
     opt=$(printf '%s' "$arg" | tr 'A-Z' 'a-z' | tr -d '-')
     case "$opt" in
         build) ;;
         clean) JEKYLL_CLEAN=1 ;;
         verbose|v) JEKYLL_EXTRA=(--verbose --trace) ;;
-        *) echo "Unknown option \"$arg\". Use: ./serve.sh, ./serve.sh clean, ./serve.sh verbose (or both)"; exit 1 ;;
+        quiet|q) JEKYLL_EXTRA=() ;;
+        *) echo "Unknown option \"$arg\". Use: ./serve.sh, ./serve.sh clean, ./serve.sh quiet (or both)"; exit 1 ;;
     esac
 done
 
@@ -30,7 +32,7 @@ if [ ! -f "_config.yml" ]; then
     exit 1
 fi
 echo "Site root: $PWD"
-[ ${#JEKYLL_EXTRA[@]} -gt 0 ] && echo "Verbose: Jekyll shows every step and the full error trace."
+[ ${#JEKYLL_EXTRA[@]} -gt 0 ] && echo "Verbose: Jekyll shows every step and the full error trace (./serve.sh quiet for less)."
 echo
 
 if [ "$JEKYLL_CLEAN" = "1" ]; then
