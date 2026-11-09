@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Builds and serves the site locally. Open http://localhost:4000 when it is ready.
-#   ./serve.sh          build and serve (reuses the previous build)
-#   ./serve.sh clean    throw away the previous build first
+#   ./serve.sh            build and serve (reuses the previous build)
+#   ./serve.sh clean      throw away the previous build first
+#   ./serve.sh verbose    show everything Jekyll does (each file it reads and writes, timings)
+#   ./serve.sh clean verbose   both; --clean, --verbose and -v work too
 
 # The script lives in tools; the site is one folder up.
 cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
@@ -12,12 +14,14 @@ JEKYLL_PORT="${JEKYLL_PORT:-4000}"
 JEKYLL_HOST="${JEKYLL_HOST:-127.0.0.1}"
 
 JEKYLL_CLEAN=0
+JEKYLL_EXTRA=()
 for arg in "$@"; do
     opt=$(printf '%s' "$arg" | tr 'A-Z' 'a-z' | tr -d '-')
     case "$opt" in
         build) ;;
         clean) JEKYLL_CLEAN=1 ;;
-        *) echo "Unknown option \"$arg\". Use: ./serve.sh or ./serve.sh clean"; exit 1 ;;
+        verbose|v) JEKYLL_EXTRA=(--verbose --trace) ;;
+        *) echo "Unknown option \"$arg\". Use: ./serve.sh, ./serve.sh clean, ./serve.sh verbose (or both)"; exit 1 ;;
     esac
 done
 
@@ -26,6 +30,7 @@ if [ ! -f "_config.yml" ]; then
     exit 1
 fi
 echo "Site root: $PWD"
+[ ${#JEKYLL_EXTRA[@]} -gt 0 ] && echo "Verbose: Jekyll shows every step and the full error trace."
 echo
 
 if [ "$JEKYLL_CLEAN" = "1" ]; then
@@ -62,4 +67,4 @@ echo "Saving any file rebuilds the site; changing _config.yml restarts the serve
 echo
 
 # Serves the site, rebuilding on every change and restarting when _config.yml changes.
-exec ruby tools/serve.rb "$JEKYLL_HOST" "$JEKYLL_PORT"
+exec ruby tools/serve.rb "$JEKYLL_HOST" "$JEKYLL_PORT" "${JEKYLL_EXTRA[@]}"

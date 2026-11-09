@@ -1,7 +1,9 @@
 @echo off
 rem Builds and serves the site locally. Open http://localhost:4000 when it is ready.
-rem   serve          build and serve (reuses the previous build)
-rem   serve clean    throw away the previous build first
+rem   serve            build and serve (reuses the previous build)
+rem   serve clean      throw away the previous build first
+rem   serve verbose    show everything Jekyll does (each file it reads and writes, timings)
+rem   serve clean verbose   both; --clean, --verbose and -v work too
 
 rem The script lives in tools; the site is one folder up.
 cd /d "%~dp0.."
@@ -12,12 +14,22 @@ rem before running to let other devices on the network open it.
 if not defined JEKYLL_HOST set JEKYLL_HOST=127.0.0.1
 
 set JEKYLL_CLEAN=0
-if /i "%~1"=="clean" set JEKYLL_CLEAN=1
-if /i "%~1"=="--clean" set JEKYLL_CLEAN=1
-if not "%~1"=="" if /i not "%~1"=="build" if "%JEKYLL_CLEAN%"=="0" (
-    echo Unknown option "%~1". Use: serve or serve clean
-    exit /b 1
-)
+set JEKYLL_EXTRA=
+:args
+if "%~1"=="" goto args_done
+set "OPT=%~1"
+if /i "%OPT%"=="build" goto next_arg
+if /i "%OPT%"=="clean" set JEKYLL_CLEAN=1& goto next_arg
+if /i "%OPT%"=="--clean" set JEKYLL_CLEAN=1& goto next_arg
+if /i "%OPT%"=="verbose" set JEKYLL_EXTRA=--verbose --trace& goto next_arg
+if /i "%OPT%"=="--verbose" set JEKYLL_EXTRA=--verbose --trace& goto next_arg
+if /i "%OPT%"=="-v" set JEKYLL_EXTRA=--verbose --trace& goto next_arg
+echo Unknown option "%~1". Use: serve, serve clean, serve verbose (or both)
+exit /b 1
+:next_arg
+shift
+goto args
+:args_done
 
 if not exist "_config.yml" (
     echo Could not find _config.yml in "%cd%" - keep this .bat in the tools folder.
@@ -25,6 +37,7 @@ if not exist "_config.yml" (
     exit /b 1
 )
 echo Site root: %cd%
+if defined JEKYLL_EXTRA echo Verbose: Jekyll shows every step and the full error trace.
 echo.
 
 if "%JEKYLL_CLEAN%"=="1" (
@@ -69,5 +82,5 @@ echo Saving any file rebuilds the site; changing _config.yml restarts the server
 echo.
 
 rem Serves the site, rebuilding on every change and restarting when _config.yml changes.
-ruby tools\serve.rb %JEKYLL_HOST% %JEKYLL_PORT%
+ruby tools\serve.rb %JEKYLL_HOST% %JEKYLL_PORT% %JEKYLL_EXTRA%
 pause

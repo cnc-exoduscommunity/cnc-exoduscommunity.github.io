@@ -4,10 +4,11 @@
 # rebuilds the whole site; .jekyll-cache keeps that fast.
 #
 # Started by tools/serve.bat and tools/serve.sh from the site root:
-#   ruby tools/serve.rb <host> <port>
+#   ruby tools/serve.rb <host> <port> [extra jekyll options, e.g. --verbose --trace]
 
 host = ARGV[0] || "127.0.0.1"
 port = ARGV[1] || "4000"
+extra = ARGV[2..] || []   # e.g. --verbose --trace (serve verbose)
 config = "_config.yml"
 windows = Gem.win_platform?
 
@@ -17,7 +18,7 @@ $stdout.sync = true
 # (`bundle exec` loads jekyll in-process instead of starting another one).
 bundle = Gem.bin_path("bundler", "bundle")
 command = [Gem.ruby, bundle, "exec", "jekyll", "serve",
-           "--host", host, "--port", port, "--livereload"]
+           "--host", host, "--port", port, "--livereload", *extra]
 
 def mtime(path)
   File.mtime(path)
