@@ -2,11 +2,16 @@
 # The newest NEWS_SHOWN (2) are shown; older ones stay here as a record.
 #   date:  dd-mm-yyyy
 #   title: one line
+#   map:   optional, a map's name (as in _data/maps.yml), shown after the title as a map chip
+#          that opens its preview, with its New badge when it's new
 #   text:  a few sentences (a shortened version of the announcement)
 #   by:    optional, who announced it
 #   link:  optional, where the full announcement is (e.g. the Discord message)
+#   where: optional, where that is, shown after the link (e.g. Discord)
 - date: "09-11-2026"
-  title: "New Co-Op map: Glacier_Flying"
+  title: "New Co-Op map:"
+  map: Glacier_Flying
   text: "The AOW map Glacier_Flying has been modified for Co-Op by SarahDX, with new stealth mechanics, random paradrops and a new way for the bots to pick targets. It's in the rotation twice for at least a week, so it comes up at different times of the day. SarahDX also updated the server's scripts: optimizations and fixes for death counter resets and neutral shelling."
   by: Dethdeath
   link: "https://discord.com/channels/1319786814227222678/1319809182689656883/1569103887938486353"
+  where: Discord

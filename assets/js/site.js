@@ -76,7 +76,15 @@ function longDate(s) {
   var d = new Date(+m[3], +m[2] - 1, +m[1]);
   var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  return days[d.getDay()] + ", " + (+m[1]) + " " + months[+m[2] - 1] + " " + m[3] + (m[4] ? ", " + m[4] + ":" + m[5] : "");
+  return days[d.getDay()] + ", " + ordinalDate(s) + (m[4] ? ", " + m[4] + ":" + m[5] : "");
+}
+// "09-11-2026" -> "9th of November 2026".
+function ordinalDate(s) {
+  var m = /^(\d{2})-(\d{2})-(\d{4})/.exec(s || "");
+  if (!m) return s || "";
+  var d = +m[1], t = d % 100 >= 11 && d % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][d % 10] || "th";
+  var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  return d + t + " of " + months[+m[2] - 1] + " " + m[3];
 }
 
 // Map marks (spawn points, secrets, vehicles...) drawn on the overhead map images.
@@ -1163,8 +1171,8 @@ function setUrlParam(key, value, fallback) {
   playersTag.className = "now-playing map-dialog-players";
   // "New" right after the name, for maps new on the server (new: in _data/maps.yml).
   var newTag = document.createElement("span");
-  newTag.className = "map-tag-new map-dialog-new";
-  newTag.textContent = "New";
+  newTag.className = "badge-pulse badge-new map-dialog-new";
+  newTag.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>New';
   function updateNowPlaying() {
     var row = links[current] && links[current].closest("tr");
     var playing = !!(row && row.classList.contains("is-current"));
@@ -1177,7 +1185,7 @@ function setUrlParam(key, value, fallback) {
     playersTag.title = players && /nod/i.test(row.getAttribute("data-faction") || "") ? "On Nod maps the server can report 0 players while people are playing." : "";
     if (headline) {
       var isNew = links[current] && links[current].getAttribute("data-new");
-      if (isNew) { newTag.title = "New on the server since " + isNew; headline.appendChild(newTag); } else if (newTag.parentNode) newTag.remove();
+      if (isNew) { newTag.title = "New on the server since " + ordinalDate(isNew); headline.appendChild(newTag); } else if (newTag.parentNode) newTag.remove();
       if (players) headline.appendChild(playersTag); else if (playersTag.parentNode) playersTag.remove();
       headline.appendChild(nowBadge);
     }
@@ -1682,8 +1690,22 @@ function makeZoom(viewport, img, label, onChange) {
 
   function markCurrentMap(name, players) {
     document.querySelectorAll("tr.is-current").forEach(function (tr) { tr.classList.remove("is-current"); tr.removeAttribute("data-players"); });
-    document.querySelectorAll("tr .now-playing").forEach(function (b) { b.remove(); });
+    document.querySelectorAll("tr .now-playing, tr .badge-next").forEach(function (b) { b.remove(); });
+    document.querySelectorAll("tr.is-next").forEach(function (tr) { tr.classList.remove("is-next"); });
     if (!name) return;
+    // The map after it in the rotation (the first one again after the last).
+    var rows = Array.prototype.slice.call(document.querySelectorAll(".map-table tbody tr[data-map]"));
+    rows.forEach(function (tr, i) {
+      if (!sameMap(tr.getAttribute("data-map"), name)) return;
+      var nx = rows[(i + 1) % rows.length];
+      if (!nx || nx.classList.contains("is-next")) return;
+      nx.classList.add("is-next");
+      var nb = document.createElement("span");
+      nb.className = "badge-pulse badge-next";
+      nb.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>Next';
+      nb.title = "Comes up after the map being played now";
+      (nx.querySelector(".now-cell") || nx.cells[0]).appendChild(nb);
+    });
     document.querySelectorAll("tr[data-map]").forEach(function (tr) {
       if (!sameMap(tr.getAttribute("data-map"), name)) return;
       tr.classList.add("is-current");
@@ -1720,14 +1742,26 @@ function makeZoom(viewport, img, label, onChange) {
       return sameMap(tr.getAttribute("data-map"), name);
     });
     var label = document.createElement(preview ? "a" : "span");
-    label.textContent = name;
+    label.className = "map-chip";
+    var code = document.createElement("code");
+    code.textContent = preview ? preview.getAttribute("data-map-name") : name.replace(/^C&C_/, "");
+    code.title = name;
+    label.appendChild(code);
     if (preview) {
       label.href = preview.getAttribute("href");
       label.title = "Open the map preview";
       label.addEventListener("click", function (e) { e.preventDefault(); preview.click(); });
     }
     mapEl.appendChild(label);
+    if (preview && preview.getAttribute("data-new")) {
+      var nt = document.createElement("span");
+      nt.className = "badge-pulse badge-new";
+      nt.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>New';
+      nt.title = "New on the server since " + ordinalDate(preview.getAttribute("data-new"));
+      mapEl.appendChild(nt);
+    }
     showObjectives(row);
+    showNext(name);
     if (row) {
       var note = document.createElement("span");
       note.className = "live-map-note";
@@ -1736,6 +1770,28 @@ function makeZoom(viewport, img, label, onChange) {
       var extra = row.querySelector(".map-note-extra");
       if (extra) { var ex = el("span", "live-map-note live-map-note-extra"); ex.innerHTML = extra.innerHTML; mapEl.appendChild(ex); }
     }
+  }
+
+  // The next map in the rotation (both possibilities when the current one is in it twice).
+  function showNext(name) {
+    var wrap = box.querySelector(".live-next-wrap"), dd = box.querySelector(".live-next");
+    if (!wrap) return;
+    var rows = Array.prototype.slice.call(document.querySelectorAll(".map-table tbody tr[data-map]")), next = [];
+    rows.forEach(function (tr, i) {
+      if (!name || !sameMap(tr.getAttribute("data-map"), name)) return;
+      var nx = rows[(i + 1) % rows.length];
+      if (nx && next.indexOf(nx) < 0) next.push(nx);
+    });
+    dd.textContent = "";
+    next.forEach(function (tr, k) {
+      if (k) dd.appendChild(document.createTextNode(" or "));
+      var link = tr.querySelector(".map-link"), a = document.createElement(link ? "a" : "span");
+      a.className = "map-chip";
+      var c = document.createElement("code"); c.textContent = tr.getAttribute("data-map"); a.appendChild(c);
+      if (link) { a.href = link.getAttribute("href"); a.title = "Open the map preview"; a.addEventListener("click", function (e) { e.preventDefault(); link.click(); }); }
+      dd.appendChild(a);
+    });
+    wrap.hidden = !next.length;
   }
 
   function showPlayers(players) {

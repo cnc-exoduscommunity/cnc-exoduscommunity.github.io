@@ -1,0 +1,9 @@
+{%- comment %} A dd-mm-yyyy date written out: {% include long-date.html date="09-11-2026" %} -> 9th of November 2026. {% endcomment -%}
+{%- assign ld_parts = include.date | split: "-" -%}
+{%- assign ld_day = ld_parts[0] | plus: 0 -%}
+{%- assign ld_month = ld_parts[1] | plus: 0 -%}
+{%- assign ld_months = "January,February,March,April,May,June,July,August,September,October,November,December" | split: "," -%}
+{%- assign ld_mod100 = ld_day | modulo: 100 -%}{%- assign ld_mod10 = ld_day | modulo: 10 -%}
+{%- if ld_mod100 >= 11 and ld_mod100 <= 13 %}{% assign ld_suffix = "th" %}{% elsif ld_mod10 == 1 %}{% assign ld_suffix = "st" %}{% elsif ld_mod10 == 2 %}{% assign ld_suffix = "nd" %}{% elsif ld_mod10 == 3 %}{% assign ld_suffix = "rd" %}{% else %}{% assign ld_suffix = "th" %}{% endif -%}
+{%- assign ld_mi = ld_month | minus: 1 -%}
+{{ ld_day }}{{ ld_suffix }} of {{ ld_months[ld_mi] }} {{ ld_parts[2] }}

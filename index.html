@@ -22,8 +22,9 @@ sections:
     <div class="news" aria-label="News">
       {%- for item in site.data.news limit: 2 %}
       <details class="news-item"{% if forloop.first %} open{% endif %}>
-        <summary><span class="news-label">News</span><span class="news-date">{{ item.date }}</span><span class="news-title">{{ item.title }}</span></summary>
-        <p class="news-text">{{ item.text }}{% if item.by %} <span class="news-by">- {{ item.by }}</span>{% endif %}{% if item.link %} <a href="{{ item.link }}" rel="noopener" target="_blank">Full announcement</a>{% endif %}</p>
+        {%- assign news_map = nil %}{% if item.map %}{% assign news_map = site.data.maps | where: "name", item.map | first %}{% endif %}
+        <summary><span class="badge-pulse badge-news"><span class="badge-dot" aria-hidden="true"></span>News</span><span class="news-date">{% include long-date.html date=item.date %}</span><span class="news-title">{{ item.title }}</span>{% if item.map %}<a class="map-chip" href="?map={{ item.map | url_encode }}" title="Open the map preview"><code>{{ item.map }}</code></a>{% if news_map.new %}{% assign map = news_map %}<span class="badge-pulse badge-new" title="New on the server since {% include long-date.html date=map.new %}"><span class="badge-dot" aria-hidden="true"></span>New</span>{% endif %}{% endif %}</summary>
+        <p class="news-text">{{ item.text }}{% if item.by %} <span class="news-by">- {{ item.by }}</span>{% endif %}{% if item.link %} <a href="{{ item.link }}" rel="noopener" target="_blank">Full announcement</a>{% if item.where %} ({{ item.where }}){% endif %}{% endif %}</p>
       </details>
       {%- endfor %}
     </div>
@@ -52,6 +53,7 @@ sections:
       </div>
       <dl class="live-grid">
         <div><dt>Current map</dt><dd class="live-map">-</dd></div>
+        <div class="live-next-wrap" hidden><dt>Next map</dt><dd class="live-next">-</dd></div>
         <div><dt>Faction</dt><dd class="live-faction">-</dd></div>
         <div><dt>Players</dt><dd class="live-players">-</dd></div>
         <div><dt>Time left</dt><dd class="live-time">-</dd></div>
@@ -164,7 +166,7 @@ sections:
   <summary class="panel-tab"><h2 class="panel-tab-title">Map rotation</h2></summary>
   <div class="panel-body">
     <p>The maps the server cycles through, in order. In game, type <code>!rotation</code> to see the list; the map currently being played is shown in <code>[brackets]</code>, for example <code>[M01]</code> which would be: <span class="team-badge team-badge-inline team-gdi">GDI</span> "Mission 2: Rescue and Retribution", or <code>[M00_Tutorial]</code> which would be: <span class="team-badge team-badge-inline team-nod">Nod</span> "Tutorial".</p>
-    <p class="hint">Click a row with <span class="map-link-icon-inline">{% include weapons-icon.svg %}</span> (weapons), <span class="map-link-icon-inline">{% include map-icon.svg %}</span> (map), <span class="map-link-icon-inline">{% include photo-icon.svg %}</span> (in-game photo), <span class="map-link-icon-inline">{% include map-photo-icon.svg %}</span> (both), <span class="map-link-icon-inline">{% include marks-icon.svg %}</span> (spots marked on the map) or <span class="map-link-icon-inline">{% include objectives-icon.svg %}</span> (objectives) to open its preview.</p>
+    <p class="hint map-legend">Click a row to open its preview. Each row shows <span class="debug-icon">{% include weapons-icon.svg %}</span> (weapons), <span class="debug-icon">{% include map-icon.svg %}</span> (map), <span class="debug-icon">{% include photo-icon.svg %}</span> (in-game photo), <span class="debug-icon">{% include marks-icon.svg %}</span> (spots marked on the map) and <span class="debug-icon">{% include objectives-icon.svg %}</span> (objectives): <span class="debug-icon">{% include map-icon.svg %}</span> in this colour when the map has it, <span class="debug-icon is-missing">{% include map-icon.svg %}</span> in this colour when it doesn't yet. <span class="map-legend-note">These colours change with your theme (GDI / Nod).</span></p>
     {%- assign map_exts = "webp,png,jpg,jpeg" | split: "," %}
     <div class="table-wrap">
       <table class="map-table">
@@ -217,7 +219,7 @@ sections:
                 </span>
                 {%- include map-icons-debug.html -%}
                 <code>{{ map.name }}</code></a>
-              {%- if map.new %}<span class="map-tag-new" title="New on the server since {{ map.new | escape }}">New</span>{% endif -%}
+              {%- if map.new %}<span class="badge-pulse badge-new" title="New on the server since {% include long-date.html date=map.new %}"><span class="badge-dot" aria-hidden="true"></span>New</span>{% endif -%}
               {%- else -%}
               {%- include map-icons-debug.html -%}
               <code>{{ map.name }}</code>

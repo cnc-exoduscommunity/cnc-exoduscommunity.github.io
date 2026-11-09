@@ -140,7 +140,7 @@ h3 { margin-top: 1.75rem; font-size: 1.3rem; }
 }
 
 .header-inner {
-  max-width: 1200px;
+  max-width: 95vw;
   margin: 0 auto;
   padding: 0.6rem 1rem;
   display: flex;
@@ -231,7 +231,7 @@ h3 { margin-top: 1.75rem; font-size: 1.3rem; }
 
 /* ---------- Page ---------- */
 
-.content { max-width: 1200px; margin: 0 auto; padding: 1.75rem 1rem 2rem; }
+.content { max-width: 95vw; margin: 0 auto; padding: 1.75rem 1rem 2rem; }
 
 .page-title { margin: 0.25rem 0 0.25rem; font-size: clamp(2.2rem, 6vw, 3.2rem); text-transform: none; }
 .lead { margin: 0 0 1.75rem; color: var(--muted); font-size: 1.05rem; }
@@ -416,7 +416,7 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 /* ---------- Footer ---------- */
 
 .site-footer {
-  max-width: 1200px;
+  max-width: 95vw;
   margin: 0 auto;
   padding: 1rem;
   border-top: 1px solid var(--border-soft);
@@ -448,14 +448,18 @@ td:has(> .os-icon:only-child) { text-align: center; width: 1%; }
 .map-cell .map-link-icon, .map-cell .map-objectives-icon, .map-cell .map-weapons-icon, .map-cell .map-marks-icon { width: 2rem; height: 2rem; }
 .map-marks-icon { color: var(--link); flex: none; }
 .map-icons, .map-icons-debug { display: inline-flex; align-items: center; gap: 0.4rem; }
-.map-icons:empty { display: none; }
-/* Debug mode (switch at the bottom of the page): every icon, the missing ones in red. */
-.map-icons-debug { display: none; }
-html[data-debug] .map-icons { display: none; }
-html[data-debug] .map-icons-debug { display: inline-flex; }
+/* Every row shows all its icons: "has it" in one colour, "not yet" in the other. GDI: yellow =
+   has it, red = not yet; Nod: the other way round. Not changed by GDI rows on the Nod theme. */
+:root { --icon-have: #ffc93a; --icon-miss: #ff3b30; }
+:root[data-theme="light"] { --icon-have: #a87300; --icon-miss: #d70015; }
+:root[data-side="nod"] { --icon-have: #ff4f3f; --icon-miss: #ffc93a; }
+:root[data-theme="light"][data-side="nod"] { --icon-have: #b3001b; --icon-miss: #a87300; }
+.map-icons { display: none; }
 .debug-icon { display: inline-flex; }
-.debug-icon.is-missing .icon { color: #ff3b30; opacity: 0.9; }
-[data-theme="light"] .debug-icon.is-missing .icon { color: #d70015; }
+.debug-icon .icon { color: var(--icon-have) !important; }
+.debug-icon.is-missing .icon { color: var(--icon-miss) !important; opacity: 0.9; }
+.map-legend .debug-icon .icon { width: 1.15em; height: 1.15em; vertical-align: -0.2em; }
+.map-legend-note { color: var(--muted); font-style: italic; }
 .map-link-icon-inline .icon { vertical-align: -0.15em; color: var(--link); }
 
 /* Full-screen dialog: round prev/next buttons hug the map panel's sides (like the Gears DB map modal). */
@@ -824,7 +828,7 @@ tr.has-preview:hover .map-link code { border-color: var(--link); }
 .map-table th:nth-child(2), .map-table th:nth-child(3),
 .map-table td.now-cell, .map-table td.col-fit:not(.now-cell) { text-align: center; }
 /* Every badge in the table (Now playing, GDI, Nod) has the same height, on every row. */
-.map-table td .now-playing {
+.map-table td .now-playing, .map-table td .badge-next {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1601,9 +1605,28 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .news-text { margin: 0; padding: 0 0.7rem 0.55rem; }
 .news-by { color: var(--muted); }
 [data-theme="light"] .news-item { background: rgba(255, 255, 255, 0.5); }
-/* "New" right after a map's name (table and preview). */
-.map-tag-new { display: inline-block; margin-left: 0.5rem; padding: 0.05rem 0.45rem; border: 1px solid #2fa84f; border-radius: 3px; background: rgba(47, 168, 79, 0.18); color: #6fe08f; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; line-height: 1.3; text-transform: uppercase; vertical-align: middle; white-space: nowrap; }
-.map-dialog-new { font-size: 0.8rem; }
+/* Badges like "Now playing" (pill, glowing dot that pulses): News, New, Next. */
+.badge-pulse { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.5rem; border: 1px solid var(--bp); border-radius: 3px; background: var(--bp-bg); color: var(--bp-text);
+  font-family: "Oswald", "Arial Narrow", Impact, sans-serif; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; line-height: 1.2; text-transform: uppercase; white-space: nowrap; vertical-align: middle;
+  box-shadow: 0 0 8px var(--bp-glow); animation: badge-glow 1.6s ease-in-out infinite; }
+.badge-dot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--bp); box-shadow: 0 0 6px var(--bp); animation: badge-dot 1.6s ease-in-out infinite; }
+@keyframes badge-glow { 50% { box-shadow: 0 0 16px var(--bp-glow); } }
+@keyframes badge-dot { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .badge-pulse, .badge-dot { animation: none; } }
+.badge-news { --bp: #ffb020; --bp-bg: rgba(48, 30, 0, 0.88); --bp-text: #ffd27a; --bp-glow: rgba(255, 176, 32, 0.55); }
+.badge-new { --bp: #2ed3ff; --bp-bg: rgba(0, 32, 48, 0.88); --bp-text: #8eeaff; --bp-glow: rgba(46, 211, 255, 0.55); margin-left: 0.5rem; }
+.badge-next { --bp: #c9a57a; --bp-bg: rgba(40, 26, 10, 0.85); --bp-text: #f0d8b0; --bp-glow: rgba(201, 165, 122, 0.25); animation: none; }
+.badge-next .badge-dot { animation: none; }
+[data-theme="light"] .badge-news { --bp-bg: #fff4dc; --bp-text: #8a5200; --bp: #d98a00; }
+[data-theme="light"] .badge-new { --bp-bg: #e3f8ff; --bp-text: #005f7a; --bp: #0096c7; }
+[data-theme="light"] .badge-next { --bp-bg: #f6ecdc; --bp-text: #6a4a20; --bp: #a07840; }
+.map-dialog-new { margin-left: 0.6rem; }
+/* A map's name as a chip (news, live status), like in the rotation table; opens its preview. */
+.map-chip { text-decoration: none; }
+.map-chip code { padding: 0.1rem 0.45rem; border: 1px solid var(--border-soft); border-radius: 3px; background: var(--code-bg); color: var(--link); }
+.map-chip:hover code { border-color: var(--link); background: var(--row-hover); }
+.news-title + .map-chip { margin-left: -0.2rem; }
+.news-label { display: none; }
 /* Floor picker on the map (as in RenegadeViewer): up, a bar per floor ("All" on top), down, name. */
 .floor-widget { position: absolute; right: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 5; width: 3.6rem; padding: 0.35rem; display: flex; flex-direction: column; align-items: stretch; gap: 0.25rem;
   background: linear-gradient(180deg, #3a3532, #26221f); border: 2px solid #55504b; border-radius: 6px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.65); user-select: none; }

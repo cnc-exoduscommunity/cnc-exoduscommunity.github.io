@@ -318,7 +318,7 @@ same spot fan out so each can be seen.
 
 In the map preview, hovering a mark shows its name, amount, floor, what it leads to, note and first picture; clicking it
 keeps the card open and steps through all its pictures. The chips under the map switch a kind on or off, and a **Floor**
-list (also set by the layering floor) shows one floor's marks. Rows with marks get a pin icon in the table.
+list (also set by the layering floor) shows one floor's marks. Every row in the table shows all five icons (weapons, map, in-game photo, marks, objectives): on the GDI theme yellow means the map has it and red that it doesn't yet, on the Nod theme the other way round.
 
 To change marks or a map's game info, open the **Map marker** tool (Index > Tools, or `/tools/map-marker/`):
 
@@ -359,7 +359,7 @@ It converts each sound to a small `.m4a` (skipping ones already done) and writes
 ### Debug mode
 
 The **Debug mode** switch at the bottom of every page (or `?debug=1` / `?debug=0` in the address, which is also remembered)
-makes the map table show every icon, with the missing ones in red, and adds a **Debug panel** at the bottom of the home page:
+adds a **Debug panel** at the bottom of the home page:
 a checklist of which maps have weapons, a map image, an in-game photo, marks, objectives and a faction. Hover a red cross to
 see which file or field it needs.
 
