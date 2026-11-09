@@ -32,6 +32,11 @@ sections:
       <div><dt>Location</dt><dd>Hosted in {{ site.server.location }}</dd></div>
       <div><dt>Address</dt><dd><code>{{ site.server.address }}</code></dd></div>
       <div><dt>Server time</dt><dd class="server-time" data-utc-offset="{{ site.server.utc_offset | default: 0 }}">-</dd></div>
+      {%- assign lim = site.server.limits %}
+      {%- if lim %}
+      {%- assign lim_h = lim.time_minutes | divided_by: 60 %}{% assign lim_m = lim.time_minutes | modulo: 60 %}
+      <div class="server-limits"><dt>Map limits</dt><dd>Time {% if lim_m == 0 %}{{ lim_h }} hour{% if lim_h != 1 %}s{% endif %}{% else %}{{ lim.time_minutes }} min{% endif %}{% if lim_m == 0 %} ({{ lim.time_minutes }} min){% endif %}, Mines {{ lim.mines }}, Vehicles {{ lim.vehicles }}{% if lim.vehicles_note %} <span class="muted">({{ lim.vehicles_note }})</span>{% endif %}</dd></div>
+      {%- endif %}
     </dl>
     {%- if site.server.status_url %}
     {%- comment %} Live status, filled in by site.js: from CnCNet's list, or the server itself (status.json) as a backup. Hidden without JavaScript. {% endcomment %}

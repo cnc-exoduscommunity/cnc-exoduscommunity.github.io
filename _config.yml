@@ -22,8 +22,15 @@ server:
   join_url: "renegade://85.215.107.108:4852"
   location: "Europe"
   # The server's clock, in hours from UTC (shown as "Server time" and in the live status).
-  # 1 = UTC+1 (what the server showed on 09-11-2026: 12:29 when it was 11:29 UTC); 0 = UTC.
-  utc_offset: 1
+  # 0 = UTC (the server runs on UTC); 1 = UTC+1, and so on.
+  utc_offset: 0
+  # The limits the server sets on every map (BRenBot: "Settings for <map>.mix: Time Limit: 120,
+  # Mine Limit: 60, Vehicle Limit: 20"). Shown in the Message Of The Day.
+  limits:
+    time_minutes: 120
+    mines: 60
+    vehicles: 20
+    vehicles_note: "the vehicle limit only counts the players' vehicles"
   # Live status (map, faction, players, time left), checked by the visitor's
   # browser every minute. First choice: status.json from the "Server status"
   # workflow, which asks the server itself every ~5 minutes. Fallback when that
