@@ -1,0 +1,1 @@
+[{"kind":"spawn","name":"GDI Soldier","icon":"hud_c&c_gdilogo","count":1,"team":"GDI","preset":"GDI_MiniGunner_0","x":50.18,"y":34.83,"floor":1},{"kind":"spawn","name":"Nod Soldier","icon":"hud_c&c_nodlogo","count":1,"team":"Nod","preset":"Nod_Minigunner_0","x":50.03,"y":37.23,"floor":1}]

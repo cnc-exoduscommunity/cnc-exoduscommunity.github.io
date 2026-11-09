@@ -26,6 +26,7 @@ The maps the server cycles through, in order. In game, type `!rotation` to see t
 | Map | Campaign name / Note |
 | :-- | :------------------- |
 | [ttm1](assets/images/maps/ttm1.webp) | Custom map |
+| [Glacier_Flying](assets/images/maps/Glacier_Flying.webp) | **New:** AOW map, modified for Co-Op by SarahDX (in the rotation twice, also after Hourglass) |
 | [City](assets/images/maps/City.webp) | Original multiplayer map, changed to allow co-op |
 | [Complex](assets/images/maps/Complex.webp) | Original multiplayer map, changed to allow co-op |
 | [Walls](assets/images/maps/Walls.webp) | Original multiplayer map, changed to allow co-op |
@@ -38,6 +39,7 @@ The maps the server cycles through, in order. In game, type `!rotation` to see t
 | [Volcano](assets/images/maps/Volcano.webp) | Original multiplayer map, changed to allow co-op |
 | [Islands](assets/images/maps/Islands.webp) | Original multiplayer map, changed to allow co-op |
 | [Hourglass](assets/images/maps/Hourglass.webp) | Original multiplayer map, changed to allow co-op |
+| [Glacier_Flying](assets/images/maps/Glacier_Flying.webp) | (second time in the rotation) |
 | [Skirmish00](assets/images/maps/Skirmish00.webp) | Original skirmish map |
 | [M00_Tutorial](assets/images/maps/M00_Tutorial.webp) | Tutorial - campaign training level |
 | [M13](assets/images/maps/M13.webp) | Mission 1: The Scorpion Hunters - the first mission's file is numbered 13 |

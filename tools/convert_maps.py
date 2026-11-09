@@ -214,4 +214,5 @@ if __name__ == "__main__":
     for f in folders:
         if os.path.isdir(f):
             convert(f, layers="--no-layers" not in sys.argv)
-            hd_layers(f)
+            if "--no-hd-layers" not in sys.argv:
+                hd_layers(f)

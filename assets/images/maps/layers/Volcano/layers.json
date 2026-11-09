@@ -1,0 +1,39 @@
+{
+  "map": "Volcano",
+  "box": [
+    0,
+    0,
+    16384,
+    15474
+  ],
+  "source_size": [
+    16384,
+    15474
+  ],
+  "m_per_px": 0.028,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3 (bottom)"
+    }
+  ],
+  "hd_layers": [
+    "empty",
+    "filled",
+    "floor-1",
+    "floor-2",
+    "floor-3"
+  ]
+}

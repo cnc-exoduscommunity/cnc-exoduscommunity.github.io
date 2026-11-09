@@ -1,0 +1,39 @@
+{
+  "map": "Canyon",
+  "box": [
+    0,
+    0,
+    11981,
+    16384
+  ],
+  "source_size": [
+    11981,
+    16384
+  ],
+  "m_per_px": 0.021,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3 (bottom)"
+    }
+  ],
+  "hd_layers": [
+    "empty",
+    "filled",
+    "floor-1",
+    "floor-2",
+    "floor-3"
+  ]
+}

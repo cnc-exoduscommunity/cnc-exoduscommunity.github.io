@@ -17,6 +17,17 @@ sections:
   <div class="panel-tab"><span class="panel-tab-title">Message Of The Day</span></div>
   <div class="panel-body">
     <p class="motd-text">Renz0r.net has merged with Exodus: more people on the same great server.</p>
+    {%- if site.data.news and site.data.news.size > 0 %}
+    {%- comment %} The newest news (_data/news.yml), short. {% endcomment %}
+    <div class="news" aria-label="News">
+      {%- for item in site.data.news limit: 2 %}
+      <details class="news-item"{% if forloop.first %} open{% endif %}>
+        <summary><span class="news-label">News</span><span class="news-date">{{ item.date }}</span><span class="news-title">{{ item.title }}</span></summary>
+        <p class="news-text">{{ item.text }}{% if item.by %} <span class="news-by">&mdash; {{ item.by }}</span>{% endif %}{% if item.link %} <a href="{{ item.link }}" rel="noopener" target="_blank">Full announcement</a>{% endif %}</p>
+      </details>
+      {%- endfor %}
+    </div>
+    {%- endif %}
     <dl class="server-info">
       <div><dt>Location</dt><dd>Hosted in {{ site.server.location }}</dd></div>
       <div><dt>Address</dt><dd><code>{{ site.server.address }}</code></dd></div>
@@ -246,7 +257,7 @@ sections:
               {%- elsif map.faction %}<span class="team-badge team-other">{{ map.faction }}</span>
               {%- else %}<span class="muted">-</span>{% endif -%}
             </td>
-            <td class="map-note"><span class="map-desc">{{ map.description }}</span>{% if map.note %}<span class="map-note-extra">{{ map.note | markdownify | remove: '<p>' | remove: '</p>' | strip }}</span>{% endif %}</td>
+            <td class="map-note">{% if map.new %}<span class="map-tag map-tag-new" title="Added on {{ map.new | escape }}">New</span>{% endif %}{% if map.rotation_times > 1 %}<span class="map-tag" title="Comes up {{ map.rotation_times }} times in each rotation">&times;{{ map.rotation_times }} in rotation</span>{% endif %}<span class="map-desc">{{ map.description }}</span>{% if map.note %}<span class="map-note-extra">{{ map.note | markdownify | remove: '<p>' | remove: '</p>' | strip }}</span>{% endif %}</td>
           </tr>
           {%- endfor %}
         </tbody>

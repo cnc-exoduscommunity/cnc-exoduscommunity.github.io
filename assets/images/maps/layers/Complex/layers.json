@@ -1,0 +1,44 @@
+{
+  "map": "Complex",
+  "box": [
+    0,
+    0,
+    9353,
+    16384
+  ],
+  "source_size": [
+    9353,
+    16384
+  ],
+  "m_per_px": 0.029,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3"
+    },
+    {
+      "n": 4,
+      "name": "Level 4 (bottom)"
+    }
+  ],
+  "hd_layers": [
+    "empty",
+    "filled",
+    "floor-1",
+    "floor-2",
+    "floor-3",
+    "floor-4"
+  ]
+}

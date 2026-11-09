@@ -1,0 +1,39 @@
+{
+  "map": "Glacier_Flying",
+  "box": [
+    0,
+    818,
+    14472,
+    15574
+  ],
+  "source_size": [
+    14472,
+    16384
+  ],
+  "m_per_px": 0.022,
+  "layers": [
+    "empty",
+    "filled"
+  ],
+  "floors": [
+    {
+      "n": 1,
+      "name": "Top"
+    },
+    {
+      "n": 2,
+      "name": "Level 2"
+    },
+    {
+      "n": 3,
+      "name": "Level 3 (bottom)"
+    }
+  ],
+  "hd_layers": [
+    "empty",
+    "filled",
+    "floor-1",
+    "floor-2",
+    "floor-3"
+  ]
+}

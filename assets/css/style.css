@@ -1591,3 +1591,16 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .mm-guide { display: flex; align-items: center; gap: 0.4rem; width: min(100%, 80vh); margin-top: 0.45rem; font-size: 0.9rem; cursor: pointer; }
 .mm-guide input { accent-color: var(--border); margin: 0; }
 .mm-guide-count { color: var(--muted); font-size: 0.8rem; }
+/* News in the Message Of The Day box. */
+.news { display: flex; flex-direction: column; gap: 0.35rem; margin: 0.2rem 0 0.9rem; }
+.news-item { border: 1px solid var(--border-soft); border-radius: 4px; background: rgba(0, 0, 0, 0.2); }
+.news-item summary { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.6rem; padding: 0.4rem 0.7rem; cursor: pointer; list-style-position: inside; }
+.news-label { padding: 0 0.4rem; border: 1px solid #c98a1a; border-radius: 3px; color: #ffcf5a; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.news-date { color: var(--muted); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+.news-title { color: var(--title); font-weight: 700; }
+.news-text { margin: 0; padding: 0 0.7rem 0.55rem; }
+.news-by { color: var(--muted); }
+[data-theme="light"] .news-item { background: rgba(255, 255, 255, 0.5); }
+/* Map rotation: New / in the rotation more than once. */
+.map-tag { display: inline-block; margin-right: 0.4rem; padding: 0 0.4rem; border: 1px solid var(--border-soft); border-radius: 3px; color: var(--muted); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em; vertical-align: 0.1em; white-space: nowrap; }
+.map-tag-new { border-color: #2fa84f; background: rgba(47, 168, 79, 0.18); color: #6fe08f; text-transform: uppercase; }
