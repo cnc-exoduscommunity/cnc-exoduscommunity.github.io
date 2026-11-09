@@ -630,6 +630,17 @@
   });
 
   // ---- The game's own marks as a guide ----
+  // The floor picker on the map, as in the map preview.
+  var floorWidget = makeFloorWidget(function (f) {
+    if (f && !layering.wanted) {
+      layering.wanted = true;
+      try { localStorage.setItem("mapLayering", "1"); } catch (e) {}
+      tryBox.checked = true;
+    }
+    layering.floor = showFloor = f;
+    view(); render();
+  });
+  viewport.appendChild(floorWidget.el);
   var guideBox = $("[data-mm-guide]");
   guideBox.checked = guide.on;
   guideBox.addEventListener("change", function () {
@@ -985,6 +996,9 @@
       else { setSrc(normal); if (st) hdWaiting = hd; }
     }
     hdProgress();
+    var fmeta = lay && layering.info[lay];
+    if (lay && !fmeta) layerMeta(lay);
+    if (typeof floorWidget !== "undefined") floorWidget.set(fmeta && fmeta !== "loading" ? fmeta.floors : [], layering.wanted ? layering.floor : "");
   }
 
   // A click outside the map and the side panel clears the selection.
@@ -1003,6 +1017,7 @@
     if (e.key === "+" || e.key === "=") { e.preventDefault(); zoom.in(); return; }
     if (e.key === "-" || e.key === "_") { e.preventDefault(); zoom.out(); return; }
     if (e.key === "0") { e.preventDefault(); zoom.reset(); return; }
+    if ((e.key === "PageUp" || e.key === "PageDown") && floorWidget.step(e.key === "PageUp" ? 1 : -1)) { e.preventDefault(); return; }
     var m = marks()[selected];
     if (e.key === "Escape" && linkPick) { linkPick = false; render(); return; }
     if (e.key === "Escape" && selected >= 0) { selected = -1; render(); return; }

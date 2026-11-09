@@ -18,6 +18,57 @@ function serverClock(d, offsetHours) {
   setInterval(tick, 15000);
 })();
 
+// Floor picker on the map (like RenegadeViewer's): up / down buttons, a bar per floor with
+// "All" on top, and the floor's name. onPick("") = all floors, onPick("2") = floor 2.
+function makeFloorWidget(onPick) {
+  var w = document.createElement("div");
+  w.className = "floor-widget";
+  w.hidden = true;
+  w.innerHTML = '<button type="button" class="fw-btn" data-fw="up" title="Floor up (Page Up)" aria-label="Floor up"><span class="fw-tri fw-up"></span></button>' +
+    '<div class="fw-bars" role="group" aria-label="Floors"></div>' +
+    '<button type="button" class="fw-btn" data-fw="down" title="Floor down (Page Down)" aria-label="Floor down"><span class="fw-tri fw-down"></span></button>' +
+    '<div class="fw-label">All</div>';
+  var bars = w.querySelector(".fw-bars"), label = w.querySelector(".fw-label");
+  var floors = [], cur = "";
+  ["pointerdown", "dblclick", "wheel", "click"].forEach(function (t) { w.addEventListener(t, function (e) { e.stopPropagation(); }, t === "wheel" ? { passive: true } : false); });
+  function index() { for (var i = 0; i < floors.length; i++) if (String(floors[i].n) === cur) return i; return -1; }
+  function pick(i) { onPick(i < 0 ? "" : String(floors[i].n)); }
+  function step(d) {   // d = +1 up (towards All), -1 down
+    if (w.hidden) return false;
+    var i = index();
+    var next = d > 0 ? (i <= 0 ? -1 : i - 1) : (i < 0 ? 0 : Math.min(floors.length - 1, i + 1));
+    if (next !== i) pick(next);
+    return true;
+  }
+  w.querySelector('[data-fw="up"]').addEventListener("click", function () { step(1); });
+  w.querySelector('[data-fw="down"]').addEventListener("click", function () { step(-1); });
+  function render() {
+    var i = index();
+    bars.textContent = "";
+    [{ n: "", name: "All floors" }].concat(floors).forEach(function (f, k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "fw-bar" + ((k === 0 ? i < 0 : k - 1 === i) ? " is-cur" : "") + (i < 0 ? " is-lit" : "");
+      b.title = k === 0 ? "All floors" : f.n + ": " + f.name;
+      b.setAttribute("aria-pressed", String(k === 0 ? i < 0 : k - 1 === i));
+      b.addEventListener("click", function () { pick(k - 1); });
+      bars.appendChild(b);
+    });
+    label.textContent = i < 0 ? "All" : floors[i].name || "Floor " + floors[i].n;
+  }
+  return {
+    el: w,
+    step: step,
+    // floors: [{ n, name }] from the map's layers.json; current: "" or the floor number.
+    set: function (fl, current) {
+      floors = Array.isArray(fl) ? fl : [];
+      cur = current ? String(current) : "";
+      w.hidden = floors.length < 2;
+      if (!w.hidden) render();
+    }
+  };
+}
+
 // "16-08-2025 18:38" -> "Saturday, 16 August 2025, 18:38" (written out, so the day and month can't be mixed up).
 function longDate(s) {
   var m = /^(\d{2})-(\d{2})-(\d{4})(?: (\d{2}):(\d{2}))?$/.exec(s || "");
@@ -535,6 +586,33 @@ function setUrlParam(key, value, fallback) {
       if (show) im.src = src(key); else im.removeAttribute("src");
     });
     Array.prototype.forEach.call(layerPanel.querySelectorAll("[data-layer-toggle]"), function (c) { c.disabled = !!floor; });
+  }
+  // The floor picker on the map: picking a floor turns the layering test on and shows that
+  // floor (and its marks); "All" is the whole map again.
+  var floorWidget = makeFloorWidget(function (f) {
+    if (f && !layering.wanted) {
+      layering.wanted = true;
+      try { localStorage.setItem("mapLayering", "1"); } catch (e) {}
+      if (layerPanel) layerPanel.querySelector("[data-layer-try]").checked = true;
+    }
+    layering.floor = marksFloor = f;
+    show(current);
+  });
+  var fwViewport = dialog.querySelector(".map-dialog-viewport");
+  if (fwViewport) fwViewport.appendChild(floorWidget.el);
+  function updateFloorWidget(link, view) {
+    var url = view === "map" && link && link.getAttribute("data-layers");
+    if (!url) { floorWidget.set([]); return; }
+    var meta = layering.info[url];
+    if (!meta) {
+      fetch(url).then(function (r) { return r.json(); }).then(function (m) {
+        layering.info[url] = m;
+        if (links[current] === link) updateFloorWidget(link, view);
+      }).catch(function () {});
+      floorWidget.set([]);
+      return;
+    }
+    floorWidget.set(meta.floors, layering.wanted ? layering.floor : "");
   }
   if (layerPanel) {
     var tryBox = layerPanel.querySelector("[data-layer-try]");
@@ -1251,6 +1329,7 @@ function setUrlParam(key, value, fallback) {
         clearLayers();
         if (layering.wanted && canLayer && view === "map" && link.getAttribute("data-layers")) layerOptions(link, function (l) { layerOptions(l, function () {}); });
       }
+      updateFloorWidget(link, view);
       if (layerPanel) {
         layerPanel.hidden = !(view === "map" && link.getAttribute("data-layers"));
         layerPanel.querySelector(".layer-opts").hidden = !(layering.wanted && canLayer);
@@ -1260,6 +1339,7 @@ function setUrlParam(key, value, fallback) {
       image.removeAttribute("src");
       image.alt = "";
       zoom.reset();
+      floorWidget.set([]);
     }
     image.hidden = !withImage;
     if (!withImage) { clearLayers(); if (layerPanel) layerPanel.hidden = true; }
@@ -1405,6 +1485,7 @@ function setUrlParam(key, value, fallback) {
     if (e.key === "+" || e.key === "=") { e.preventDefault(); zoom.in(); }
     if (e.key === "-" || e.key === "_") { e.preventDefault(); zoom.out(); }
     if (e.key === "0") { e.preventDefault(); zoom.reset(); }
+    if (e.key === "PageUp" || e.key === "PageDown") { if (floorWidget.step(e.key === "PageUp" ? 1 : -1)) e.preventDefault(); }
   });
   // Preload the neighbours so stepping through feels instant.
   image.addEventListener("load", function () {

@@ -287,6 +287,10 @@ top, from `_data/loadscreens.yml` (positions on the game's 640x480 grid).
 one (with a progress bar) so the details stay readable when zoomed in. Both zoom up to 1000% and keep the zoom when you
 switch, so seeing the blurry version is the viewer's choice. The choice is remembered per browser.
 
+**Floor picker** (maps with floors): the panel on the right of the map, as in RenegadeViewer. The arrows or Page Up /
+Page Down step through the floors, a click on a bar picks one, the top bar is "All". Picking a floor turns on the
+layering test and shows only that floor and its marks. The Map marker has it too.
+
 **Try out layering system?** (off by default): shows the map in parts you can switch on and off (Map, Units and
 objects, Editor) or one floor at a time. It follows Details: Low uses the 1600 px layer pictures, High the full-size ones
 in `layers/<map>/hd/`.

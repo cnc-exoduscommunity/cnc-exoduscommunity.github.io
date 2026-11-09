@@ -1604,3 +1604,18 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 /* "New" right after a map's name (table and preview). */
 .map-tag-new { display: inline-block; margin-left: 0.5rem; padding: 0.05rem 0.45rem; border: 1px solid #2fa84f; border-radius: 3px; background: rgba(47, 168, 79, 0.18); color: #6fe08f; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; line-height: 1.3; text-transform: uppercase; vertical-align: middle; white-space: nowrap; }
 .map-dialog-new { font-size: 0.8rem; }
+/* Floor picker on the map (as in RenegadeViewer): up, a bar per floor ("All" on top), down, name. */
+.floor-widget { position: absolute; right: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 5; width: 3.6rem; padding: 0.35rem; display: flex; flex-direction: column; align-items: stretch; gap: 0.25rem;
+  background: linear-gradient(180deg, #3a3532, #26221f); border: 2px solid #55504b; border-radius: 6px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.65); user-select: none; }
+.floor-widget[hidden] { display: none; }
+.fw-btn { height: 1.9rem; padding: 0; background: #2a1611; border: 2px solid #8a3a26; border-radius: 4px; display: grid; place-items: center; cursor: pointer; }
+.fw-btn:hover { border-color: #ff6a3a; background: #3a1a12; }
+.fw-tri { width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; }
+.fw-up { border-bottom: 11px solid #ff6a3a; }
+.fw-down { border-top: 11px solid #ff6a3a; }
+.fw-bars { display: flex; flex-direction: column; gap: 3px; padding: 4px; background: #111; border: 1px solid #000; border-radius: 3px; }
+.fw-bar { height: 0.75rem; padding: 0; border-radius: 2px; background: #3b3836; border: 1px solid #222; cursor: pointer; }
+.fw-bar.is-lit { background: linear-gradient(180deg, #b8b4ae, #8d8984); }
+.fw-bar.is-cur { background: linear-gradient(180deg, #f0e6d6, #c9bca8); box-shadow: 0 0 6px rgba(255, 204, 51, 0.65); }
+.fw-bar:hover { outline: 1px solid #ffcf3a; }
+.fw-label { text-align: center; font-size: 0.7rem; line-height: 1.15; color: #c9c2b8; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
