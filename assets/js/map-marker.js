@@ -118,7 +118,8 @@
     "#   buildings:       { players: gdi|nod (co-op maps: the players' side), gdi: [...], nod: [...],",
     "#                    note: \"...\" }, kinds from _data/buildings.yml, \"turret*2\" = 2 of them",
     "#   marks:           spots on the overhead image, one per line:",
-    "#     kind:   objective | spawn | secret | vehicle | pickup | teleport | other | note | line | arrow",
+    "#     kind:   objective | start | end | spawn | secret | vehicle | pickup | teleport | other | note | line | arrow",
+    "#             start / end: where the mission starts / ends (the side's logo, arrow out / in)",
     "#     id:     optional, a short name other marks can link to (e.g. keycard-1)",
     "#     x, y:   where on the image, in percent (0-100) from the left / top edge",
     "#     x2, y2: arrows and lines: where it ends (x, y is where it starts)",
@@ -335,6 +336,7 @@
     renderPlace();
     // The map's side: its GDI / Nod logo next to the list.
     var logo = document.querySelector("[data-mm-side]"), side = opt.getAttribute("data-faction");
+    MapMarks.side = side === "nod" || side === "gdi" ? side : "";
     if (logo) {
       var src = side && logo.getAttribute("data-logo-" + side);
       logo.hidden = !src;

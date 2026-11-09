@@ -1642,4 +1642,10 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .fw-bar.is-cur { background: linear-gradient(180deg, #f0e6d6, #c9bca8); box-shadow: 0 0 6px rgba(255, 204, 51, 0.65); }
 .fw-bar:hover { outline: 1px solid #ffcf3a; }
 .fw-label { text-align: center; font-size: 0.7rem; line-height: 1.15; color: #c9c2b8; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.live-next-badge { margin-left: 0.5rem; }
+/* Live status: the Current map / Next map headers are badges, so they stand out. */
+.live-grid dt .live-head-badge { letter-spacing: 0.1em; margin-bottom: 0.25rem; }
+/* Start / end marks: the map's side logo with a small arrow badge (out = start, in = end). */
+.map-mark-start { --mark: #2fa84f; }
+.map-mark-end { --mark: #d0453a; }
+.map-mark-dir { position: absolute; right: -0.45rem; bottom: -0.4rem; width: 0.95rem; height: 0.95rem; display: flex; align-items: center; justify-content: center; border: 1px solid #fff; border-radius: 50%; background: var(--mark); pointer-events: none; }
+.map-mark-dir .map-mark-glyph { width: 78%; height: 78%; }

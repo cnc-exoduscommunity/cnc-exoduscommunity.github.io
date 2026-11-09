@@ -102,6 +102,10 @@ var MapMarks = (function () {
                glyph: '<circle cx="8" cy="8" r="5.6" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="8" r="2.2"/>' },
     pickup:  { label: "Pickup", plural: "Pickups",
                glyph: '<path d="M2 4.5h12v9H2z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M7.1 6h1.8v2h2v1.8h-2v2H7.1v-2h-2V8h2z"/>' },
+    start:   { label: "Start", plural: "Starts", dir: "out",
+               glyph: '<path d="M4.6 6.6a4.8 4.8 0 1 0 6.8 0" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M7.15 11.6V4.6H5.2L8 1.3l2.8 3.3H8.85v7z"/>' },
+    end:     { label: "End", plural: "Ends", dir: "in",
+               glyph: '<path d="M4.6 6.6a4.8 4.8 0 1 0 6.8 0" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M7.15 1v6.9H5.2L8 11.2l2.8-3.3H8.85V1z"/>' },
     note:    { label: "Note", plural: "Notes",
                glyph: '<circle cx="8" cy="8" r="3.2"/>' },
     teleport: { label: "Teleport", plural: "Teleports",
@@ -113,7 +117,7 @@ var MapMarks = (function () {
     other:   { label: "Other", plural: "Other",
                glyph: '<path d="M6.9 2.5h2.2v6.8H6.9z"/><circle cx="8" cy="12.2" r="1.3"/>' }
   };
-  var ORDER = ["objective", "spawn", "secret", "vehicle", "pickup", "teleport", "other", "note", "line", "arrow"];
+  var ORDER = ["objective", "start", "end", "spawn", "secret", "vehicle", "pickup", "teleport", "other", "note", "line", "arrow"];
   // Kinds drawn as a line from x/y to x2/y2 instead of a badge.
   var LINES = { arrow: 1, line: 1 };
   // Styles of a line (style:): a visible wall (default) or an invisible one.
@@ -238,14 +242,16 @@ var MapMarks = (function () {
       var group = [p]; used[i] = true;
       for (var j = i + 1; j < pts.length; j++) {
         if (used[j]) continue;
-        if (group.some(function (g) { return Math.hypot(g.x - pts[j].x, g.y - pts[j].y) < size * 0.8; })) { group.push(pts[j]); used[j] = true; }
+        // Only marks near the first one join (no chains), so a crowded area doesn't become one huge ring.
+        if (Math.hypot(p.x - pts[j].x, p.y - pts[j].y) < size * 0.8) { group.push(pts[j]); used[j] = true; }
       }
       if (group.length < 2) return;
       var n = group.length, step = size * 0.62;
       group.forEach(function (g, k) {
         var dx, dy;
         if (n <= 4) { dx = (k - (n - 1) / 2) * step; dy = 0; }
-        else { var a = k / n * Math.PI * 2 - Math.PI / 2, r = step * n / (Math.PI * 2) + step * 0.3; dx = Math.cos(a) * r; dy = Math.sin(a) * r; }
+        else if (n <= 8) { var a = k / n * Math.PI * 2 - Math.PI / 2, r = step * n / (Math.PI * 2) + step * 0.3; dx = Math.cos(a) * r; dy = Math.sin(a) * r; }
+        else { var a2 = k * 2.39996, r2 = step * 0.62 * Math.sqrt(k + 0.5); dx = Math.cos(a2) * r2; dy = Math.sin(a2) * r2; }   // a tight sunflower
         g.m.style.setProperty("--dx", dx.toFixed(1) + "px");
         g.m.style.setProperty("--dy", dy.toFixed(1) + "px");
       });
@@ -254,6 +260,10 @@ var MapMarks = (function () {
   function icon(k) {
     return '<svg class="map-mark-glyph" viewBox="0 0 16 16" aria-hidden="true" focusable="false" fill="currentColor">' + KINDS[kind(k)].glyph + "</svg>";
   }
+  // The side of the map on screen ("gdi" / "nod"), set by the preview and the tool:
+  // start and end marks show its logo, with an arrow going out (start) or in (end).
+  var api = null;
+  var LOGOS = { gdi: "hud_c&c_gdilogo", nod: "hud_c&c_nodlogo" };
   // A mark on the map: a round badge at x/y (percent of the image).
   function marker(mark) {
     var k = kind(mark.kind);
@@ -273,6 +283,12 @@ var MapMarks = (function () {
       b.classList.add("has-icon");
       b.innerHTML = '<img class="map-mark-icon" alt="" src="' + iconUrl(mark.icon) + '">';
     }
+    // Start / end: the side's logo with a small arrow badge (out of / into a circle).
+    else if (KINDS[k].dir && LOGOS[api.side]) {
+      b.classList.add("has-icon", "has-side");
+      b.innerHTML = '<img class="map-mark-icon" alt="" src="' + iconUrl(LOGOS[api.side]) + '">' +
+        '<span class="map-mark-dir" aria-hidden="true">' + icon(k) + "</span>";
+    }
     // How many it gives (count: N); none or 0 = infinite, which needs no badge.
     if (COUNTED[k] && +mark.count > 0) {
       var c = document.createElement("span"); c.className = "map-mark-count"; c.textContent = "x" + (+mark.count);
@@ -286,7 +302,7 @@ var MapMarks = (function () {
   }
   // Where an image of a mark lives (a full link is used as is).
   function imageUrl(base, name) { return /^(https?:)?\//.test(name) ? name : base + name; }
-  return { KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE,
+  return api = { side: "", KINDS: KINDS, ORDER: ORDER, kind: kind, icon: icon, marker: marker, imageUrl: imageUrl, pogInfo: pogInfo, POG_BASE: POG_BASE,
            icons: icons, iconName: iconName, iconUrl: iconUrl, COUNTED: COUNTED, countText: countText, spread: spread,
            name: name, lines: lines, LINES: LINES, LINE_STYLES: LINE_STYLES };
 })();
@@ -1077,6 +1093,8 @@ function setUrlParam(key, value, fallback) {
     hidePop();
     marksLayer.textContent = "";
     var marks = noMarks ? [] : marksFor(link);
+    var sideOf = (link.closest("tr") && link.closest("tr").getAttribute("data-faction")) || "";
+    MapMarks.side = /nod/i.test(sideOf) ? "nod" : /gdi/i.test(sideOf) ? "gdi" : "";
     var counts = {};
     var visible = function (m) {
       return !hiddenKinds[MapMarks.kind(m.kind)] && !(marksFloor && m.floor && String(m.floor) !== marksFloor);
@@ -1797,13 +1815,6 @@ function makeZoom(viewport, img, label, onChange) {
       if (link) { a.href = link.getAttribute("href"); a.title = "Open the map preview"; a.addEventListener("click", function (e) { e.preventDefault(); link.click(); }); }
       dd.appendChild(a);
     });
-    if (next.length) {
-      var nb = document.createElement("span");
-      nb.className = "badge-pulse badge-next live-next-badge";
-      nb.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>Next';
-      nb.title = "Comes up after the map being played now";
-      dd.appendChild(nb);
-    }
     wrap.hidden = !next.length;
   }
 
