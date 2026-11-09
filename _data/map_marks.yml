@@ -42,6 +42,9 @@ ttm1:
     - { kind: spawn, x: 9.6, y: 52.8, icon: "hud_c&c_gdilogo" }
     - { kind: spawn, x: 9.2, y: 54.0 }
 
+Glacier_Flying:
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt, repairpad, guardtower*3], nod: [n_hon, n_air, n_ref, n_pp, obelisk, repairpad, turret*4] }
+
 City:
   terminal: full
   buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
@@ -206,6 +209,9 @@ Hourglass:
   weapons: ["Maintenance Tool", "Laser Rifle", "Rocket Launcher"]
   buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
 
+Glacier_Flying:
+  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt, repairpad, guardtower*3], nod: [n_hon, n_air, n_ref, n_pp, obelisk, repairpad, turret*4] }
+
 Skirmish00:
   terminal: full
   buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
@@ -275,16 +281,10 @@ M02:
 M03:
   terminal: no-vehicles
   marks:
-    - { kind: spawn, x: 52.4, y: 86.0, icon: "hud_c&c_gdilogo" }
-    - { kind: spawn, x: 51.7, y: 79.8 }
-    - { kind: objective, x: 47.0, y: 43.3, pog: m03_1_01 }
-    - { kind: objective, x: 86.3, y: 42.3, pog: m03_2_01 }
-    - { kind: objective, x: 82.0, y: 47.1, pog: m03_2_02 }
-    - { kind: objective, x: 77.7, y: 42.9, pog: m03_2_02 }
-    - { kind: objective, x: 88.6, y: 60.0, pog: m03_2_02 }
-    - { kind: objective, x: 79.1, y: 68.1, pog: m03_2_02 }
-    - { kind: objective, x: 3.2, y: 39.5, pog: m03_1_04 }
-    - { kind: objective, x: 48.1, y: 45.5, pog: m03_1_03 }
+    - { kind: end, x: 71.3, y: 52.7 }
+    - { kind: start, x: 49.6, y: 27.2 }
+    - { kind: teleport, x: 52.2, y: 41.1, label: "Teleport entrance", links: [teleport-exit] }
+    - { kind: teleport, id: teleport-exit, x: 42.3, y: 37.9, label: "Teleport exit" }
 
 M04:
   terminal: no-vehicles
@@ -365,9 +365,6 @@ City_Flying:
 
 Field:
   buildings: { gdi: [g_barracks, g_wf, g_ref, agt], nod: [n_hon, n_air, n_ref, obelisk, turret*2] }
-
-Glacier_Flying:
-  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt, repairpad, guardtower*3], nod: [n_hon, n_air, n_ref, n_pp, obelisk, repairpad, turret*4] }
 
 Walls_Flying:
   buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp], nod: [n_hon, n_air, n_ref, n_pp] }

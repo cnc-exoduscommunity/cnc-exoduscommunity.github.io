@@ -167,7 +167,7 @@
     if (!order.length) order = Array.prototype.map.call(mapSelect.options, function (o) { return o.value; });
     var all = {};
     Object.keys(d).concat(Object.keys(inf)).forEach(function (k) { all[k] = 1; });
-    var keys = order.filter(function (k) { return all[k]; })
+    var keys = order.filter(function (k, i) { return all[k] && order.indexOf(k) === i; })
       .concat(Object.keys(all).filter(function (k) { return order.indexOf(k) < 0; }).sort());
     if (!keys.length) return HEADER + "\n{}\n";
     return HEADER + "\n\n" + keys.map(function (k) {
@@ -363,6 +363,13 @@
   // ---- Drawing ----
   var showFloor = "";   // marks of one floor only ("" = all); marks without a floor always show
   function floorHidden(m) { return !!(showFloor && m.floor && String(m.floor) !== showFloor); }
+  // Arrows, walls and links are sized in screen pixels, so they're drawn again after zooming.
+  function drawLines() {
+    var list = marks();
+    var svg = MapMarks.lines(layer, list, function (m) { return !floorHidden(m) || list[selected] === m; });
+    var act = svg.querySelector('.map-arrow-hit[data-index="' + selected + '"]');
+    if (act) act.classList.add("is-active");
+  }
   function render() {
     var list = marks();
     layer.textContent = "";
@@ -399,9 +406,7 @@
       layer.appendChild(b);
     });
     MapMarks.spread(layer);
-    var svg = MapMarks.lines(layer, list, function (m) { return !floorHidden(m) || list[selected] === m; });
-    var act = svg.querySelector('.map-arrow-hit[data-index="' + selected + '"]');
-    if (act) act.classList.add("is-active");
+    drawLines();
     stage.classList.toggle("is-linking", !!linkPick);
     // The list beside the map: top of the list = drawn last (on top), like layers in an
     // image editor. Drag an item to move it.
@@ -846,7 +851,7 @@
 
   // ---- Zoom, Details (Low / High) and the layering test: as in the map preview ----
   // Remembered with the same settings as the preview (mapDetails, mapLayering).
-  var zoom = makeZoom(viewport, canvas, $("[data-mm-zoom-level]"), function () { MapMarks.spread(layer); });
+  var zoom = makeZoom(viewport, canvas, $("[data-mm-zoom-level]"), function () { MapMarks.spread(layer); drawLines(); });
   document.querySelectorAll("[data-mm-zoom]").forEach(function (b) {
     b.addEventListener("click", function () { zoom[b.getAttribute("data-mm-zoom")](); });
   });
