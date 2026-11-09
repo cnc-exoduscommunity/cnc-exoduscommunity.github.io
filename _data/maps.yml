@@ -7,8 +7,8 @@
 # faction: GDI or Nod - the side players are on. Leave it out to show "-".
 # image_credit: key from _data/credits.yml, shown under the map's preview.
 # new: optional, the date (dd-mm-yyyy) a map was added; shows a "New" tag. Remove it after a while.
-# rotation_times: optional, when the map is in the rotation more than once (listed once here,
-#   at its first place; the note can say where else it comes up).
+# again: true - the map comes up a second time in the rotation here; just "- name:" and
+#   "again: true", everything else is taken from its first place in the list.
 # ingame_credit: the same for the in-game photo (assets/images/ingame/<name>.webp); default fandom.
 # ingame_date: when that photo was taken (dd-mm-yyyy hh:mm), shown after its credit.
 #
@@ -20,10 +20,10 @@
   faction: GDI
 - name: Glacier_Flying
   description: "AOW map, modified for Co-Op by SarahDX"
-  note: "New stealth mechanics, random paradrops and a new way for the bots to pick targets. In the rotation twice for at least a week (here and after Hourglass)."
+  note: "New stealth mechanics, random paradrops and a new way for the bots to pick targets. In the rotation twice for at least a week."
   image_credit: renegadeviewer
+  faction: Nod
   new: "09-11-2026"
-  rotation_times: 2
 - name: City
   description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
@@ -72,6 +72,8 @@
   description: Original multiplayer map, changed to allow co-op
   image_credit: renegadeviewer
   faction: Nod
+- name: Glacier_Flying
+  again: true
 - name: Skirmish00
   description: Multiplayer Practice / Offline Skirmish mode
   note: "Played on the map `Under`"

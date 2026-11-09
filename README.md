@@ -26,7 +26,7 @@ The maps the server cycles through, in order. In game, type `!rotation` to see t
 | Map | Campaign name / Note |
 | :-- | :------------------- |
 | [ttm1](assets/images/maps/ttm1.webp) | Custom map |
-| [Glacier_Flying](assets/images/maps/Glacier_Flying.webp) | **New:** AOW map, modified for Co-Op by SarahDX (in the rotation twice, also after Hourglass) |
+| [Glacier_Flying](assets/images/maps/Glacier_Flying.webp) | New - AOW map, modified for Co-Op by SarahDX |
 | [City](assets/images/maps/City.webp) | Original multiplayer map, changed to allow co-op |
 | [Complex](assets/images/maps/Complex.webp) | Original multiplayer map, changed to allow co-op |
 | [Walls](assets/images/maps/Walls.webp) | Original multiplayer map, changed to allow co-op |
@@ -39,7 +39,7 @@ The maps the server cycles through, in order. In game, type `!rotation` to see t
 | [Volcano](assets/images/maps/Volcano.webp) | Original multiplayer map, changed to allow co-op |
 | [Islands](assets/images/maps/Islands.webp) | Original multiplayer map, changed to allow co-op |
 | [Hourglass](assets/images/maps/Hourglass.webp) | Original multiplayer map, changed to allow co-op |
-| [Glacier_Flying](assets/images/maps/Glacier_Flying.webp) | (second time in the rotation) |
+| [Glacier_Flying](assets/images/maps/Glacier_Flying.webp) | New - AOW map, modified for Co-Op by SarahDX |
 | [Skirmish00](assets/images/maps/Skirmish00.webp) | Original skirmish map |
 | [M00_Tutorial](assets/images/maps/M00_Tutorial.webp) | Tutorial - campaign training level |
 | [M13](assets/images/maps/M13.webp) | Mission 1: The Scorpion Hunters - the first mission's file is numbered 13 |
@@ -309,7 +309,7 @@ Spots on a map's overhead image: **objectives**, **spawn points**, **secrets**, 
 **other**, **notes** (small dots), **lines** (walls: solid white = visible, dashed red = invisible) and **arrows**. An objective mark can show the game's own objective picture; any other mark can show
 a HUD icon instead of its symbol (a pickup such as a keycard, health or the Data Disc, or the GDI / Nod logo). Marks can say
 which **floor** they're on, and secrets, vehicles, pickups and other can say **how many** there are (none = infinite, shown
-as ×N otherwise). A mark can **lead to** others (an objective that gives a keycard), drawn as a dash-dot line. Marks on the
+as xN otherwise). A mark can **lead to** others (an objective that gives a keycard), drawn as a dash-dot line. Marks on the
 same spot fan out so each can be seen.
 
 In the map preview, hovering a mark shows its name, amount, floor, what it leads to, note and first picture; clicking it

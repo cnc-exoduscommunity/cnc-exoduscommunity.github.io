@@ -1,3 +1,23 @@
+// A time on the server's clock (offsetHours from UTC), then the visitor's own time:
+// "12:29 UTC+1 (11:29 your time)", or "(same as your time)".
+function serverClock(d, offsetHours) {
+  var off = +offsetHours || 0;
+  function hm(h, m) { return String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0"); }
+  var s = new Date(d.getTime() + off * 3600000);
+  var zone = "UTC" + (off ? (off > 0 ? "+" : "-") + Math.abs(off) : "");
+  var mine = -d.getTimezoneOffset() / 60;
+  return hm(s.getUTCHours(), s.getUTCMinutes()) + " " + zone +
+    (mine === off ? " (same as your time)" : " (" + hm(d.getHours(), d.getMinutes()) + " your time)");
+}
+// "Server time" in the Message Of The Day, kept up to date.
+(function () {
+  var el = document.querySelector(".server-time[data-utc-offset]");
+  if (!el) return;
+  function tick() { el.textContent = serverClock(new Date(), el.getAttribute("data-utc-offset")); }
+  tick();
+  setInterval(tick, 15000);
+})();
+
 // "16-08-2025 18:38" -> "Saturday, 16 August 2025, 18:38" (written out, so the day and month can't be mixed up).
 function longDate(s) {
   var m = /^(\d{2})-(\d{2})-(\d{4})(?: (\d{2}):(\d{2}))?$/.exec(s || "");
@@ -196,7 +216,7 @@ var MapMarks = (function () {
     }
     // How many it gives (count: N); none or 0 = infinite, which needs no badge.
     if (COUNTED[k] && +mark.count > 0) {
-      var c = document.createElement("span"); c.className = "map-mark-count"; c.textContent = "\u00d7" + (+mark.count);
+      var c = document.createElement("span"); c.className = "map-mark-count"; c.textContent = "x" + (+mark.count);
       b.appendChild(c);
     }
     if (mark.floor) b.setAttribute("data-floor", mark.floor);
@@ -440,7 +460,7 @@ function setUrlParam(key, value, fallback) {
         var m = String(entry).split("*"), type = (buildings.types || {})[m[0]] || { name: m[0] }, count = +m[1] || 1;
         var it = document.createElement("span");
         it.className = "mdw-building";
-        it.setAttribute("data-tip-name", type.name + (count > 1 ? " ×" + count : ""));
+        it.setAttribute("data-tip-name", type.name + (count > 1 ? " x" + count : ""));
         if (type.hud) {
           var im = document.createElement("img");
           im.src = hudBase + encodeURI(type.hud + ".png").replace(/&/g, "%26");
@@ -1063,6 +1083,10 @@ function setUrlParam(key, value, fallback) {
   // when the map on screen is the one the server is playing.
   var playersTag = document.createElement("span");
   playersTag.className = "now-playing map-dialog-players";
+  // "New" right after the name, for maps new on the server (new: in _data/maps.yml).
+  var newTag = document.createElement("span");
+  newTag.className = "map-tag-new map-dialog-new";
+  newTag.textContent = "New";
   function updateNowPlaying() {
     var row = links[current] && links[current].closest("tr");
     var playing = !!(row && row.classList.contains("is-current"));
@@ -1074,6 +1098,8 @@ function setUrlParam(key, value, fallback) {
     playersTag.textContent = players ? players + " players" : "";
     playersTag.title = players && /nod/i.test(row.getAttribute("data-faction") || "") ? "On Nod maps the server can report 0 players while people are playing." : "";
     if (headline) {
+      var isNew = links[current] && links[current].getAttribute("data-new");
+      if (isNew) { newTag.title = "New on the server since " + isNew; headline.appendChild(newTag); } else if (newTag.parentNode) newTag.remove();
       if (players) headline.appendChild(playersTag); else if (playersTag.parentNode) playersTag.remove();
       headline.appendChild(nowBadge);
     }
@@ -1728,13 +1754,13 @@ function makeZoom(viewport, img, label, onChange) {
     source.textContent = "";
     if (kind === "direct") {
       var mins = Math.max(0, Math.round((Date.now() - when.getTime()) / 60000));
-      source.appendChild(document.createTextNode("Live from the server itself · checked " + clock(when) +
+      source.appendChild(document.createTextNode("Live from the server itself · checked " + serverClock(when, box.getAttribute("data-utc-offset")) +
         (mins ? ", " + mins + " min ago" : ", just now") + " · new check every ~5 minutes"));
     } else {
       source.appendChild(document.createTextNode("Fallback: live data from "));
       var a = el("a", null, cncnetName); a.href = cncnetUrl;
       source.appendChild(a);
-      source.appendChild(document.createTextNode(" · last checked " + clock(when) + " · refreshes every minute"));
+      source.appendChild(document.createTextNode(" · last checked " + serverClock(when, box.getAttribute("data-utc-offset")) + " · refreshes every minute"));
     }
   }
 
@@ -1854,7 +1880,7 @@ function makeZoom(viewport, img, label, onChange) {
           if (fresh) {
             // The server didn't answer a recent check, and CnCNet doesn't list it either.
             showMissing("offline", "Offline", function (n) {
-              n.textContent = "The server didn't answer the last check (" + clock(d.checked) + ").";
+              n.textContent = "The server didn't answer the last check (" + serverClock(d.checked, box.getAttribute("data-utc-offset")) + ").";
             });
             setBadge("direct"); setSource("direct", d.checked);
             return;
@@ -1865,7 +1891,7 @@ function makeZoom(viewport, img, label, onChange) {
           // CnCNet can't be reached.
           if (fresh) {
             showMissing("offline", "Offline", function (n) {
-              n.textContent = "The server didn't answer the last check (" + clock(d.checked) + ").";
+              n.textContent = "The server didn't answer the last check (" + serverClock(d.checked, box.getAttribute("data-utc-offset")) + ").";
             });
             setBadge("direct"); setSource("direct", d.checked);
             return;

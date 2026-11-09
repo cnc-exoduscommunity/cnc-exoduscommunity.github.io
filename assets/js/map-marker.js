@@ -372,7 +372,7 @@
       b.removeAttribute("data-index");
       b.setAttribute("data-ghost", i);
       b.title = (g.type ? g.type + " objective: " : "") + (g.name || MapMarks.KINDS[MapMarks.kind(g.kind)].label) +
-        (g.count > 0 ? " (\u00d7" + g.count + ")" : "") + (g.text ? "\n" + g.text : "") + "\n(from the game files - click to add it)";
+        (g.count > 0 ? " (x" + g.count + ")" : "") + (g.text ? "\n" + g.text : "") + "\n(from the game files - click to add it)";
       layer.appendChild(b);
       shownGuide++;
     });
@@ -1112,7 +1112,7 @@
       var sd = col.getAttribute("data-mm-blist"), items = parseB(b[sd]), ul = col.querySelector(".mm-chips");
       ul.textContent = "";
       items.forEach(function (it, i) {
-        var t = buildingTypes[it.k], nm = (t ? t.name : it.k) + (it.n > 1 ? " ×" + it.n : "");
+        var t = buildingTypes[it.k], nm = (t ? t.name : it.k) + (it.n > 1 ? " x" + it.n : "");
         ul.appendChild(chip(nm,
           function () { items.splice(i, 1); setB(sd, items); },
           it.n > 1 ? function () { it.n--; setB(sd, items); } : null,

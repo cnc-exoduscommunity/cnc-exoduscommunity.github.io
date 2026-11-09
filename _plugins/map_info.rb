@@ -41,6 +41,17 @@ module ExodusCommunity
       buildings = (site.data["buildings"] ||= {})
       by_map = (buildings["maps"] ||= {})
       info.each { |name, entry| by_map[name] = entry["buildings"] if entry["buildings"].is_a?(Hash) }
+      # "again: true": a map that comes up twice in the rotation; the second place takes
+      # everything from the first.
+      seen = {}
+      site.data["maps"] = (site.data["maps"] || []).map do |map|
+        if map["again"] && seen[map["name"]]
+          seen[map["name"]].merge("again" => true)
+        else
+          seen[map["name"]] ||= map
+          map
+        end
+      end
       site.data["map_marks"] = marks
       site.data["map_info"] = info
     end

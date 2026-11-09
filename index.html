@@ -23,7 +23,7 @@ sections:
       {%- for item in site.data.news limit: 2 %}
       <details class="news-item"{% if forloop.first %} open{% endif %}>
         <summary><span class="news-label">News</span><span class="news-date">{{ item.date }}</span><span class="news-title">{{ item.title }}</span></summary>
-        <p class="news-text">{{ item.text }}{% if item.by %} <span class="news-by">&mdash; {{ item.by }}</span>{% endif %}{% if item.link %} <a href="{{ item.link }}" rel="noopener" target="_blank">Full announcement</a>{% endif %}</p>
+        <p class="news-text">{{ item.text }}{% if item.by %} <span class="news-by">- {{ item.by }}</span>{% endif %}{% if item.link %} <a href="{{ item.link }}" rel="noopener" target="_blank">Full announcement</a>{% endif %}</p>
       </details>
       {%- endfor %}
     </div>
@@ -31,10 +31,11 @@ sections:
     <dl class="server-info">
       <div><dt>Location</dt><dd>Hosted in {{ site.server.location }}</dd></div>
       <div><dt>Address</dt><dd><code>{{ site.server.address }}</code></dd></div>
+      <div><dt>Server time</dt><dd class="server-time" data-utc-offset="{{ site.server.utc_offset | default: 0 }}">-</dd></div>
     </dl>
     {%- if site.server.status_url %}
     {%- comment %} Live status, filled in by site.js: from CnCNet's list, or the server itself (status.json) as a backup. Hidden without JavaScript. {% endcomment %}
-    <div class="live-status" data-status-url="{{ site.server.status_url }}" data-address="{{ site.server.address }}"{% if site.server.direct_status_url %} data-direct-url="{{ site.server.direct_status_url }}"{% endif %} data-cncnet-name="{{ site.server.status_source_name }}" data-cncnet-url="{{ site.server.status_source_url }}" hidden>
+    <div class="live-status" data-utc-offset="{{ site.server.utc_offset | default: 0 }}" data-status-url="{{ site.server.status_url }}" data-address="{{ site.server.address }}"{% if site.server.direct_status_url %} data-direct-url="{{ site.server.direct_status_url }}"{% endif %} data-cncnet-name="{{ site.server.status_source_name }}" data-cncnet-url="{{ site.server.status_source_url }}" hidden>
       <div class="live-head">
         <span class="source-badge" tabindex="0" hidden></span>
         <span class="live-dot" aria-hidden="true"></span>
@@ -201,7 +202,7 @@ sections:
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons or map.terminal -%}
-              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %}{% if layers_url %} data-layers="{{ layers_url | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
+              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %}{% if layers_url %} data-layers="{{ layers_url | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if map.new %} data-new="{{ map.new | escape }}"{% endif %}{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, marks, objectives (right). {% endcomment -%}
                 <span class="map-icons">
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
@@ -211,6 +212,7 @@ sections:
                 </span>
                 {%- include map-icons-debug.html -%}
                 <code>{{ map.name }}</code></a>
+              {%- if map.new %}<span class="map-tag-new" title="New on the server since {{ map.new | escape }}">New</span>{% endif -%}
               {%- else -%}
               {%- include map-icons-debug.html -%}
               <code>{{ map.name }}</code>
@@ -257,7 +259,7 @@ sections:
               {%- elsif map.faction %}<span class="team-badge team-other">{{ map.faction }}</span>
               {%- else %}<span class="muted">-</span>{% endif -%}
             </td>
-            <td class="map-note">{% if map.new %}<span class="map-tag map-tag-new" title="Added on {{ map.new | escape }}">New</span>{% endif %}{% if map.rotation_times > 1 %}<span class="map-tag" title="Comes up {{ map.rotation_times }} times in each rotation">&times;{{ map.rotation_times }} in rotation</span>{% endif %}<span class="map-desc">{{ map.description }}</span>{% if map.note %}<span class="map-note-extra">{{ map.note | markdownify | remove: '<p>' | remove: '</p>' | strip }}</span>{% endif %}</td>
+            <td class="map-note"><span class="map-desc">{{ map.description }}</span>{% if map.note %}<span class="map-note-extra">{{ map.note | markdownify | remove: '<p>' | remove: '</p>' | strip }}</span>{% endif %}</td>
           </tr>
           {%- endfor %}
         </tbody>
@@ -585,7 +587,7 @@ A checklist of what each map has and what's still missing. {% endcomment %}
           </tr>
         </thead>
         <tbody>
-          {%- for map in site.data.maps %}
+          {%- for map in site.data.maps %}{% if map.again %}{% continue %}{% endif %}
           {%- assign img_name = map.images_from | default: map.name %}
           {%- assign map_img = nil %}{% assign ingame_img = nil %}
           {%- for ext in map_exts %}
