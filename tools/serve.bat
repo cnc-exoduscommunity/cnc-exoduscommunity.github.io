@@ -46,6 +46,8 @@ echo.
 
 if "%JEKYLL_CLEAN%"=="1" (
     echo Removing the previous build...
+    rem The sounds folder in _site is a link to assets\sounds: remove the link only.
+    if exist "_site\assets\sounds" rmdir "_site\assets\sounds" 2>nul
     if exist "_site" rmdir /s /q "_site"
     if exist ".jekyll-cache" rmdir /s /q ".jekyll-cache"
     if exist ".jekyll-metadata" del ".jekyll-metadata"

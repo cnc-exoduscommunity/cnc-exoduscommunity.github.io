@@ -126,6 +126,10 @@ Open <http://localhost:4000>.
 
 - **Saving any file** (pages, layouts, `_data/`, CSS, images) rebuilds the whole site and the browser reloads by itself.
   The site is small, so a full rebuild takes about a second; Jekyll's cache (`.jekyll-cache`) keeps Markdown and styles that did not change.
+- **The sounds aren't copied:** the script adds `_config_dev.yml`, which leaves `assets/sounds` (10,000+ files) out of the
+  local build and links `_site/assets/sounds` to the real folder instead, so starting the server is much quicker. The
+  build also says when it's copying the other files (pictures, scripts) and how long that took. The GitHub build doesn't
+  use `_config_dev.yml`.
 - **Changing `_config.yml`** restarts the server by itself (`tools/serve.rb` watches it), because Jekyll only reads that file when it starts.
 
 | Option  | What it does |

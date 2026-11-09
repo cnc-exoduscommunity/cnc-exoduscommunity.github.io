@@ -37,6 +37,7 @@ echo
 
 if [ "$JEKYLL_CLEAN" = "1" ]; then
     echo "Removing the previous build..."
+    [ -L _site/assets/sounds ] && rm -f _site/assets/sounds   # a link to assets/sounds: remove the link only
     rm -rf _site .jekyll-cache .jekyll-metadata
 fi
 
