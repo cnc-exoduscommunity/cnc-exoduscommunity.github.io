@@ -92,3 +92,5 @@ exclude:
   - Gemfile.lock
   - vendor/
   - .bundle/
+  # Photo folders named by date and time (e.g. 08_11_2026_16_52_08): local only, never part of the site
+  - "??_??_????_??_??_??"
