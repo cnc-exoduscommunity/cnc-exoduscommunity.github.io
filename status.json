@@ -1,0 +1,31 @@
+{
+  "online": true,
+  "hostname": "! Exodus Co-Op",
+  "hostport": "4852",
+  "mapname": "M02",
+  "numplayers": 3,
+  "maxplayers": 36,
+  "timeleft": "1.56.10",
+  "players": [
+    {
+      "name": "CATMANFS",
+      "team": "GDI",
+      "score": 190,
+      "ping": 137
+    },
+    {
+      "name": "artemx89",
+      "team": "GDI",
+      "score": 148,
+      "ping": 65
+    },
+    {
+      "name": "BobbleHead_Joe",
+      "team": "GDI",
+      "score": 168,
+      "ping": 137
+    }
+  ],
+  "teams": [],
+  "checked_at": "2026-11-14T15:40:19Z"
+}
