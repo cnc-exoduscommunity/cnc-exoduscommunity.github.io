@@ -74,10 +74,11 @@
 - name: Glacier_Flying
   again: true
 - name: Skirmish00
-  description: Multiplayer Practice / Offline Skirmish mode
+  description: Multiplayer Practice / Offline Skirmish mode, rebuilt for co-op
   note: "Played on the map `Under`"
   image_credit: renegadeviewer
   faction: GDI
+  new: "23-11-2026"
 - name: M00_Tutorial
   description: Tutorial
   note: Campaign training level
@@ -124,6 +125,8 @@
   ingame_date: "11-08-2025 22:12"
   faction: GDI
   image_credit: renegadeviewer
+- name: Skirmish00
+  again: true
 - name: M07
   description: "Mission 8: Obelisk of Oppression"
   ingame_credit: ryanturner

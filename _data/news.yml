@@ -8,6 +8,19 @@
 #   by:    optional, who announced it
 #   link:  optional, where the full announcement is (e.g. the Discord message)
 #   where: optional, where that is, shown after the link (e.g. Discord)
+#   changes: optional, a list of fixes, one group per map ("Global" for the whole server):
+#            - { map: M02, items: ["...", "..."] }  (map: a map's name shows as a chip)
+- date: "23-11-2026"
+  title: "Skirmish remake & various fixes:"
+  map: Skirmish00
+  text: "Skirmish00 has been rebuilt for Co-Op from scratch by SarahDX, and is in the rotation twice for the time being. SarahDX also made these fixes:"
+  changes:
+    - { map: Glacier_Flying, items: ["Repair Gun added in the Nod base.", "Nuclear Strike Beacon added near the pedestal."] }
+    - { map: M02, items: ["Guard towers no longer respawn 10 times."] }
+    - { map: Global, items: ["Fix for a rare bug where players were placed on the wrong team."] }
+  by: Dethdeath
+  link: "https://discord.com/channels/1319786814227222678/1319809182689656883"
+  where: Discord
 - date: "09-11-2026"
   title: "New Co-Op map:"
   map: Glacier_Flying

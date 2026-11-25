@@ -24,7 +24,17 @@ sections:
       <details class="news-item"{% if forloop.first %} open{% endif %}>
         {%- assign news_map = nil %}{% if item.map %}{% assign news_map = site.data.maps | where: "name", item.map | first %}{% endif %}
         <summary><span class="badge-pulse badge-news"><span class="badge-dot" aria-hidden="true"></span>News</span><span class="news-date">{% include long-date.html date=item.date %}</span><span class="news-title">{{ item.title }}</span>{% if item.map %}<a class="map-chip" href="?map={{ item.map | url_encode }}" title="Open the map preview"><code>{{ item.map }}</code></a>{% if news_map.new %}{% assign map = news_map %}<span class="badge-pulse badge-new" title="New on the server since {% include long-date.html date=map.new %}"><span class="badge-dot" aria-hidden="true"></span>New</span>{% endif %}{% endif %}</summary>
-        <p class="news-text">{{ item.text }}{% if item.by %} <span class="news-by">- {{ item.by }}</span>{% endif %}{% if item.link %} <a href="{{ item.link }}" rel="noopener" target="_blank">Full announcement</a>{% if item.where %} ({{ item.where }}){% endif %}{% endif %}</p>
+        <p class="news-text">{{ item.text }}{% unless item.changes %}{% include news-by.html item=item %}{% endunless %}</p>
+        {%- if item.changes %}
+        <ul class="news-changes">
+          {%- for group in item.changes %}
+          {%- assign group_map = site.data.maps | where: "name", group.map | first %}
+          <li>{% if group_map %}<a class="map-chip" href="?map={{ group.map | url_encode }}" title="Open the map preview"><code>{{ group.map }}</code></a>{% else %}<strong>{{ group.map }}</strong>{% endif %}
+            <ul>{% for change in group.items %}<li>{{ change }}</li>{% endfor %}</ul></li>
+          {%- endfor %}
+        </ul>
+        <p class="news-text news-text-end">{% include news-by.html item=item %}</p>
+        {%- endif %}
       </details>
       {%- endfor %}
     </div>

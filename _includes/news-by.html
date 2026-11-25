@@ -1,0 +1,2 @@
+{%- comment %} Who announced a news item and the link to it. {% endcomment -%}
+{% if include.item.by %} <span class="news-by">- {{ include.item.by }}</span>{% endif %}{% if include.item.link %} <a href="{{ include.item.link }}" rel="noopener" target="_blank">Full announcement</a>{% if include.item.where %} ({{ include.item.where }}){% endif %}{% endif %}

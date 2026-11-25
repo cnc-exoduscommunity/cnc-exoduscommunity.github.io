@@ -43,6 +43,7 @@ ttm1:
     - { kind: spawn, x: 9.2, y: 54.0 }
 
 Glacier_Flying:
+  map_weapons: ["Maintenance Tool", "Nuclear Strike Beacon"]
   buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt, repairpad, guardtower*3], nod: [n_hon, n_air, n_ref, n_pp, obelisk, repairpad, turret*4] }
 
 City:
@@ -208,9 +209,6 @@ Hourglass:
     - "Now nuke the pedestal to end this. In the name of Kane."
   weapons: ["Maintenance Tool", "Laser Rifle", "Rocket Launcher"]
   buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt], nod: [n_hon, n_air, n_ref, n_pp, obelisk, turret*2] }
-
-Glacier_Flying:
-  buildings: { gdi: [g_barracks, g_wf, g_ref, g_pp, agt, repairpad, guardtower*3], nod: [n_hon, n_air, n_ref, n_pp, obelisk, repairpad, turret*4] }
 
 Skirmish00:
   terminal: full

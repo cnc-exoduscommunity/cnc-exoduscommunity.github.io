@@ -1654,3 +1654,9 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 @media (min-width: 601px) {
   .live-grid > div:first-child .live-map-note { width: 0; white-space: nowrap; }
 }
+/* News: a list of fixes, grouped per map. */
+.news-changes { margin: 0.1rem 0 0.35rem; padding: 0 0.7rem 0 2.1rem; }
+.news-changes > li { margin: 0.25rem 0; }
+.news-changes ul { margin: 0.15rem 0 0; padding-left: 1.2rem; }
+.news-text-end { padding-top: 0; }
+.news-text-end:empty { display: none; }
