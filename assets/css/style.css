@@ -1660,3 +1660,6 @@ html[data-debug] li.objective-missing { color: #ff3b30; }
 .news-changes ul { margin: 0.15rem 0 0; padding-left: 1.2rem; }
 .news-text-end { padding-top: 0; }
 .news-text-end:empty { display: none; }
+/* "Updated" (a map remade or changed a lot): like New, in violet. */
+.badge-updated { --bp: #b88cff; --bp-bg: rgba(30, 14, 52, 0.88); --bp-text: #dcc6ff; --bp-glow: rgba(184, 140, 255, 0.5); }
+[data-theme="light"] .badge-updated { --bp-bg: #f1e8ff; --bp-text: #5a2d9a; --bp: #8a55d6; }

@@ -23,7 +23,7 @@ sections:
       {%- for item in site.data.news limit: 2 %}
       <details class="news-item"{% if forloop.first %} open{% endif %}>
         {%- assign news_map = nil %}{% if item.map %}{% assign news_map = site.data.maps | where: "name", item.map | first %}{% endif %}
-        <summary><span class="badge-pulse badge-news"><span class="badge-dot" aria-hidden="true"></span>News</span><span class="news-date">{% include long-date.html date=item.date %}</span><span class="news-title">{{ item.title }}</span>{% if item.map %}<a class="map-chip" href="?map={{ item.map | url_encode }}" title="Open the map preview"><code>{{ item.map }}</code></a>{% if news_map.new %}{% assign map = news_map %}<span class="badge-pulse badge-new" title="New on the server since {% include long-date.html date=map.new %}"><span class="badge-dot" aria-hidden="true"></span>New</span>{% endif %}{% endif %}</summary>
+        <summary><span class="badge-pulse badge-news"><span class="badge-dot" aria-hidden="true"></span>News</span><span class="news-date">{% include long-date.html date=item.date %}</span><span class="news-title">{{ item.title }}</span>{% if item.map %}<a class="map-chip" href="?map={{ item.map | url_encode }}" title="Open the map preview"><code>{{ item.map }}</code></a>{% include map-badge.html map=news_map %}{% endif %}</summary>
         <p class="news-text">{{ item.text }}{% unless item.changes %}{% include news-by.html item=item %}{% endunless %}</p>
         {%- if item.changes %}
         <ul class="news-changes">
@@ -219,7 +219,7 @@ sections:
             <td><span class="map-cell">
               {%- assign preview_img = map_img | default: ingame_img %}
               {%- if preview_img or map.objectives or map.weapons or map.map_weapons or map.terminal -%}
-              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %}{% if layers_url %} data-layers="{{ layers_url | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if map.new %} data-new="{{ map.new | escape }}"{% endif %}{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
+              <a class="map-link" href="{% if preview_img %}{{ preview_img | relative_url }}{% else %}#map-rotation{% endif %}" data-has-image="{% if preview_img %}1{% else %}0{% endif %}"{% if hd_img %} data-hd="{{ hd_img | relative_url }}"{% endif %}{% if layers_url %} data-layers="{{ layers_url | relative_url }}"{% endif %} data-map-name="{{ map.name | escape }}"{% if map.new %} data-new="{{ map.new | escape }}"{% elsif map.updated %} data-updated="{{ map.updated | escape }}"{% endif %}{% if marks_key and map_img %} data-marks-key="{{ marks_key | escape }}"{% endif %} data-map-description="{{ map.description | escape }}"{% if map.note %} data-map-note="{{ map.note | escape }}"{% endif %}{% if map_img == nil and ingame_img %} data-credit-name="{{ ingame_credit.name | escape }}"{% if ingame_credit.url %} data-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% elsif credit %} data-credit-name="{{ credit.name | escape }}" data-credit-url="{{ credit.url | escape }}"{% endif %}{% if map_img and ingame_img %} data-ingame="{{ ingame_img | relative_url }}" data-ingame-credit-name="{{ ingame_credit.name | escape }}"{% if map.ingame_date %} data-ingame-date="{{ map.ingame_date | escape }}"{% endif %}{% if ingame_credit.url %} data-ingame-credit-url="{{ ingame_credit.url | escape }}"{% endif %}{% endif %}>
                 {%- comment %} Same order as the preview: weapons (left), map, marks, objectives (right). {% endcomment -%}
                 <span class="map-icons">
                 {%- if map.weapons or map.map_weapons %}{% include weapons-icon.svg %}{% endif -%}
@@ -229,7 +229,7 @@ sections:
                 </span>
                 {%- include map-icons-debug.html -%}
                 <code>{{ map.name }}</code></a>
-              {%- if map.new %}<span class="badge-pulse badge-new" title="New on the server since {% include long-date.html date=map.new %}"><span class="badge-dot" aria-hidden="true"></span>New</span>{% endif -%}
+              {%- include map-badge.html map=map -%}
               {%- else -%}
               {%- include map-icons-debug.html -%}
               <code>{{ map.name }}</code>

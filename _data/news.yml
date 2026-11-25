@@ -3,7 +3,7 @@
 #   date:  dd-mm-yyyy
 #   title: one line
 #   map:   optional, a map's name (as in _data/maps.yml), shown after the title as a map chip
-#          that opens its preview, with its New badge when it's new
+#          that opens its preview, with its New or Updated badge
 #   text:  a few sentences (a shortened version of the announcement)
 #   by:    optional, who announced it
 #   link:  optional, where the full announcement is (e.g. the Discord message)

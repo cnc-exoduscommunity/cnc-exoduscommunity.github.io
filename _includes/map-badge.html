@@ -1,0 +1,7 @@
+{%- comment %} A map's "New" badge (new: date) or "Updated" badge (updated: date, a map remade or
+changed a lot), from _data/maps.yml. New wins when a map has both. {% endcomment -%}
+{%- if include.map.new -%}
+<span class="badge-pulse badge-new" title="New on the server since {% include long-date.html date=include.map.new %}"><span class="badge-dot" aria-hidden="true"></span>New</span>
+{%- elsif include.map.updated -%}
+<span class="badge-pulse badge-new badge-updated" title="Updated on {% include long-date.html date=include.map.updated %}"><span class="badge-dot" aria-hidden="true"></span>Updated</span>
+{%- endif -%}

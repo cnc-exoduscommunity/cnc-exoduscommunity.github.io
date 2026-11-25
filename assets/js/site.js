@@ -87,6 +87,17 @@ function ordinalDate(s) {
   return d + t + " of " + months[+m[2] - 1] + " " + m[3];
 }
 
+// Turns el into a map's "New" badge (data-new) or "Updated" badge (data-updated) from
+// its link in the rotation table; returns el, or null when the map is neither.
+function mapBadge(link, el) {
+  var n = link.getAttribute("data-new"), u = link.getAttribute("data-updated");
+  if (!n && !u) return null;
+  el.className = (el.className.indexOf("map-dialog-new") >= 0 ? "map-dialog-new " : "") + "badge-pulse badge-new" + (n ? "" : " badge-updated");
+  el.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>' + (n ? "New" : "Updated");
+  el.title = n ? "New on the server since " + ordinalDate(n) : "Updated on " + ordinalDate(u);
+  return el;
+}
+
 // Map marks (spawn points, secrets, vehicles...) drawn on the overhead map images.
 // The marks come from _data/map_marks.yml; the Map marker tool (/tools/map-marker/)
 // places them. Shared by the map preview and the tool.
@@ -1207,8 +1218,7 @@ function setUrlParam(key, value, fallback) {
     playersTag.textContent = players ? players + " players" : "";
     playersTag.title = players && /nod/i.test(row.getAttribute("data-faction") || "") ? "On Nod maps the server can report 0 players while people are playing." : "";
     if (headline) {
-      var isNew = links[current] && links[current].getAttribute("data-new");
-      if (isNew) { newTag.title = "New on the server since " + ordinalDate(isNew); headline.appendChild(newTag); } else if (newTag.parentNode) newTag.remove();
+      if (links[current] && mapBadge(links[current], newTag)) headline.appendChild(newTag); else if (newTag.parentNode) newTag.remove();
       if (players) headline.appendChild(playersTag); else if (playersTag.parentNode) playersTag.remove();
       headline.appendChild(nowBadge);
       if (row && row.classList.contains("is-next") && !playing) headline.appendChild(nextTag); else if (nextTag.parentNode) nextTag.remove();
@@ -1777,13 +1787,8 @@ function makeZoom(viewport, img, label, onChange) {
       label.addEventListener("click", function (e) { e.preventDefault(); preview.click(); });
     }
     mapEl.appendChild(label);
-    if (preview && preview.getAttribute("data-new")) {
-      var nt = document.createElement("span");
-      nt.className = "badge-pulse badge-new";
-      nt.innerHTML = '<span class="badge-dot" aria-hidden="true"></span>New';
-      nt.title = "New on the server since " + ordinalDate(preview.getAttribute("data-new"));
-      mapEl.appendChild(nt);
-    }
+    var nt = preview && mapBadge(preview, document.createElement("span"));
+    if (nt) mapEl.appendChild(nt);
     showObjectives(row);
     showNext(name);
     if (row) {

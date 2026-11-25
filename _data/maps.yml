@@ -7,6 +7,8 @@
 # faction: GDI or Nod - the side players are on. Leave it out to show "-".
 # image_credit: key from _data/credits.yml, shown under the map's preview.
 # new: optional, the date (dd-mm-yyyy) a map was added; shows a "New" tag. Remove it after a while.
+# updated: optional, the date (dd-mm-yyyy) a map was remade or changed a lot; shows an
+#   "Updated" tag (like new:). Remove it after a while.
 # again: true - the map comes up a second time in the rotation here; just "- name:" and
 #   "again: true", everything else is taken from its first place in the list.
 # ingame_credit: the same for the in-game photo (assets/images/ingame/<name>.webp); default fandom.
@@ -78,7 +80,7 @@
   note: "Played on the map `Under`"
   image_credit: renegadeviewer
   faction: GDI
-  new: "23-11-2026"
+  updated: "23-11-2026"
 - name: M00_Tutorial
   description: Tutorial
   note: Campaign training level
