@@ -1,0 +1,19 @@
+{
+  "online": true,
+  "hostname": "! Exodus Co-Op",
+  "hostport": "4852",
+  "mapname": "C&C_Complex",
+  "numplayers": 1,
+  "maxplayers": 36,
+  "timeleft": "1.51.39",
+  "players": [
+    {
+      "name": "artemx89",
+      "team": "GDI",
+      "score": 665,
+      "ping": 68
+    }
+  ],
+  "teams": [],
+  "checked_at": "2026-11-28T11:15:25Z"
+}
